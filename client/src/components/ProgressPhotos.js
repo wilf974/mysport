@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import PhotoCarousel from './PhotoCarousel';
 import './ProgressPhotos.css';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
@@ -168,6 +169,40 @@ function ProgressPhotos({ userId }) {
     }
   };
 
+  // Grouper les photos par workout_id
+  const groupPhotosByWorkout = () => {
+    const groups = {};
+    const unassignedPhotos = [];
+
+    photos.forEach(photo => {
+      if (photo.workout_id) {
+        if (!groups[photo.workout_id]) {
+          groups[photo.workout_id] = {
+            photos: [],
+            workoutInfo: {
+              workout_id: photo.workout_id,
+              day_of_week: photo.day_of_week,
+              week_number: photo.week_number,
+              year: photo.year,
+              exercise_count: photo.exercise_count,
+              workout_date: photo.workout_date
+            }
+          };
+        }
+        groups[photo.workout_id].photos.push(photo);
+      } else {
+        unassignedPhotos.push(photo);
+      }
+    });
+
+    // Trier les groupes par date de workout (plus récent en premier)
+    const sortedGroups = Object.values(groups).sort((a, b) => {
+      return new Date(b.workoutInfo.workout_date) - new Date(a.workoutInfo.workout_date);
+    });
+
+    return { sortedGroups, unassignedPhotos };
+  };
+
   return (
     <div className="progress-photos">
       <div className="photos-header">
@@ -329,64 +364,81 @@ function ProgressPhotos({ userId }) {
           <small>Téléchargez vos photos avant/après pour suivre votre transformation</small>
         </div>
       ) : (
-        <div className="photos-grid">
-          {photos.map(photo => (
-            <div key={photo.id} className="photo-card">
-              <div className="photo-image-container">
-                {selectedPhotoId === photo.id && photo.photo_data ? (
-                  <img
-                    src={photo.photo_data}
-                    alt="Progress"
-                    className="photo-image"
-                  />
-                ) : (
-                  <div className="photo-placeholder">
-                    <div className="emoji-big">📸</div>
+        <div className="photos-section">
+          {(() => {
+            const { sortedGroups, unassignedPhotos } = groupPhotosByWorkout();
+
+            return (
+              <>
+                {/* Afficher les carrousels pour les photos liées à des séances */}
+                {sortedGroups.length > 0 && (
+                  <div className="carousel-section">
+                    <h3 className="section-title">📸 Séances d'entraînement</h3>
+                    {sortedGroups.map((group) => (
+                      <PhotoCarousel
+                        key={group.workoutInfo.workout_id}
+                        photos={group.photos}
+                        workoutInfo={group.workoutInfo}
+                        onDelete={handleDeletePhoto}
+                      />
+                    ))}
                   </div>
                 )}
-              </div>
 
-              <div className="photo-info">
-                <h4>{photo.muscle_focus}</h4>
-                <div className="photo-meta">
-                  <span className="date">
-                    {new Date(photo.photo_date).toLocaleDateString('fr-FR')}
-                  </span>
-                  {photo.weight && <span className="weight">{photo.weight} kg</span>}
-                </div>
-                {photo.workout_id && photo.day_of_week !== undefined && (
-                  <div className="workout-info-badge">
-                    <small>
-                      {(() => {
-                        const daysOfWeek = ['', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
-                        const dayName = daysOfWeek[photo.day_of_week] || 'Jour ' + photo.day_of_week;
-                        return `📅 ${dayName} - S${photo.week_number}/${photo.year}`;
-                      })()}
-                    </small>
-                    {photo.exercise_count !== undefined && (
-                      <small>🏋️ {photo.exercise_count} exercices</small>
-                    )}
+                {/* Afficher les photos sans séance associée */}
+                {unassignedPhotos.length > 0 && (
+                  <div className="unassigned-section">
+                    <h3 className="section-title">📷 Photos sans séance</h3>
+                    <div className="photos-grid">
+                      {unassignedPhotos.map(photo => (
+                        <div key={photo.id} className="photo-card">
+                          <div className="photo-image-container">
+                            {selectedPhotoId === photo.id && photo.photo_data ? (
+                              <img
+                                src={photo.photo_data}
+                                alt="Progress"
+                                className="photo-image"
+                              />
+                            ) : (
+                              <div className="photo-placeholder">
+                                <div className="emoji-big">📸</div>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="photo-info">
+                            <h4>{photo.muscle_focus}</h4>
+                            <div className="photo-meta">
+                              <span className="date">
+                                {new Date(photo.photo_date).toLocaleDateString('fr-FR')}
+                              </span>
+                              {photo.weight && <span className="weight">{photo.weight} kg</span>}
+                            </div>
+                            {photo.notes && <p className="notes">{photo.notes}</p>}
+                          </div>
+
+                          <div className="photo-actions">
+                            <button
+                              className={`btn btn-secondary btn-small ${selectedPhotoId === photo.id ? 'active' : ''}`}
+                              onClick={() => setSelectedPhotoId(selectedPhotoId === photo.id ? null : photo.id)}
+                            >
+                              {selectedPhotoId === photo.id ? '👁️ Masquer' : '👁️ Voir'}
+                            </button>
+                            <button
+                              className="btn btn-danger btn-small"
+                              onClick={() => handleDeletePhoto(photo.id)}
+                            >
+                              🗑️
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
-                {photo.notes && <p className="notes">{photo.notes}</p>}
-              </div>
-
-              <div className="photo-actions">
-                <button
-                  className={`btn btn-secondary btn-small ${selectedPhotoId === photo.id ? 'active' : ''}`}
-                  onClick={() => setSelectedPhotoId(selectedPhotoId === photo.id ? null : photo.id)}
-                >
-                  {selectedPhotoId === photo.id ? '👁️ Masquer' : '👁️ Voir'}
-                </button>
-                <button
-                  className="btn btn-danger btn-small"
-                  onClick={() => handleDeletePhoto(photo.id)}
-                >
-                  🗑️
-                </button>
-              </div>
-            </div>
-          ))}
+              </>
+            );
+          })()}
         </div>
       )}
     </div>
