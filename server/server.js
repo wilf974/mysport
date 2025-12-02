@@ -181,7 +181,12 @@ app.post('/api/progress', (req, res) => {
 app.get('/api/progress-photos/:userId', (req, res) => {
   const { userId } = req.params;
   db.all(
-    'SELECT id, photo_data, photo_date, muscle_focus, weight, notes FROM progress_photos WHERE user_id = ? ORDER BY photo_date DESC',
+    `SELECT p.id, p.photo_data, p.photo_date, p.muscle_focus, p.weight, p.notes, p.workout_id,
+            w.day_of_week, w.week_number, w.year, w.created_at as workout_date
+     FROM progress_photos p
+     LEFT JOIN workouts w ON p.workout_id = w.id
+     WHERE p.user_id = ?
+     ORDER BY p.photo_date DESC`,
     [userId],
     (err, rows) => {
       if (err) return res.status(500).json({ error: err.message });
@@ -204,14 +209,33 @@ app.get('/api/progress-photos/:userId/:photoId', (req, res) => {
 });
 
 // POST new progress photo
+// GET workouts for user (for photo association)
+app.get('/api/user-workouts/:userId', (req, res) => {
+  const { userId } = req.params;
+  db.all(
+    `SELECT w.id, w.day_of_week, w.week_number, w.year, w.created_at,
+            COUNT(we.id) as exercise_count
+     FROM workouts w
+     LEFT JOIN workout_exercises we ON w.id = we.workout_id
+     WHERE w.user_id = ?
+     GROUP BY w.id
+     ORDER BY w.created_at DESC`,
+    [userId],
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(rows);
+    }
+  );
+});
+
 app.post('/api/progress-photos', (req, res) => {
-  const { user_id, photo_data, muscle_focus, weight, notes } = req.body;
+  const { user_id, photo_data, muscle_focus, weight, notes, workout_id } = req.body;
   db.run(
-    'INSERT INTO progress_photos (user_id, photo_data, muscle_focus, weight, notes) VALUES (?, ?, ?, ?, ?)',
-    [user_id, photo_data, muscle_focus, weight, notes],
+    'INSERT INTO progress_photos (user_id, photo_data, muscle_focus, weight, notes, workout_id) VALUES (?, ?, ?, ?, ?, ?)',
+    [user_id, photo_data, muscle_focus, weight, notes, workout_id || null],
     function(err) {
       if (err) return res.status(500).json({ error: err.message });
-      res.json({ id: this.lastID, user_id, muscle_focus, weight, notes });
+      res.json({ id: this.lastID, user_id, muscle_focus, weight, notes, workout_id });
     }
   );
 });

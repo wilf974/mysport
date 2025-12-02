@@ -8,6 +8,7 @@ const MUSCLE_FOCUS = ['Poitrine', 'Dos', 'Épaules', 'Bras', 'Jambes', 'Abdomina
 
 function ProgressPhotos({ userId }) {
   const [photos, setPhotos] = useState([]);
+  const [workouts, setWorkouts] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [selectedPhotoId, setSelectedPhotoId] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -17,12 +18,23 @@ function ProgressPhotos({ userId }) {
   const [formData, setFormData] = useState({
     muscle_focus: 'Corps entier',
     weight: '',
-    notes: ''
+    notes: '',
+    workout_id: ''
   });
 
   useEffect(() => {
     fetchPhotos();
+    fetchWorkouts();
   }, []);
+
+  const fetchWorkouts = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/user-workouts/${userId}`);
+      setWorkouts(response.data);
+    } catch (err) {
+      console.error('Erreur lors du chargement des séances:', err);
+    }
+  };
 
   const fetchPhotos = async () => {
     try {
@@ -70,17 +82,37 @@ function ProgressPhotos({ userId }) {
         photo_data: selectedFile,
         muscle_focus: formData.muscle_focus,
         weight: formData.weight ? parseFloat(formData.weight) : null,
-        notes: formData.notes
+        notes: formData.notes,
+        workout_id: formData.workout_id ? parseInt(formData.workout_id) : null
       });
 
-      setPhotos([{ ...response.data, photo_date: new Date().toISOString() }, ...photos]);
+      // Find the selected workout if one was chosen
+      const selectedWorkout = formData.workout_id
+        ? workouts.find(w => w.id === parseInt(formData.workout_id))
+        : null;
+
+      const newPhoto = {
+        ...response.data,
+        photo_date: new Date().toISOString(),
+        photo_data: selectedFile,
+        ...(selectedWorkout && {
+          day_of_week: selectedWorkout.day_of_week,
+          week_number: selectedWorkout.week_number,
+          year: selectedWorkout.year,
+          workout_date: selectedWorkout.created_at,
+          exercise_count: selectedWorkout.exercise_count
+        })
+      };
+
+      setPhotos([newPhoto, ...photos]);
       setShowForm(false);
       setSelectedFile(null);
       setPreview(null);
       setFormData({
         muscle_focus: 'Corps entier',
         weight: '',
-        notes: ''
+        notes: '',
+        workout_id: ''
       });
     } catch (err) {
       console.error('Erreur:', err);
@@ -168,6 +200,27 @@ function ProgressPhotos({ userId }) {
             </div>
 
             <div className="form-group">
+              <label>Séance associée (optionnel)</label>
+              <select
+                name="workout_id"
+                value={formData.workout_id}
+                onChange={handleInputChange}
+              >
+                <option value="">-- Aucune séance --</option>
+                {workouts.map(workout => {
+                  const daysOfWeek = ['', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+                  const dayName = daysOfWeek[workout.day_of_week] || 'Jour ' + workout.day_of_week;
+                  const date = new Date(workout.created_at).toLocaleDateString('fr-FR');
+                  return (
+                    <option key={workout.id} value={workout.id}>
+                      {dayName} - Semaine {workout.week_number}/{workout.year} ({workout.exercise_count} exercices)
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+
+            <div className="form-group">
               <label>Notes</label>
               <textarea
                 name="notes"
@@ -231,6 +284,20 @@ function ProgressPhotos({ userId }) {
                   </span>
                   {photo.weight && <span className="weight">{photo.weight} kg</span>}
                 </div>
+                {photo.workout_id && photo.day_of_week !== undefined && (
+                  <div className="workout-info-badge">
+                    <small>
+                      {(() => {
+                        const daysOfWeek = ['', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+                        const dayName = daysOfWeek[photo.day_of_week] || 'Jour ' + photo.day_of_week;
+                        return `📅 ${dayName} - S${photo.week_number}/${photo.year}`;
+                      })()}
+                    </small>
+                    {photo.exercise_count !== undefined && (
+                      <small>🏋️ {photo.exercise_count} exercices</small>
+                    )}
+                  </div>
+                )}
                 {photo.notes && <p className="notes">{photo.notes}</p>}
               </div>
 

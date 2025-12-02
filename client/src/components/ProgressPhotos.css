@@ -213,6 +213,24 @@
   font-weight: 600;
 }
 
+.workout-info-badge {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(14, 165, 233, 0.08));
+  border-left: 3px solid var(--primary);
+  border-radius: 4px;
+}
+
+.workout-info-badge small {
+  display: block;
+  color: var(--dark);
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
 .notes {
   margin: 0;
   color: #666;

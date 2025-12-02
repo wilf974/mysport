@@ -88,14 +88,25 @@ function initDatabase() {
     CREATE TABLE IF NOT EXISTS progress_photos (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER NOT NULL,
+      workout_id INTEGER,
       photo_data LONGTEXT,
       photo_date DATETIME DEFAULT CURRENT_TIMESTAMP,
       muscle_focus TEXT,
       weight REAL,
       notes TEXT,
-      FOREIGN KEY(user_id) REFERENCES users(id)
+      FOREIGN KEY(user_id) REFERENCES users(id),
+      FOREIGN KEY(workout_id) REFERENCES workouts(id)
     )
   `);
+
+  // Ajouter la colonne workout_id si elle n'existe pas
+  db.run(`ALTER TABLE progress_photos ADD COLUMN workout_id INTEGER REFERENCES workouts(id)`, (err) => {
+    if (err && err.message.includes('duplicate column')) {
+      // La colonne existe déjà
+    } else if (err) {
+      console.error('Erreur lors de l\'ajout de workout_id:', err);
+    }
+  });
 
   // Table des mesures corporelles
   db.run(`
