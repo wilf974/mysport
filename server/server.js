@@ -74,13 +74,27 @@ app.get('/api/workouts/:userId/:week/:year', (req, res) => {
 
 // POST new workout day
 app.post('/api/workouts', (req, res) => {
-  const { user_id, day_of_week, week_number, year } = req.body;
+  const { user_id, day_of_week, week_number, year, duration } = req.body;
   db.run(
-    'INSERT INTO workouts (user_id, day_of_week, week_number, year) VALUES (?, ?, ?, ?)',
-    [user_id, day_of_week, week_number, year],
+    'INSERT INTO workouts (user_id, day_of_week, week_number, year, duration) VALUES (?, ?, ?, ?, ?)',
+    [user_id, day_of_week, week_number, year, duration || null],
     function(err) {
       if (err) return res.status(500).json({ error: err.message });
-      res.json({ id: this.lastID, user_id, day_of_week, week_number, year });
+      res.json({ id: this.lastID, user_id, day_of_week, week_number, year, duration: duration || null });
+    }
+  );
+});
+
+// PUT update workout duration
+app.put('/api/workouts/:id', (req, res) => {
+  const { id } = req.params;
+  const { duration } = req.body;
+  db.run(
+    'UPDATE workouts SET duration = ? WHERE id = ?',
+    [duration || null, id],
+    function(err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ id, duration: duration || null });
     }
   );
 });

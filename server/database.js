@@ -108,6 +108,15 @@ function initDatabase() {
     }
   });
 
+  // Ajouter la colonne duration si elle n'existe pas
+  db.run(`ALTER TABLE workouts ADD COLUMN duration INTEGER`, (err) => {
+    if (err && err.message.includes('duplicate column')) {
+      // La colonne existe déjà
+    } else if (err) {
+      console.error('Erreur lors de l\'ajout de duration:', err);
+    }
+  });
+
   // Table des mesures corporelles
   db.run(`
     CREATE TABLE IF NOT EXISTS body_measurements (

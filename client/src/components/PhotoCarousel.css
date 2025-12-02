@@ -34,6 +34,15 @@
   font-weight: 500;
 }
 
+.workout-duration {
+  font-size: 0.9rem;
+  background: var(--accent);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
 .photo-counter {
   font-weight: 600;
   color: var(--primary);

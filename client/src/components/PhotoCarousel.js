@@ -28,6 +28,7 @@ function PhotoCarousel({ photos, workoutInfo, onDelete }) {
           <h3 className="carousel-title">
             📅 {getDayName(workoutInfo.day_of_week)} - Semaine {workoutInfo.week_number}/{workoutInfo.year}
             <span className="exercise-count">🏋️ {workoutInfo.exercise_count} exercices</span>
+            {workoutInfo.duration && <span className="workout-duration">⏱️ {workoutInfo.duration} min</span>}
           </h3>
         )}
         <span className="photo-counter">{currentIndex + 1} / {photos.length}</span>

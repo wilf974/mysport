@@ -131,6 +131,76 @@
   font-size: 1.1rem;
 }
 
+.create-workout-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.create-workout-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.create-workout-form label {
+  font-weight: 600;
+  color: var(--dark);
+  font-size: 0.95rem;
+}
+
+.create-workout-form .form-control {
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.workout-duration-section {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(14, 165, 233, 0.08));
+  border-left: 4px solid var(--accent);
+  border-radius: 6px;
+}
+
+.duration-display h3 {
+  margin: 0 0 1rem 0;
+  color: var(--dark);
+  font-size: 1rem;
+}
+
+.duration-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.duration-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent);
+  padding: 0.5rem 1rem;
+  background: white;
+  border-radius: 4px;
+  border: 1px solid var(--accent);
+}
+
+.duration-edit {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.duration-edit .form-control {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
 @media (max-width: 600px) {
   .form-row {
     grid-template-columns: 1fr;

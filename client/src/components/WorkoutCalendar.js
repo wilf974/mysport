@@ -43,13 +43,14 @@ function WorkoutCalendar({ userId, exercises }) {
     }
   };
 
-  const handleAddWorkout = async (dayOfWeek) => {
+  const handleAddWorkout = async (dayOfWeek, duration = null) => {
     try {
       const response = await axios.post(`${API_URL}/workouts`, {
         user_id: userId,
         day_of_week: dayOfWeek,
         week_number: currentWeek,
-        year: currentYear
+        year: currentYear,
+        duration: duration
       });
       setWorkouts({
         ...workouts,
@@ -142,7 +143,7 @@ function WorkoutCalendar({ userId, exercises }) {
           workout={workouts[selectedDay]}
           userId={userId}
           exercises={exercises}
-          onAdd={() => handleAddWorkout(selectedDay)}
+          onAdd={(duration) => handleAddWorkout(selectedDay, duration)}
           onDelete={() => handleDeleteWorkout(workouts[selectedDay].id)}
           onClose={() => setShowModal(false)}
           onWorkoutUpdate={fetchWorkouts}

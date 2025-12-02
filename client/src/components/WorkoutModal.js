@@ -10,11 +10,14 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
   const [sets, setSets] = useState(3);
   const [reps, setReps] = useState(10);
   const [weight, setWeight] = useState(0);
+  const [duration, setDuration] = useState(workout?.duration || '');
+  const [isEditingDuration, setIsEditingDuration] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (workout) {
       fetchWorkoutExercises();
+      setDuration(workout.duration || '');
     }
   }, [workout]);
 
@@ -98,6 +101,27 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
     }
   };
 
+  const handleUpdateDuration = async () => {
+    if (!duration) {
+      alert('Veuillez entrer une durée');
+      return;
+    }
+
+    try {
+      await axios.put(`${API_URL}/workouts/${workout.id}`, {
+        duration: parseInt(duration)
+      });
+      setIsEditingDuration(false);
+      onWorkoutUpdate();
+    } catch (err) {
+      console.error('Erreur:', err);
+    }
+  };
+
+  const handleCreateWorkout = () => {
+    onAdd(duration ? parseInt(duration) : null);
+  };
+
   return (
     <div className="modal" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -109,12 +133,70 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
         {!workout ? (
           <div className="no-workout-modal">
             <p>Aucun entraînement planifié pour ce jour</p>
-            <button className="btn btn-primary" onClick={() => { onAdd(); }}>
-              Créer un entraînement
-            </button>
+            <div className="create-workout-form">
+              <div className="form-group">
+                <label>Durée de la séance (minutes)</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                  placeholder="Ex: 60"
+                  className="form-control"
+                />
+              </div>
+              <button className="btn btn-primary" onClick={handleCreateWorkout}>
+                Créer un entraînement
+              </button>
+            </div>
           </div>
         ) : (
           <>
+            <div className="workout-duration-section">
+              <div className="duration-display">
+                <h3>⏱️ Durée de la séance</h3>
+                {!isEditingDuration ? (
+                  <div className="duration-info">
+                    <span className="duration-value">
+                      {duration ? `${duration} minutes` : 'Non renseignée'}
+                    </span>
+                    <button
+                      className="btn btn-secondary btn-small"
+                      onClick={() => setIsEditingDuration(true)}
+                    >
+                      Éditer
+                    </button>
+                  </div>
+                ) : (
+                  <div className="duration-edit">
+                    <input
+                      type="number"
+                      min="1"
+                      value={duration}
+                      onChange={(e) => setDuration(e.target.value)}
+                      placeholder="Durée en minutes"
+                      className="form-control"
+                    />
+                    <button
+                      className="btn btn-success btn-small"
+                      onClick={handleUpdateDuration}
+                    >
+                      Valider
+                    </button>
+                    <button
+                      className="btn btn-secondary btn-small"
+                      onClick={() => {
+                        setIsEditingDuration(false);
+                        setDuration(workout.duration || '');
+                      }}
+                    >
+                      Annuler
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="add-exercise-form">
               <h3>Ajouter un exercice</h3>
               <div className="form-row">
