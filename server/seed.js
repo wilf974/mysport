@@ -1,13 +1,14 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-const dbPath = path.join(__dirname, 'mysport.db');
+// Use DATABASE_URL environment variable if set, otherwise default to ./mysport.db
+const dbPath = process.env.DATABASE_URL || path.join(__dirname, 'mysport.db');
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('Erreur de connexion:', err);
     process.exit(1);
   }
-  console.log('✅ Connecté à la base de données');
+  console.log('✅ Connecté à la base de données:', dbPath);
   initDatabase();
 });
 

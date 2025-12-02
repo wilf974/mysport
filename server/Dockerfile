@@ -26,6 +26,9 @@ COPY server.js ./
 COPY database.js ./
 COPY seed.js ./
 
+# Créer le répertoire pour les données
+RUN mkdir -p /app/data
+
 # Créer la base de données au démarrage
 RUN node seed.js || true
 
