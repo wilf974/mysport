@@ -181,7 +181,7 @@ app.post('/api/progress', (req, res) => {
 app.get('/api/progress-photos/:userId', (req, res) => {
   const { userId } = req.params;
   db.all(
-    'SELECT id, photo_date, muscle_focus, weight, notes FROM progress_photos WHERE user_id = ? ORDER BY photo_date DESC',
+    'SELECT id, photo_data, photo_date, muscle_focus, weight, notes FROM progress_photos WHERE user_id = ? ORDER BY photo_date DESC',
     [userId],
     (err, rows) => {
       if (err) return res.status(500).json({ error: err.message });
