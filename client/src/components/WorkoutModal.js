@@ -54,6 +54,9 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
       setSets(3);
       setReps(10);
       setWeight(0);
+
+      // Rafraîchir le calendrier
+      onWorkoutUpdate();
     } catch (err) {
       console.error('Erreur:', err);
     }
@@ -65,6 +68,8 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
     try {
       await axios.delete(`${API_URL}/workout-exercises/${id}`);
       setWorkoutExercises(workoutExercises.filter(ex => ex.id !== id));
+      // Rafraîchir le calendrier
+      onWorkoutUpdate();
     } catch (err) {
       console.error('Erreur:', err);
     }
@@ -86,6 +91,8 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
       setWorkoutExercises(workoutExercises.map(ex =>
         ex.id === id ? updatedData : ex
       ));
+      // Rafraîchir le calendrier
+      onWorkoutUpdate();
     } catch (err) {
       console.error('Erreur:', err);
     }
