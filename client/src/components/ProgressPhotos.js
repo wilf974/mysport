@@ -12,8 +12,9 @@ function ProgressPhotos({ userId }) {
   const [showForm, setShowForm] = useState(false);
   const [selectedPhotoId, setSelectedPhotoId] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [preview, setPreview] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [previews, setPreviews] = useState([]);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const [formData, setFormData] = useState({
     muscle_focus: 'Corps entier',
@@ -49,15 +50,29 @@ function ProgressPhotos({ userId }) {
   };
 
   const handleFileSelect = (e) => {
-    const file = e.target.files[0];
-    if (file) {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    setSelectedFiles(prev => [...prev, ...files]);
+    const newPreviews = [];
+
+    let loaded = 0;
+    files.forEach((file) => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setSelectedFile(reader.result);
-        setPreview(reader.result);
+        newPreviews.push(reader.result);
+        loaded++;
+        if (loaded === files.length) {
+          setPreviews(prev => [...prev, ...newPreviews]);
+        }
       };
       reader.readAsDataURL(file);
-    }
+    });
+  };
+
+  const handleRemoveFile = (index) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    setPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleInputChange = (e) => {
@@ -71,52 +86,73 @@ function ProgressPhotos({ userId }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!selectedFile) {
-      alert('Veuillez sélectionner une photo');
+    if (selectedFiles.length === 0) {
+      alert('Veuillez sélectionner au moins une photo');
       return;
     }
 
     try {
-      const response = await axios.post(`${API_URL}/progress-photos`, {
-        user_id: userId,
-        photo_data: selectedFile,
-        muscle_focus: formData.muscle_focus,
-        weight: formData.weight ? parseFloat(formData.weight) : null,
-        notes: formData.notes,
-        workout_id: formData.workout_id ? parseInt(formData.workout_id) : null
-      });
+      setLoading(true);
+      const newPhotos = [];
 
       // Find the selected workout if one was chosen
       const selectedWorkout = formData.workout_id
         ? workouts.find(w => w.id === parseInt(formData.workout_id))
         : null;
 
-      const newPhoto = {
-        ...response.data,
-        photo_date: new Date().toISOString(),
-        photo_data: selectedFile,
-        ...(selectedWorkout && {
-          day_of_week: selectedWorkout.day_of_week,
-          week_number: selectedWorkout.week_number,
-          year: selectedWorkout.year,
-          workout_date: selectedWorkout.created_at,
-          exercise_count: selectedWorkout.exercise_count
-        })
-      };
+      // Upload each file
+      for (let i = 0; i < previews.length; i++) {
+        const photoData = previews[i];
 
-      setPhotos([newPhoto, ...photos]);
+        try {
+          const response = await axios.post(`${API_URL}/progress-photos`, {
+            user_id: userId,
+            photo_data: photoData,
+            muscle_focus: formData.muscle_focus,
+            weight: formData.weight ? parseFloat(formData.weight) : null,
+            notes: formData.notes,
+            workout_id: formData.workout_id ? parseInt(formData.workout_id) : null
+          });
+
+          const newPhoto = {
+            ...response.data,
+            photo_date: new Date().toISOString(),
+            photo_data: photoData,
+            ...(selectedWorkout && {
+              day_of_week: selectedWorkout.day_of_week,
+              week_number: selectedWorkout.week_number,
+              year: selectedWorkout.year,
+              workout_date: selectedWorkout.created_at,
+              exercise_count: selectedWorkout.exercise_count
+            })
+          };
+
+          newPhotos.push(newPhoto);
+          setUploadProgress(Math.round(((i + 1) / previews.length) * 100));
+        } catch (err) {
+          console.error(`Erreur lors du téléchargement de la photo ${i + 1}:`, err);
+        }
+      }
+
+      // Add all new photos at once
+      setPhotos([...newPhotos, ...photos]);
       setShowForm(false);
-      setSelectedFile(null);
-      setPreview(null);
+      setSelectedFiles([]);
+      setPreviews([]);
+      setUploadProgress(0);
       setFormData({
         muscle_focus: 'Corps entier',
         weight: '',
         notes: '',
         workout_id: ''
       });
+
+      alert(`${newPhotos.length} photo(s) téléchargée(s) avec succès !`);
     } catch (err) {
       console.error('Erreur:', err);
-      alert('Erreur lors du téléchargement de la photo');
+      alert('Erreur lors du téléchargement des photos');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -140,37 +176,65 @@ function ProgressPhotos({ userId }) {
           className="btn btn-primary"
           onClick={() => setShowForm(!showForm)}
         >
-          {showForm ? '✕ Annuler' : '+ Ajouter une photo'}
+          {showForm ? '✕ Annuler' : '+ Ajouter des photos'}
         </button>
       </div>
 
       {showForm && (
         <div className="photo-form card">
-          <h3>Télécharger une photo de progression</h3>
+          <h3>Télécharger des photos de progression</h3>
           <form onSubmit={handleSubmit}>
             <div className="photo-upload-area">
               <input
                 type="file"
                 accept="image/*"
+                multiple
                 onChange={handleFileSelect}
                 id="photo-input"
                 style={{ display: 'none' }}
               />
               <label htmlFor="photo-input" className="upload-label">
-                {preview ? (
-                  <div className="preview-container">
-                    <img src={preview} alt="Preview" className="preview-image" />
-                    <button type="button" className="change-btn">Changer de photo</button>
+                {previews.length === 0 ? (
+                  <div className="upload-placeholder">
+                    <div className="upload-icon">📸</div>
+                    <p>Cliquez pour sélectionner des photos</p>
+                    <small>PNG, JPG ou GIF - Sélectionnez plusieurs fichiers</small>
                   </div>
                 ) : (
                   <div className="upload-placeholder">
-                    <div className="upload-icon">📸</div>
-                    <p>Cliquez pour sélectionner une photo</p>
-                    <small>PNG, JPG ou GIF (max 5MB)</small>
+                    <div className="upload-icon">➕</div>
+                    <p>Cliquez pour ajouter d'autres photos</p>
+                    <small>{previews.length} photo(s) sélectionnée(s)</small>
                   </div>
                 )}
               </label>
             </div>
+
+            {previews.length > 0 && (
+              <div className="photo-previews-grid">
+                {previews.map((preview, index) => (
+                  <div key={index} className="preview-item">
+                    <img src={preview} alt={`Preview ${index + 1}`} className="preview-thumbnail" />
+                    <button
+                      type="button"
+                      className="btn btn-danger btn-small remove-btn"
+                      onClick={() => handleRemoveFile(index)}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {loading && uploadProgress > 0 && (
+              <div className="upload-progress">
+                <div className="progress-bar">
+                  <div className="progress-fill" style={{ width: `${uploadProgress}%` }}></div>
+                </div>
+                <small>{uploadProgress}% - {previews.length} photo(s)</small>
+              </div>
+            )}
 
             <div className="form-row">
               <div className="form-group">
@@ -232,17 +296,23 @@ function ProgressPhotos({ userId }) {
             </div>
 
             <div className="form-buttons">
-              <button type="submit" className="btn btn-success">
-                Télécharger
+              <button
+                type="submit"
+                className="btn btn-success"
+                disabled={selectedFiles.length === 0 || loading}
+              >
+                {loading ? 'Téléchargement...' : 'Télécharger'}
               </button>
               <button
                 type="button"
                 className="btn btn-secondary"
                 onClick={() => {
                   setShowForm(false);
-                  setSelectedFile(null);
-                  setPreview(null);
+                  setSelectedFiles([]);
+                  setPreviews([]);
+                  setUploadProgress(0);
                 }}
+                disabled={loading}
               >
                 Annuler
               </button>

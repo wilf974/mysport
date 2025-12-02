@@ -61,33 +61,76 @@
   font-size: 0.9rem;
 }
 
-.preview-container {
-  position: relative;
+.photo-previews-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
   padding: 1rem;
   background: #f9f9f9;
+  border-radius: 8px;
 }
 
-.preview-image {
+.preview-item {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-smooth);
+}
+
+.preview-item:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.preview-thumbnail {
   width: 100%;
-  height: 300px;
+  height: 120px;
   object-fit: cover;
-  border-radius: 6px;
-  margin-bottom: 1rem;
+  display: block;
 }
 
-.change-btn {
+.preview-item .remove-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.preview-item:hover .remove-btn {
+  opacity: 1;
+}
+
+.upload-progress {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(239, 68, 68, 0.08));
+  border-radius: 8px;
+  border-left: 3px solid var(--primary);
+}
+
+.progress-bar {
   width: 100%;
-  padding: 0.75rem;
-  background-color: var(--primary);
-  color: white;
-  border: none;
+  height: 8px;
+  background: #ddd;
   border-radius: 4px;
-  cursor: pointer;
-  font-weight: 500;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
 }
 
-.change-btn:hover {
-  background-color: var(--primary-dark);
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  transition: width 0.3s ease;
 }
 
 .form-row {
