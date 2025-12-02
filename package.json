@@ -1,0 +1,19 @@
+{
+  "name": "mysport",
+  "version": "1.0.0",
+  "description": "Application complète de gestion de musculation",
+  "main": "index.js",
+  "scripts": {
+    "start:server": "cd server && npm start",
+    "start:client": "cd client && npm start",
+    "build:client": "cd client && npm run build",
+    "dev": "concurrently \"npm run start:server\" \"npm run start:client\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://local_proxy@127.0.0.1:18797/git/wilf974/mysport"
+  },
+  "keywords": ["fitness", "workout", "musculation", "planner"],
+  "author": "",
+  "license": "ISC"
+}
