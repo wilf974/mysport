@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import PhotoCarousel from './PhotoCarousel';
+import { compressImages, getDataUrlSize, formatSize } from '../utils/imageCompression';
 import './ProgressPhotos.css';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
@@ -16,6 +17,11 @@ function ProgressPhotos({ userId }) {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [previewSizes, setPreviewSizes] = useState({});
+
+  const ITEMS_PER_PAGE = 6;
 
   const [formData, setFormData] = useState({
     muscle_focus: 'Corps entier',
@@ -50,30 +56,58 @@ function ProgressPhotos({ userId }) {
     }
   };
 
-  const handleFileSelect = (e) => {
+  const handleFileSelect = async (e) => {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
 
+    setIsCompressing(true);
     setSelectedFiles(prev => [...prev, ...files]);
-    const newPreviews = [];
+    const newSizes = { ...previewSizes };
 
-    let loaded = 0;
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        newPreviews.push(reader.result);
-        loaded++;
-        if (loaded === files.length) {
-          setPreviews(prev => [...prev, ...newPreviews]);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+    try {
+      // Lire les fichiers et obtenir les data URLs
+      const fileReads = files.map(file => {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            resolve(reader.result);
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+
+      const dataUrls = await Promise.all(fileReads);
+
+      // Compresser les images
+      let compressedUrls;
+      try {
+        compressedUrls = await compressImages(dataUrls);
+      } catch (compressionErr) {
+        console.warn('Compression failed, using original images:', compressionErr);
+        compressedUrls = dataUrls;
+      }
+
+      // Calculer les tailles
+      compressedUrls.forEach((url, index) => {
+        const sizeInMb = getDataUrlSize(url);
+        newSizes[index] = sizeInMb;
+      });
+
+      setPreviews(prev => [...prev, ...compressedUrls]);
+      setPreviewSizes(newSizes);
+    } catch (err) {
+      console.error('Erreur lors de la sélection des fichiers:', err);
+    } finally {
+      setIsCompressing(false);
+    }
   };
 
   const handleRemoveFile = (index) => {
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));
     setPreviews(prev => prev.filter((_, i) => i !== index));
+    const newSizes = { ...previewSizes };
+    delete newSizes[index];
+    setPreviewSizes(newSizes);
   };
 
   const handleInputChange = (e) => {
@@ -203,6 +237,16 @@ function ProgressPhotos({ userId }) {
     return { sortedGroups, unassignedPhotos };
   };
 
+  // Paginer les photos sans séance
+  const getPaginatedUnassignedPhotos = (unassignedPhotos) => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const paginatedPhotos = unassignedPhotos.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(unassignedPhotos.length / ITEMS_PER_PAGE);
+
+    return { paginatedPhotos, totalPages };
+  };
+
   return (
     <div className="progress-photos">
       <div className="photos-header">
@@ -250,6 +294,9 @@ function ProgressPhotos({ userId }) {
                 {previews.map((preview, index) => (
                   <div key={index} className="preview-item">
                     <img src={preview} alt={`Preview ${index + 1}`} className="preview-thumbnail" />
+                    <div className="preview-size">
+                      {previewSizes[index] ? formatSize(previewSizes[index]) : 'Calcul...'}
+                    </div>
                     <button
                       type="button"
                       className="btn btn-danger btn-small remove-btn"
@@ -334,9 +381,9 @@ function ProgressPhotos({ userId }) {
               <button
                 type="submit"
                 className="btn btn-success"
-                disabled={selectedFiles.length === 0 || loading}
+                disabled={selectedFiles.length === 0 || loading || isCompressing}
               >
-                {loading ? 'Téléchargement...' : 'Télécharger'}
+                {isCompressing ? '⏳ Compression...' : loading ? 'Téléchargement...' : 'Télécharger'}
               </button>
               <button
                 type="button"
@@ -386,11 +433,20 @@ function ProgressPhotos({ userId }) {
                 )}
 
                 {/* Afficher les photos sans séance associée */}
-                {unassignedPhotos.length > 0 && (
-                  <div className="unassigned-section">
-                    <h3 className="section-title">📷 Photos sans séance</h3>
-                    <div className="photos-grid">
-                      {unassignedPhotos.map(photo => (
+                {unassignedPhotos.length > 0 && (() => {
+                  const { paginatedPhotos, totalPages } = getPaginatedUnassignedPhotos(unassignedPhotos);
+                  return (
+                    <div className="unassigned-section">
+                      <div className="section-header">
+                        <h3 className="section-title">📷 Photos sans séance ({unassignedPhotos.length})</h3>
+                        {totalPages > 1 && (
+                          <span className="pagination-info">
+                            Page {currentPage} sur {totalPages}
+                          </span>
+                        )}
+                      </div>
+                      <div className="photos-grid">
+                        {paginatedPhotos.map(photo => (
                         <div key={photo.id} className="photo-card">
                           <div className="photo-image-container">
                             {selectedPhotoId === photo.id && photo.photo_data ? (
@@ -432,10 +488,42 @@ function ProgressPhotos({ userId }) {
                             </button>
                           </div>
                         </div>
-                      ))}
+                        ))}
+                      </div>
+
+                      {/* Pagination Controls */}
+                      {totalPages > 1 && (
+                        <div className="pagination-controls">
+                          <button
+                            className="btn btn-secondary btn-small"
+                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                            disabled={currentPage === 1}
+                          >
+                            ‹ Précédent
+                          </button>
+                          <span className="page-indicator">
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                              <button
+                                key={page}
+                                className={`page-number ${currentPage === page ? 'active' : ''}`}
+                                onClick={() => setCurrentPage(page)}
+                              >
+                                {page}
+                              </button>
+                            ))}
+                          </span>
+                          <button
+                            className="btn btn-secondary btn-small"
+                            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                            disabled={currentPage === totalPages}
+                          >
+                            Suivant ›
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
               </>
             );
           })()}
