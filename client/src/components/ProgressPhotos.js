@@ -210,7 +210,7 @@ function ProgressPhotos({ userId }) {
           {photos.map(photo => (
             <div key={photo.id} className="photo-card">
               <div className="photo-image-container">
-                {selectedPhotoId === photo.id && photo.photo_data ? (
+                {photo.photo_data ? (
                   <img
                     src={photo.photo_data}
                     alt="Progress"
