@@ -6,83 +6,144 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
-  gap: 1rem;
+  margin-bottom: 2.5rem;
+  gap: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .calendar-header h2 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.75rem;
+  color: var(--dark);
+  font-weight: 800;
+  flex: 1;
+  min-width: 250px;
+}
+
+.calendar-header .btn {
+  min-width: 150px;
 }
 
 .calendar-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .day-card {
   background: white;
   border: 2px solid var(--border);
-  border-radius: 8px;
-  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  padding: 1.75rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition);
   position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+}
+
+.day-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .day-card:hover {
   border-color: var(--primary);
-  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);
-  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-6px);
+}
+
+.day-card:hover::before {
+  opacity: 1;
 }
 
 .day-card h3 {
   color: var(--dark);
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
+  margin-bottom: 1.25rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
 }
 
 .day-card.has-workout {
   border-color: var(--success);
-  background: rgba(39, 174, 96, 0.05);
+  background: linear-gradient(135deg, rgba(39, 174, 96, 0.03), rgba(39, 174, 96, 0.08));
+}
+
+.day-card.has-workout h3 {
+  color: var(--success);
 }
 
 .workout-info {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
+  flex-grow: 1;
 }
 
 .exercises-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
 }
 
 .exercise-item {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
   align-items: center;
-  padding: 0.5rem;
-  background: #f9f9f9;
-  border-radius: 4px;
+  padding: 0.65rem 0.75rem;
+  background: linear-gradient(135deg, #f8f9fa, #f0f2f5);
+  border-radius: 6px;
   font-size: 0.9rem;
+  border-left: 3px solid var(--primary-light);
+  transition: var(--transition);
+}
+
+.exercise-item:hover {
+  background: linear-gradient(135deg, #f0f2f5, #e8eaed);
+  transform: translateX(4px);
 }
 
 .exercise-name {
-  font-weight: 500;
+  font-weight: 600;
   color: var(--dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .exercise-sets {
-  background: var(--secondary);
+  background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
   color: white;
-  padding: 0.2rem 0.6rem;
-  border-radius: 3px;
+  padding: 0.3rem 0.8rem;
+  border-radius: 12px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
 }
 
 .more-exercises {
@@ -90,32 +151,128 @@
   color: #999;
   font-style: italic;
   text-align: center;
+  padding: 0.75rem;
+  background: var(--lighter);
+  border-radius: 6px;
+  margin-top: 0.5rem;
 }
 
 .no-workout {
   text-align: center;
   color: #999;
+  padding: 1rem;
 }
 
 .no-workout p {
   margin-bottom: 0.75rem;
+  font-weight: 500;
 }
 
-@media (max-width: 768px) {
+.no-workout .btn {
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+/* Responsive Tablet */
+@media (max-width: 1024px) {
   .calendar-header {
-    flex-direction: column;
-    gap: 0.5rem;
+    margin-bottom: 2rem;
+    gap: 1rem;
   }
 
   .calendar-header h2 {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
+  }
+
+  .calendar-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .day-card {
+    padding: 1.5rem;
+  }
+}
+
+/* Responsive Mobile */
+@media (max-width: 768px) {
+  .calendar-header {
+    flex-direction: column;
+    align-items: stretch;
+    margin-bottom: 1.5rem;
+    gap: 0.75rem;
+  }
+
+  .calendar-header h2 {
+    font-size: 1.25rem;
+    order: -1;
+  }
+
+  .calendar-header .btn {
+    width: 100%;
+    min-width: unset;
   }
 
   .calendar-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .day-card {
+    padding: 1.25rem;
+  }
+
+  .day-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+
+  .exercise-item {
+    padding: 0.6rem 0.65rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* Responsive Small Mobile */
+@media (max-width: 480px) {
+  .calendar-header {
+    margin-bottom: 1rem;
+  }
+
+  .calendar-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .calendar-grid {
+    gap: 0.75rem;
   }
 
   .day-card {
     padding: 1rem;
+  }
+
+  .day-card h3 {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .exercises-list {
+    gap: 0.5rem;
+  }
+
+  .exercise-item {
+    grid-template-columns: 1fr;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .exercise-sets {
+    padding: 0.25rem 0.6rem;
+    font-size: 0.7rem;
+  }
+
+  .more-exercises {
+    font-size: 0.75rem;
+    padding: 0.5rem;
   }
 }
