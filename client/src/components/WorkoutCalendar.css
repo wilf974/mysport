@@ -44,11 +44,11 @@
 
 .day-card {
   background: white;
-  border: 2px solid var(--border);
-  border-radius: var(--border-radius);
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius-lg);
   padding: 1.75rem;
   cursor: pointer;
-  transition: var(--transition);
+  transition: var(--transition-smooth);
   position: relative;
   overflow: hidden;
   box-shadow: var(--shadow-sm);
@@ -62,19 +62,37 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  height: 5px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s ease;
+}
+
+.day-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 71, 87, 0.03), transparent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
 }
 
 .day-card:hover {
   border-color: var(--primary);
   box-shadow: var(--shadow-lg);
-  transform: translateY(-6px);
+  transform: translateY(-8px);
+  background: linear-gradient(135deg, rgba(255, 71, 87, 0.02), white);
 }
 
 .day-card:hover::before {
+  opacity: 1;
+}
+
+.day-card:hover::after {
   opacity: 1;
 }
 
@@ -88,11 +106,19 @@
 
 .day-card.has-workout {
   border-color: var(--success);
-  background: linear-gradient(135deg, rgba(39, 174, 96, 0.03), rgba(39, 174, 96, 0.08));
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), white);
+}
+
+.day-card.has-workout::before {
+  background: linear-gradient(90deg, var(--success), var(--success-light));
+  opacity: 1;
 }
 
 .day-card.has-workout h3 {
   color: var(--success);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .workout-info {
@@ -114,17 +140,20 @@
   grid-template-columns: 1fr auto;
   gap: 0.75rem;
   align-items: center;
-  padding: 0.65rem 0.75rem;
-  background: linear-gradient(135deg, #f8f9fa, #f0f2f5);
-  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+  border-radius: 10px;
   font-size: 0.9rem;
-  border-left: 3px solid var(--primary-light);
-  transition: var(--transition);
+  border-left: 4px solid var(--primary);
+  transition: var(--transition-smooth);
+  box-shadow: var(--shadow-xs);
 }
 
 .exercise-item:hover {
-  background: linear-gradient(135deg, #f0f2f5, #e8eaed);
-  transform: translateX(4px);
+  background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+  transform: translateX(6px);
+  box-shadow: var(--shadow-sm);
+  border-left-color: var(--primary-dark);
 }
 
 .exercise-name {
@@ -138,12 +167,14 @@
 .exercise-sets {
   background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
   color: white;
-  padding: 0.3rem 0.8rem;
-  border-radius: 12px;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
   font-size: 0.75rem;
   font-weight: 700;
   white-space: nowrap;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
+  letter-spacing: 0.3px;
+  transition: var(--transition);
 }
 
 .more-exercises {
