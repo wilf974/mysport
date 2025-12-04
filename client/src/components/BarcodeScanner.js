@@ -80,8 +80,9 @@ function BarcodeScanner({ onBarcodeDetected, onCancel }) {
         try {
           scanner.clear().catch((err) => {
             // Suppress "Cannot clear while scan is ongoing" error during cleanup
-            if (!err.message.includes('Cannot clear while scan is ongoing')) {
-              console.error('Error clearing scanner:', err);
+            const errorMessage = err?.message || String(err) || '';
+            if (!errorMessage.includes('Cannot clear while scan is ongoing')) {
+              console.debug('Scanner cleanup notice:', err);
             }
           });
         } catch (err) {
