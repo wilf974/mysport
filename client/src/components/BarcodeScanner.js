@@ -17,60 +17,76 @@ function BarcodeScanner({ onBarcodeDetected, onCancel }) {
   useEffect(() => {
     if (!isScanning) return;
 
-    try {
-      const scanner = new Html5QrcodeScanner('barcode-scanner', {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-        aspectRatio: 1.0,
-        showTorchButtonIfSupported: true
-      }, false);
+    let isMounted = true;
+    let scanner = null;
 
-      scannerRef.current = scanner;
+    const initializeScanner = async () => {
+      try {
+        scanner = new Html5QrcodeScanner('barcode-scanner', {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+          aspectRatio: 1.0,
+          showTorchButtonIfSupported: true
+        }, false);
 
-      const onScanSuccess = (decodedText, decodedResult) => {
-        // Filter out duplicate rapid detections
-        if (decodedText !== lastDetected) {
-          setLastDetected(decodedText);
-          setError('');
+        scannerRef.current = scanner;
 
-          // Extract only numbers for barcode processing
-          const barcodeMatch = decodedText.match(/\d{8,}/);
-          if (barcodeMatch) {
-            const barcode = barcodeMatch[0];
-            if (callbackRef.current) {
-              callbackRef.current(barcode);
+        const onScanSuccess = (decodedText, decodedResult) => {
+          // Filter out duplicate rapid detections
+          if (decodedText !== lastDetected) {
+            setLastDetected(decodedText);
+            setError('');
+
+            // Extract only numbers for barcode processing
+            const barcodeMatch = decodedText.match(/\d{8,}/);
+            if (barcodeMatch) {
+              const barcode = barcodeMatch[0];
+              if (callbackRef.current) {
+                callbackRef.current(barcode);
+              }
+              stopScanning();
+            } else if (decodedText.length >= 8) {
+              // If it's already numeric enough
+              if (callbackRef.current) {
+                callbackRef.current(decodedText);
+              }
+              stopScanning();
             }
-            stopScanning();
-          } else if (decodedText.length >= 8) {
-            // If it's already numeric enough
-            if (callbackRef.current) {
-              callbackRef.current(decodedText);
-            }
-            stopScanning();
           }
-        }
-      };
+        };
 
-      const onScanError = (errorMessage) => {
-        // Don't show continuous error messages during scanning
-        if (errorMessage && !errorMessage.includes('NotFoundException')) {
-          console.debug('Scan error:', errorMessage);
-        }
-      };
+        const onScanError = (errorMessage) => {
+          // Don't show continuous error messages during scanning
+          if (errorMessage && !errorMessage.includes('NotFoundException')) {
+            console.debug('Scan error:', errorMessage);
+          }
+        };
 
-      scanner.render(onScanSuccess, onScanError);
-    } catch (err) {
-      setError('Erreur lors de l\'initialisation du scanner.');
-      console.error('Scanner initialization error:', err);
-      setIsScanning(false);
-    }
+        scanner.render(onScanSuccess, onScanError);
+      } catch (err) {
+        if (isMounted) {
+          setError('Erreur lors de l\'initialisation du scanner.');
+          console.error('Scanner initialization error:', err);
+          setIsScanning(false);
+        }
+      }
+    };
+
+    initializeScanner();
 
     return () => {
-      if (scannerRef.current) {
+      isMounted = false;
+      if (scanner) {
         try {
-          scannerRef.current.clear();
+          scanner.clear().catch((err) => {
+            // Suppress "Cannot clear while scan is ongoing" error during cleanup
+            if (!err.message.includes('Cannot clear while scan is ongoing')) {
+              console.error('Error clearing scanner:', err);
+            }
+          });
         } catch (err) {
-          console.error('Error clearing scanner:', err);
+          // Suppress synchronous errors during cleanup
+          console.debug('Error during scanner cleanup:', err);
         }
       }
     };
@@ -78,11 +94,7 @@ function BarcodeScanner({ onBarcodeDetected, onCancel }) {
 
   const stopScanning = () => {
     setIsScanning(false);
-    if (scannerRef.current) {
-      scannerRef.current
-        .clear()
-        .catch((err) => console.error('Error clearing scanner:', err));
-    }
+    // No need to clear here - the cleanup function will handle it
   };
 
   return (
