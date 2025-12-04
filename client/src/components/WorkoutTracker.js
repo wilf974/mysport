@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './WorkoutTracker.css';
+import ExerciseDemo from './ExerciseDemo';
+import { getMuscleWikiExercise } from '../data/muscleWikiMapping';
 
 function WorkoutTracker({ exercises, onClose, onFinish }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -8,6 +10,8 @@ function WorkoutTracker({ exercises, onClose, onFinish }) {
   const [isPaused, setIsPaused] = useState(false);
   const [repsCompleted, setRepsCompleted] = useState(0);
   const [exerciseProgress, setExerciseProgress] = useState({});
+  const [showExerciseDemo, setShowExerciseDemo] = useState(false);
+  const [demonstrationExercise, setDemonstrationExercise] = useState(null);
 
   // Timer effect
   useEffect(() => {
@@ -72,6 +76,21 @@ function WorkoutTracker({ exercises, onClose, onFinish }) {
     if (currentIndex < exercises.length - 1) {
       setCurrentIndex(currentIndex + 1);
     }
+  };
+
+  const handleShowExerciseDemo = () => {
+    if (currentExercise) {
+      const exerciseData = getMuscleWikiExercise(currentExercise.name);
+      if (exerciseData) {
+        setDemonstrationExercise(exerciseData);
+        setShowExerciseDemo(true);
+      }
+    }
+  };
+
+  const handleCloseExerciseDemo = () => {
+    setShowExerciseDemo(false);
+    setDemonstrationExercise(null);
   };
 
   const formatTime = (seconds) => {
@@ -140,7 +159,16 @@ function WorkoutTracker({ exercises, onClose, onFinish }) {
         {/* Current Exercise */}
         {currentExercise && (
           <div className="current-exercise">
-            <h3 className="exercise-name">{currentExercise.name}</h3>
+            <div className="exercise-header">
+              <h3 className="exercise-name">{currentExercise.name}</h3>
+              <button
+                className="btn-exercise-demo"
+                onClick={handleShowExerciseDemo}
+                title="Voir la démonstration de l'exercice"
+              >
+                🎬 Voir la démo
+              </button>
+            </div>
             <div className="exercise-details">
               <div className="detail-box">
                 <div className="detail-label">Séries</div>
@@ -239,6 +267,14 @@ function WorkoutTracker({ exercises, onClose, onFinish }) {
           </div>
         </div>
       </div>
+
+      {/* Exercise Demo Modal */}
+      {showExerciseDemo && demonstrationExercise && (
+        <ExerciseDemo
+          exercise={demonstrationExercise}
+          onClose={handleCloseExerciseDemo}
+        />
+      )}
     </div>
   );
 }
