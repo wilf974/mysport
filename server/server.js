@@ -274,7 +274,8 @@ app.get('/api/workout-exercises/:workoutId', (req, res) => {
   db.all(
     `SELECT we.*, e.name, e.muscle_group FROM workout_exercises we
      JOIN exercises e ON we.exercise_id = e.id
-     WHERE we.workout_id = ?`,
+     WHERE we.workout_id = ?
+     ORDER BY we.exercise_order ASC, we.created_at ASC`,
     [workoutId],
     (err, rows) => {
       if (err) return res.status(500).json({ error: err.message });
@@ -286,12 +287,23 @@ app.get('/api/workout-exercises/:workoutId', (req, res) => {
 // POST add exercise to workout
 app.post('/api/workout-exercises', (req, res) => {
   const { workout_id, exercise_id, sets, reps, weight, notes } = req.body;
-  db.run(
-    'INSERT INTO workout_exercises (workout_id, exercise_id, sets, reps, weight, notes) VALUES (?, ?, ?, ?, ?, ?)',
-    [workout_id, exercise_id, sets || 3, reps || 10, weight || 0, notes || ''],
-    function (err) {
+
+  // Get the max order for this workout
+  db.get(
+    'SELECT MAX(exercise_order) as max_order FROM workout_exercises WHERE workout_id = ?',
+    [workout_id],
+    (err, row) => {
       if (err) return res.status(500).json({ error: err.message });
-      res.json({ id: this.lastID, workout_id, exercise_id, sets, reps, weight, notes });
+      const nextOrder = (row?.max_order || -1) + 1;
+
+      db.run(
+        'INSERT INTO workout_exercises (workout_id, exercise_id, sets, reps, weight, notes, exercise_order) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [workout_id, exercise_id, sets || 3, reps || 10, weight || 0, notes || '', nextOrder],
+        function (err) {
+          if (err) return res.status(500).json({ error: err.message });
+          res.json({ id: this.lastID, workout_id, exercise_id, sets, reps, weight, notes, exercise_order: nextOrder });
+        }
+      );
     }
   );
 });
@@ -299,13 +311,13 @@ app.post('/api/workout-exercises', (req, res) => {
 // PUT update workout exercise
 app.put('/api/workout-exercises/:id', (req, res) => {
   const { id } = req.params;
-  const { sets, reps, weight, notes, completed } = req.body;
+  const { sets, reps, weight, notes, completed, exercise_order } = req.body;
   db.run(
-    'UPDATE workout_exercises SET sets = ?, reps = ?, weight = ?, notes = ?, completed = ? WHERE id = ?',
-    [sets, reps, weight, notes, completed, id],
+    'UPDATE workout_exercises SET sets = ?, reps = ?, weight = ?, notes = ?, completed = ?, exercise_order = ? WHERE id = ?',
+    [sets, reps, weight, notes, completed, exercise_order || 0, id],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
-      res.json({ id, sets, reps, weight, notes, completed });
+      res.json({ id, sets, reps, weight, notes, completed, exercise_order });
     }
   );
 });

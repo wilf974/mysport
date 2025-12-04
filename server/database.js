@@ -126,6 +126,17 @@ function initDatabase() {
     }
   });
 
+  // Ajouter la colonne exercise_order pour l'ordre des exercices
+  db.run(`ALTER TABLE workout_exercises ADD COLUMN exercise_order INTEGER DEFAULT 0`, (err) => {
+    if (err && err.message.includes('duplicate column')) {
+      // La colonne existe déjà
+    } else if (err) {
+      console.error('Erreur lors de l\'ajout de exercise_order:', err);
+    } else {
+      console.log('Colonne exercise_order ajoutée avec succès');
+    }
+  });
+
   // Ajouter la colonne completed à workouts si elle n'existe pas
   db.run(`ALTER TABLE workouts ADD COLUMN completed BOOLEAN DEFAULT 0`, (err) => {
     if (err && err.message.includes('duplicate column')) {

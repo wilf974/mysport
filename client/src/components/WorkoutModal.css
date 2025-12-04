@@ -146,7 +146,7 @@
 
 .exercise-row {
   display: grid;
-  grid-template-columns: 1fr auto auto auto;
+  grid-template-columns: auto 1fr auto auto auto;
   gap: 1rem;
   align-items: center;
   padding: 1rem;
@@ -154,6 +154,37 @@
   border-radius: var(--radius-md);
   border-left: 4px solid var(--primary);
   transition: var(--transition-fast);
+}
+
+.exercise-order-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.btn-move {
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+  min-width: 35px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  font-weight: 600;
+}
+
+.btn-move:hover:not(:disabled) {
+  background: var(--primary-hover);
+  transform: scale(1.05);
+}
+
+.btn-move:disabled {
+  background: var(--border);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .exercise-details strong {
@@ -331,22 +362,34 @@
   }
 
   .exercise-row {
-    grid-template-columns: 1fr auto;
-    gap: 0.75rem;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 0.5rem;
     padding: 0.75rem;
   }
 
+  .exercise-order-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 0.25rem;
+  }
+
+  .btn-move {
+    padding: 0.3rem 0.4rem;
+    font-size: 0.75rem;
+    min-width: 28px;
+  }
+
   .exercise-details {
-    grid-column: 1 / -1;
-    margin-bottom: 0.5rem;
+    grid-column: auto;
+    margin-bottom: 0;
   }
 
   .exercise-values {
-    grid-column: 1 / 2;
+    grid-column: auto;
   }
 
   .exercise-row button {
-    grid-column: 2 / 3;
+    grid-column: auto;
   }
 
   .checkbox {

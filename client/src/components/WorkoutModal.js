@@ -170,6 +170,30 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
     }
   };
 
+  const handleMoveExercise = async (exerciseId, direction) => {
+    try {
+      const currentIndex = workoutExercises.findIndex(ex => ex.id === exerciseId);
+      if (direction === 'up' && currentIndex === 0) return;
+      if (direction === 'down' && currentIndex === workoutExercises.length - 1) return;
+
+      const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+      const newExercises = [...workoutExercises];
+      [newExercises[currentIndex], newExercises[newIndex]] = [newExercises[newIndex], newExercises[currentIndex]];
+
+      // Mettre à jour l'ordre dans la base de données
+      await Promise.all(newExercises.map((ex, index) =>
+        axios.put(`${API_URL}/workout-exercises/${ex.id}`, {
+          exercise_order: index
+        })
+      ));
+
+      setWorkoutExercises(newExercises);
+      onWorkoutUpdate();
+    } catch (err) {
+      console.error('Erreur déplacement exercice:', err);
+    }
+  };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -332,8 +356,26 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
                   <p className="text-center">Aucun exercice ajouté</p>
                 ) : (
                   <div className="exercises-table">
-                    {workoutExercises.map(ex => (
+                    {workoutExercises.map((ex, index) => (
                       <div key={ex.id} className="exercise-row">
+                        <div className="exercise-order-buttons">
+                          <button
+                            className="btn btn-small btn-move"
+                            onClick={() => handleMoveExercise(ex.id, 'up')}
+                            disabled={index === 0}
+                            title="Déplacer vers le haut"
+                          >
+                            ↑
+                          </button>
+                          <button
+                            className="btn btn-small btn-move"
+                            onClick={() => handleMoveExercise(ex.id, 'down')}
+                            disabled={index === workoutExercises.length - 1}
+                            title="Déplacer vers le bas"
+                          >
+                            ↓
+                          </button>
+                        </div>
                         <div className="exercise-details">
                           <strong>{ex.name}</strong>
                           <div className="exercise-values">
