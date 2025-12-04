@@ -10,6 +10,24 @@ function BarcodeScanner({ onBarcodeDetected, onCancel }) {
   const scannerRef = useRef(null);
   const callbackRef = useRef(onBarcodeDetected);
 
+  // Handle unhandled promise rejections for media stream errors
+  useEffect(() => {
+    const handleUnhandledRejection = (event) => {
+      if (event.reason instanceof DOMException) {
+        const msg = event.reason.message || '';
+        // Suppress media stream abort errors
+        if (msg.includes('aborted') || msg.includes('NotAllowedError')) {
+          event.preventDefault();
+        }
+      }
+    };
+
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    return () => {
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, []);
+
   // Update callback ref when prop changes
   useEffect(() => {
     callbackRef.current = onBarcodeDetected;
@@ -73,7 +91,22 @@ function BarcodeScanner({ onBarcodeDetected, onCancel }) {
         };
 
         try {
-          scanner.render(onScanSuccess, onScanError);
+          const renderResult = scanner.render(onScanSuccess, onScanError);
+
+          // If render returns a promise, handle any rejections
+          if (renderResult && typeof renderResult.catch === 'function') {
+            renderResult.catch((err) => {
+              if (isMounted) {
+                const msg = err?.message || String(err) || '';
+                // Suppress expected media stream errors
+                if (!msg.includes('aborted') && !msg.includes('NotAllowedError')) {
+                  setError(`Erreur lors du scan: ${msg}`);
+                  console.error('Scanner render promise error:', err);
+                }
+              }
+            });
+          }
+
           console.log('Scanner rendering started');
         } catch (renderErr) {
           console.error('Scanner render error:', renderErr);
