@@ -186,6 +186,9 @@ function FoodSearch({ onFoodSelected, onCancel }) {
           >
             📷 Scanner avec caméra
           </button>
+          <p style={{ fontSize: '0.85rem', color: '#666', textAlign: 'center', marginTop: '0.5rem' }}>
+            Note: Accordez les permissions d'accès à la caméra si demandé
+          </p>
         </>
       )}
 

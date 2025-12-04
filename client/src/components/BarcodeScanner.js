@@ -25,11 +25,18 @@ function BarcodeScanner({ onBarcodeDetected, onCancel }) {
       try {
         if (isMounted) setIsInitializing(true);
 
+        // Verify container element exists
+        const container = document.getElementById('barcode-scanner');
+        if (!container) {
+          throw new Error('Scanner container not found');
+        }
+
         scanner = new Html5QrcodeScanner('barcode-scanner', {
           fps: 10,
           qrbox: { width: 250, height: 250 },
           aspectRatio: 1.0,
-          showTorchButtonIfSupported: true
+          showTorchButtonIfSupported: true,
+          disableFlip: false
         }, false);
 
         scannerRef.current = scanner;
@@ -65,12 +72,19 @@ function BarcodeScanner({ onBarcodeDetected, onCancel }) {
           }
         };
 
-        scanner.render(onScanSuccess, onScanError);
+        try {
+          scanner.render(onScanSuccess, onScanError);
+          console.log('Scanner rendering started');
+        } catch (renderErr) {
+          console.error('Scanner render error:', renderErr);
+          throw new Error(`Failed to start camera: ${renderErr?.message || 'Unknown error'}`);
+        }
 
         if (isMounted) setIsInitializing(false);
       } catch (err) {
         if (isMounted) {
-          setError(`Erreur scanner: ${err?.message || 'Impossible d\'initialiser le scanner'}`);
+          const errorMsg = err?.message || 'Impossible d\'initialiser le scanner';
+          setError(`${errorMsg}. Vérifiez que vous avez donné les permissions d'accès à la caméra.`);
           console.error('Scanner initialization error:', err);
           setIsScanning(false);
           setIsInitializing(false);
@@ -84,19 +98,25 @@ function BarcodeScanner({ onBarcodeDetected, onCancel }) {
       isMounted = false;
       if (scanner) {
         try {
-          scanner.clear().catch((err) => {
-            // Suppress expected errors during cleanup:
-            // - "Cannot clear while scan is ongoing"
-            // - DOMException from media stream abort
-            const errorMessage = err?.message || String(err) || '';
-            if (!errorMessage.includes('Cannot clear while scan is ongoing') &&
-                !(err instanceof DOMException)) {
-              console.debug('Scanner cleanup notice:', err);
-            }
-          });
-        } catch (err) {
+          // Give scanner time to finish any pending operations before clearing
+          scanner.clear()
+            .catch((err) => {
+              // Suppress expected errors during cleanup
+              if (err instanceof DOMException) {
+                // Media stream abort is expected when stopping
+                return;
+              }
+              const errorMessage = err?.message || String(err) || '';
+              if (!errorMessage.includes('Cannot clear while scan is ongoing') &&
+                  !errorMessage.includes('aborted')) {
+                console.debug('Scanner cleanup:', errorMessage);
+              }
+            });
+        } catch (syncErr) {
           // Suppress synchronous errors during cleanup
-          console.debug('Error during scanner cleanup:', err);
+          if (!(syncErr instanceof DOMException)) {
+            console.debug('Cleanup error:', syncErr);
+          }
         }
       }
     };
