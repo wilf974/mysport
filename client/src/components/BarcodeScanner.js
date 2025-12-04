@@ -24,17 +24,8 @@ function BarcodeScanner({ onBarcodeDetected, onCancel }) {
         aspectRatio: 1.0,
         showTorchButtonIfSupported: true,
         supportedScanTypes: [
-          // Barcode types
-          'UPC_A',
-          'UPC_E',
-          'EAN_13',
-          'EAN_8',
-          'CODE_128',
-          'CODE_39',
-          'ITF',
-          'CODABAR',
-          // QR codes
-          'QR_CODE'
+          'EAN_13',  // Most common food barcode format (Europe/Asia)
+          'UPC_A'    // North American food barcode format
         ]
       }, false);
 
