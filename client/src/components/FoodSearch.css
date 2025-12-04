@@ -272,18 +272,103 @@
 }
 
 /* Mobile adjustments */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+  .food-search-container {
+    gap: 0.75rem;
+  }
+
   .food-suggestions {
-    max-height: 300px;
+    max-height: 350px;
+    border-radius: var(--radius-lg);
+  }
+
+  .food-suggestion-item {
+    padding: 0.85rem 1rem;
+  }
+
+  .suggestion-name {
+    font-size: 0.95rem;
   }
 
   .suggestion-macros {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
+    gap: 0.4rem;
   }
 
   .macro-badge {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .search-mode-tabs {
+    gap: 0.5rem;
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .mode-tab {
+    padding: 0.65rem 0.85rem;
+    font-size: 0.9rem;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .food-search-input {
+    padding: 0.9rem 1rem;
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  .barcode-input-wrapper {
+    gap: 0.5rem;
+  }
+
+  .barcode-input {
+    padding: 0.9rem 1rem;
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  .btn-search-barcode {
+    padding: 0.9rem;
+    font-size: 1.2rem;
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .btn-camera-scan {
+    padding: 0.85rem 1rem;
+    font-size: 1rem;
+    min-height: 44px;
+  }
+
+  .suggestion-header {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .suggestion-source {
+    font-size: 0.65rem;
     padding: 0.2rem 0.4rem;
-    font-size: 0.7rem;
+  }
+
+  .suggestion-serving {
+    font-size: 0.75rem;
+    margin-top: 0.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .food-search-input-wrapper {
+    padding: 0;
+  }
+
+  .food-search-input {
+    border-radius: var(--radius-md);
+    font-size: 16px;
   }
 
   .search-mode-tabs {
@@ -291,22 +376,38 @@
   }
 
   .mode-tab {
-    padding: 0.5rem 0.75rem;
+    padding: 0.6rem 0.7rem;
     font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  .food-suggestions {
+    max-height: 280px;
+    margin-top: 0.5rem;
+  }
+
+  .food-suggestion-item {
+    padding: 0.75rem 0.85rem;
   }
 
   .barcode-input-wrapper {
-    gap: 0.25rem;
+    gap: 0.35rem;
+  }
+
+  .barcode-input {
+    padding: 0.85rem 0.9rem;
   }
 
   .btn-search-barcode {
-    padding: 0.65rem;
-    font-size: 1.1rem;
+    padding: 0.85rem 0.75rem;
   }
 
-  .suggestion-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
+  .btn-camera-scan {
+    padding: 0.8rem 0.9rem;
+    font-size: 0.95rem;
+  }
+
+  .search-spinner {
+    right: 0.75rem;
   }
 }

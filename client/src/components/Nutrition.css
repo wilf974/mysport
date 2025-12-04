@@ -344,14 +344,61 @@
     .nutrition-header {
         flex-direction: column;
         align-items: stretch;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .nutrition-header h2 {
+        font-size: 1.5rem;
     }
 
     .date-selector {
         justify-content: space-between;
     }
 
+    .date-nav-btn {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0.5rem;
+    }
+
     .header-actions {
         justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-goals {
+        padding: 0.65rem 1rem;
+        font-size: 0.95rem;
+        min-height: 44px;
+    }
+
+    .macros-summary {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    .macro-card {
+        padding: 1.25rem 1rem;
+    }
+
+    .macro-value {
+        font-size: 1.5rem;
+    }
+
+    .meals-section {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .meal-group {
+        border-radius: var(--radius-md);
+    }
+
+    .add-meal-btn {
+        padding: 0.75rem;
+        font-size: 0.95rem;
+        min-height: 44px;
     }
 
     .form-row {
@@ -367,5 +414,120 @@
     .meal-actions {
         width: 100%;
         justify-content: flex-end;
+    }
+
+    .form-control {
+        font-size: 16px;
+        padding: 0.85rem;
+        min-height: 44px;
+    }
+
+    .btn-search-food {
+        min-height: 44px;
+        font-size: 0.95rem;
+    }
+
+    .btn {
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .nutrition-header {
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .nutrition-header h2 {
+        font-size: 1.3rem;
+    }
+
+    .current-date {
+        font-size: 0.85rem;
+        min-width: auto;
+    }
+
+    .date-selector {
+        padding: 0.4rem 0.75rem;
+        gap: 0.5rem;
+    }
+
+    .macros-summary {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .macro-card {
+        padding: 1rem 0.85rem;
+    }
+
+    .macro-value {
+        font-size: 1.3rem;
+    }
+
+    .macro-label {
+        font-size: 0.8rem;
+    }
+
+    .meal-group-header {
+        padding: 0.75rem 1rem;
+    }
+
+    .meal-group-header h3 {
+        font-size: 0.95rem;
+    }
+
+    .meal-item {
+        padding: 0.75rem 1rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-control,
+    select {
+        font-size: 16px;
+        padding: 0.8rem 0.9rem;
+        border-radius: var(--radius-md);
+    }
+
+    .macro-input-group {
+        width: 100%;
+    }
+
+    .macro-suffix {
+        right: 0.65rem;
+    }
+
+    .btn-search-food {
+        flex-direction: column;
+        padding: 0.7rem 0.9rem;
+        font-size: 0.9rem;
+    }
+
+    .btn {
+        width: 100%;
+        font-size: 0.9rem;
+        padding: 0.7rem 1rem;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .modal-footer .btn {
+        width: 100%;
+    }
+
+    .add-meal-form {
+        gap: 0.75rem;
+    }
+
+    .goals-form {
+        gap: 1rem;
     }
 }
