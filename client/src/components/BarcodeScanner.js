@@ -16,23 +16,30 @@ function BarcodeScanner({ onBarcodeDetected, onCancel }) {
       const reason = event.reason;
       const msg = reason?.message || String(reason) || '';
 
-      console.log('Unhandled rejection caught:', msg);
-
       // Suppress media stream abort errors
       if (reason instanceof DOMException ||
           msg.includes('aborted') ||
           msg.includes('NotAllowedError') ||
           msg.includes('NotFoundError') ||
           msg.includes('NotReadableError')) {
-        console.log('Suppressing expected media error:', msg);
         event.preventDefault();
       }
     };
 
-    // Add listener with capture phase to catch early errors
+    const handleError = (event) => {
+      const msg = event?.message || String(event) || '';
+      if (msg.includes('aborted') || msg.includes('media')) {
+        event.preventDefault();
+      }
+    };
+
+    // Add listeners to catch media stream errors at different phases
     window.addEventListener('unhandledrejection', handleUnhandledRejection, true);
+    window.addEventListener('error', handleError, true);
+
     return () => {
       window.removeEventListener('unhandledrejection', handleUnhandledRejection, true);
+      window.removeEventListener('error', handleError, true);
     };
   }, []);
 
@@ -106,12 +113,16 @@ function BarcodeScanner({ onBarcodeDetected, onCancel }) {
             renderResult.catch((err) => {
               if (isMounted) {
                 const msg = err?.message || String(err) || '';
-                // Suppress expected media stream errors
-                if (!msg.includes('aborted') && !msg.includes('NotAllowedError')) {
-                  setError(`Erreur lors du scan: ${msg}`);
-                  console.error('Scanner render promise error:', err);
+                // Suppress expected media stream errors by returning a resolved promise
+                if (msg.includes('aborted') || msg.includes('NotAllowedError') ||
+                    msg.includes('NotReadableError') || msg.includes('NotFoundError')) {
+                  console.debug('Media stream closed normally:', msg);
+                  return Promise.resolve(); // Suppress the error
                 }
+                setError(`Erreur lors du scan: ${msg}`);
+                console.error('Scanner render promise error:', err);
               }
+              return Promise.resolve(); // Always resolve to prevent propagation
             });
           }
 
