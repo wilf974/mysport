@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const axios = require('axios');
 require('dotenv').config();
 const db = require('./database');
 
@@ -852,14 +853,66 @@ app.post('/api/nutrition/favorites', (req, res) => {
 });
 
 // ==================== RECHERCHE D'ALIMENTS ====================
-// GET search food items with autocomplete
-app.get('/api/food-search', (req, res) => {
+// Transform Open Food Facts product to our format
+function transformOFFProduct(product) {
+  if (!product) return null;
+
+  return {
+    id: `off_${product.id}`,
+    name: product.product_name || product.brands || 'Unknown',
+    calories: product.nutriments?.['energy-kcal'] || 0,
+    protein: product.nutriments?.proteins || 0,
+    carbs: product.nutriments?.carbohydrates || 0,
+    fats: product.nutriments?.fat || 0,
+    fiber: product.nutriments?.fiber || 0,
+    sugar: product.nutriments?.sugars || 0,
+    sodium: product.nutriments?.salt ? product.nutriments.salt * 1000 : 0,
+    serving_size: product.serving_size || '100g',
+    source: 'Open Food Facts',
+    barcode: product.code
+  };
+}
+
+// GET search food items with autocomplete (hybrid: Open Food Facts + local fallback)
+app.get('/api/food-search', async (req, res) => {
   const { query, limit = 10 } = req.query;
 
   if (!query || query.length < 2) {
     return res.json([]);
   }
 
+  try {
+    // Try Open Food Facts API first
+    const offResponse = await axios.get(
+      'https://world.openfoodfacts.org/cgi/search.pl',
+      {
+        params: {
+          search_terms: query,
+          search_simple: 1,
+          action: 'process',
+          json: 1,
+          fields: 'code,product_name,brands,nutriments,serving_size'
+        },
+        timeout: 5000
+      }
+    );
+
+    if (offResponse.data?.products && offResponse.data.products.length > 0) {
+      const results = offResponse.data.products
+        .slice(0, parseInt(limit))
+        .map(transformOFFProduct)
+        .filter(p => p !== null);
+
+      if (results.length > 0) {
+        return res.json(results);
+      }
+    }
+  } catch (err) {
+    console.error('Open Food Facts API error:', err.message);
+    // Fall through to local database
+  }
+
+  // Fallback to local database
   const searchTerm = `%${query}%`;
   db.all(
     `SELECT id, name, calories, protein, carbs, fats, fiber, sugar, sodium, serving_size
@@ -873,6 +926,34 @@ app.get('/api/food-search', (req, res) => {
       res.json(rows || []);
     }
   );
+});
+
+// GET search by barcode (Open Food Facts)
+app.get('/api/food-search/barcode/:barcode', async (req, res) => {
+  const { barcode } = req.params;
+
+  if (!barcode || barcode.length < 8) {
+    return res.status(400).json({ error: 'Barcode must be at least 8 digits' });
+  }
+
+  try {
+    const response = await axios.get(
+      `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`,
+      {
+        timeout: 5000
+      }
+    );
+
+    if (response.data?.product) {
+      const product = transformOFFProduct(response.data.product);
+      return res.json(product);
+    }
+
+    return res.status(404).json({ error: 'Product not found' });
+  } catch (err) {
+    console.error('Barcode search error:', err.message);
+    return res.status(404).json({ error: 'Product not found' });
+  }
 });
 
 // GET single food item

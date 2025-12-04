@@ -6,9 +6,12 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 function FoodSearch({ onFoodSelected, onCancel }) {
   const [query, setQuery] = useState('');
+  const [barcode, setBarcode] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [searchMode, setSearchMode] = useState('text'); // 'text' or 'barcode'
+  const [barcodeError, setBarcodeError] = useState('');
 
   useEffect(() => {
     if (query.length < 2) {
@@ -51,27 +54,103 @@ function FoodSearch({ onFoodSelected, onCancel }) {
       carbs: food.carbs || 0,
       fats: food.fats || 0,
       food_id: food.id,
-      serving_size: food.serving_size
+      serving_size: food.serving_size,
+      source: food.source,
+      barcode: food.barcode
     });
     setQuery('');
+    setBarcode('');
     setSuggestions([]);
     setShowSuggestions(false);
+    setBarcodeError('');
+  };
+
+  const handleBarcodeSearch = async () => {
+    if (barcode.length < 8) {
+      setBarcodeError('Code-barres invalide (minimum 8 chiffres)');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setBarcodeError('');
+      const response = await axios.get(`${API_URL}/food-search/barcode/${barcode}`);
+
+      if (response.data) {
+        handleFoodSelect(response.data);
+      }
+    } catch (err) {
+      setBarcodeError('Produit non trouvé. Vous pouvez l\'ajouter manuellement.');
+      console.error('Erreur recherche code-barres:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="food-search-container">
-      <div className="food-search-input-wrapper">
-        <input
-          type="text"
-          className="food-search-input"
-          placeholder="Rechercher un aliment... (ex: Poulet, Riz, Œuf)"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => query.length >= 2 && setShowSuggestions(true)}
-          autoFocus
-        />
-        {loading && <span className="search-spinner">⏳</span>}
+      <div className="search-mode-tabs">
+        <button
+          className={`mode-tab ${searchMode === 'text' ? 'active' : ''}`}
+          onClick={() => {
+            setSearchMode('text');
+            setBarcodeError('');
+            setBarcode('');
+          }}
+        >
+          🔍 Texte
+        </button>
+        <button
+          className={`mode-tab ${searchMode === 'barcode' ? 'active' : ''}`}
+          onClick={() => {
+            setSearchMode('barcode');
+            setBarcodeError('');
+            setQuery('');
+            setSuggestions([]);
+          }}
+        >
+          📱 Code-barres
+        </button>
       </div>
+
+      {searchMode === 'text' ? (
+        <>
+          <div className="food-search-input-wrapper">
+            <input
+              type="text"
+              className="food-search-input"
+              placeholder="Rechercher un aliment... (ex: Poulet, Riz, Œuf)"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onFocus={() => query.length >= 2 && setShowSuggestions(true)}
+              autoFocus
+            />
+            {loading && <span className="search-spinner">⏳</span>}
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="barcode-input-wrapper">
+            <input
+              type="text"
+              className="barcode-input"
+              placeholder="Scanner ou entrer le code-barres (8+ chiffres)"
+              value={barcode}
+              onChange={(e) => setBarcode(e.target.value.replace(/\D/g, ''))}
+              onKeyPress={(e) => e.key === 'Enter' && handleBarcodeSearch()}
+              autoFocus
+            />
+            <button
+              className="btn-search-barcode"
+              onClick={handleBarcodeSearch}
+              disabled={loading || barcode.length < 8}
+            >
+              {loading ? '⏳' : '✓'}
+            </button>
+          </div>
+          {barcodeError && <div className="barcode-error">{barcodeError}</div>}
+        </>
+      )}
 
       {showSuggestions && suggestions.length > 0 && (
         <div className="food-suggestions">
@@ -81,7 +160,10 @@ function FoodSearch({ onFoodSelected, onCancel }) {
               className="food-suggestion-item"
               onClick={() => handleFoodSelect(food)}
             >
-              <div className="suggestion-name">{food.name}</div>
+              <div className="suggestion-header">
+                <div className="suggestion-name">{food.name}</div>
+                {food.source && <span className="suggestion-source">{food.source}</span>}
+              </div>
               <div className="suggestion-macros">
                 <span className="macro-badge calories">{food.calories} kcal</span>
                 <span className="macro-badge protein">{food.protein}g P</span>

@@ -4,6 +4,36 @@
   gap: 1rem;
 }
 
+.search-mode-tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.mode-tab {
+  flex: 1;
+  padding: 0.75rem;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -0.5rem;
+}
+
+.mode-tab:hover {
+  color: var(--text-main);
+}
+
+.mode-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
 .food-search-input-wrapper {
   position: relative;
   display: flex;
@@ -74,10 +104,86 @@
   background-color: var(--bg-surface-alt);
 }
 
+.barcode-input-wrapper {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.barcode-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-surface);
+  color: var(--text-main);
+  transition: all var(--transition-fast);
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.1em;
+}
+
+.barcode-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+.btn-search-barcode {
+  padding: 0.75rem 1rem;
+  background: var(--primary);
+  border: none;
+  border-radius: var(--radius-md);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  min-width: 45px;
+}
+
+.btn-search-barcode:hover:not(:disabled) {
+  background: var(--primary-hover);
+  transform: scale(1.05);
+}
+
+.btn-search-barcode:disabled {
+  background: var(--border);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.barcode-error {
+  padding: 0.75rem;
+  background-color: #fee2e2;
+  color: #991b1b;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  border: 1px solid #fecaca;
+}
+
+.suggestion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
 .suggestion-name {
   font-weight: 600;
   color: var(--text-main);
-  margin-bottom: 0.5rem;
+}
+
+.suggestion-source {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--primary-soft);
+  color: var(--primary);
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .suggestion-macros {
@@ -150,5 +256,29 @@
   .macro-badge {
     padding: 0.2rem 0.4rem;
     font-size: 0.7rem;
+  }
+
+  .search-mode-tabs {
+    gap: 0.25rem;
+  }
+
+  .mode-tab {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .barcode-input-wrapper {
+    gap: 0.25rem;
+  }
+
+  .btn-search-barcode {
+    padding: 0.65rem;
+    font-size: 1.1rem;
+  }
+
+  .suggestion-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
   }
 }
