@@ -58,6 +58,30 @@ const exerciseMapping = {
     muscleGroup: 'Chest',
     description: 'Incline Dumbbell Chest Flys'
   },
+  'Chest Flys': {
+    equipment: 'dumbbell',
+    exerciseKey: 'incline-chest-flys',
+    muscleGroup: 'Chest',
+    description: 'Dumbbell Chest Flys'
+  },
+  'Dumbbell Chest Flys': {
+    equipment: 'dumbbell',
+    exerciseKey: 'incline-chest-flys',
+    muscleGroup: 'Chest',
+    description: 'Dumbbell Chest Flys'
+  },
+  'Machine Chest Fly': {
+    equipment: 'machine',
+    exerciseKey: 'incline-chest-flys',
+    muscleGroup: 'Chest',
+    description: 'Machine Chest Fly'
+  },
+  'Chest Fly Machine': {
+    equipment: 'machine',
+    exerciseKey: 'incline-chest-flys',
+    muscleGroup: 'Chest',
+    description: 'Chest Fly Machine'
+  },
   'Diamond Pushup': {
     equipment: 'bodyweight',
     exerciseKey: 'diamond-pushup',
@@ -102,6 +126,42 @@ const exerciseMapping = {
     muscleGroup: 'Lats',
     description: 'Dumbbell Row'
   },
+  'Machine Row': {
+    equipment: 'machine',
+    exerciseKey: 'row',
+    muscleGroup: 'Lats',
+    description: 'Machine Row'
+  },
+  'Cable Row': {
+    equipment: 'machine',
+    exerciseKey: 'row',
+    muscleGroup: 'Lats',
+    description: 'Cable Row'
+  },
+  'Seated Row': {
+    equipment: 'machine',
+    exerciseKey: 'row',
+    muscleGroup: 'Lats',
+    description: 'Seated Row'
+  },
+  'Machine Shrug': {
+    equipment: 'machine',
+    exerciseKey: 'shrug',
+    muscleGroup: 'Traps',
+    description: 'Machine Shrug'
+  },
+  'Barbell Shrug': {
+    equipment: 'barbell',
+    exerciseKey: 'shrug',
+    muscleGroup: 'Traps',
+    description: 'Barbell Shrug'
+  },
+  'Dumbbell Shrug': {
+    equipment: 'dumbbell',
+    exerciseKey: 'shrug',
+    muscleGroup: 'Traps',
+    description: 'Dumbbell Shrug'
+  },
 
   // Shoulder exercises
   'Overhead Press': {
@@ -128,6 +188,24 @@ const exerciseMapping = {
     muscleGroup: 'Shoulder',
     description: 'Dumbbell Lateral Raise'
   },
+  'Machine Shoulder Press': {
+    equipment: 'machine',
+    exerciseKey: 'seated-overhead-press',
+    muscleGroup: 'Shoulder',
+    description: 'Machine Shoulder Press'
+  },
+  'Shoulder Press Machine': {
+    equipment: 'machine',
+    exerciseKey: 'seated-overhead-press',
+    muscleGroup: 'Shoulder',
+    description: 'Shoulder Press Machine'
+  },
+  'Cable Lateral Raise': {
+    equipment: 'machine',
+    exerciseKey: 'lateral-raise',
+    muscleGroup: 'Shoulder',
+    description: 'Cable Lateral Raise'
+  },
 
   // Arm exercises - Biceps
   'Barbell Curl': {
@@ -153,6 +231,30 @@ const exerciseMapping = {
     exerciseKey: 'reverse-curl',
     muscleGroup: 'Biceps',
     description: 'Reverse Barbell Curl'
+  },
+  'Machine Curl': {
+    equipment: 'machine',
+    exerciseKey: 'curl',
+    muscleGroup: 'Biceps',
+    description: 'Machine Curl'
+  },
+  'Cable Curl': {
+    equipment: 'machine',
+    exerciseKey: 'curl',
+    muscleGroup: 'Biceps',
+    description: 'Cable Curl'
+  },
+  'Preacher Curl': {
+    equipment: 'barbell',
+    exerciseKey: 'curl',
+    muscleGroup: 'Biceps',
+    description: 'Preacher Curl'
+  },
+  'Machine Preacher Curl': {
+    equipment: 'machine',
+    exerciseKey: 'curl',
+    muscleGroup: 'Biceps',
+    description: 'Machine Preacher Curl'
   },
 
   // Arm exercises - Triceps
@@ -186,6 +288,18 @@ const exerciseMapping = {
     muscleGroup: 'Triceps',
     description: 'Dumbbell Overhead Tricep Extension'
   },
+  'Tricep Extension': {
+    equipment: 'dumbbell',
+    exerciseKey: 'overhead-tricep-extension',
+    muscleGroup: 'Triceps',
+    description: 'Tricep Extension'
+  },
+  'Cable Tricep Extension': {
+    equipment: 'machine',
+    exerciseKey: 'overhead-tricep-extension',
+    muscleGroup: 'Triceps',
+    description: 'Cable Tricep Extension'
+  },
 
   // Leg exercises - Quads
   'Squat': {
@@ -212,11 +326,41 @@ const exerciseMapping = {
     muscleGroup: 'Quads',
     description: 'Dumbbell Goblet Squat'
   },
+  'Machine Squat': {
+    equipment: 'machine',
+    exerciseKey: 'high-bar-squat',
+    muscleGroup: 'Quads',
+    description: 'Machine Squat'
+  },
+  'Leg Press': {
+    equipment: 'machine',
+    exerciseKey: 'goblet-squat',
+    muscleGroup: 'Quads',
+    description: 'Leg Press Machine'
+  },
+  'Machine Leg Press': {
+    equipment: 'machine',
+    exerciseKey: 'goblet-squat',
+    muscleGroup: 'Quads',
+    description: 'Machine Leg Press'
+  },
   'Forward Lunge': {
     equipment: 'bodyweight',
     exerciseKey: 'forward-lunge',
     muscleGroup: 'Quads',
     description: 'Forward Lunge'
+  },
+  'Leg Extension': {
+    equipment: 'machine',
+    exerciseKey: 'high-bar-squat',
+    muscleGroup: 'Quads',
+    description: 'Leg Extension Machine'
+  },
+  'Machine Leg Extension': {
+    equipment: 'machine',
+    exerciseKey: 'high-bar-squat',
+    muscleGroup: 'Quads',
+    description: 'Machine Leg Extension'
   },
   'Bulgarian Split Squat': {
     equipment: 'bodyweight',
@@ -243,6 +387,82 @@ const exerciseMapping = {
     exerciseKey: 'sumo-deadlift',
     muscleGroup: 'Hamstrings',
     description: 'Sumo Deadlift'
+  },
+
+  // Leg curl exercises
+  'Leg Curl': {
+    equipment: 'machine',
+    exerciseKey: 'leg-raises',
+    muscleGroup: 'Hamstrings',
+    description: 'Leg Curl Machine'
+  },
+  'Machine Leg Curl': {
+    equipment: 'machine',
+    exerciseKey: 'leg-raises',
+    muscleGroup: 'Hamstrings',
+    description: 'Machine Leg Curl'
+  },
+  'Seated Leg Curl': {
+    equipment: 'machine',
+    exerciseKey: 'leg-raises',
+    muscleGroup: 'Hamstrings',
+    description: 'Seated Leg Curl'
+  },
+  'Leg Curl Assis': {
+    equipment: 'machine',
+    exerciseKey: 'leg-raises',
+    muscleGroup: 'Hamstrings',
+    description: 'Assisted Leg Curl'
+  },
+  'Leg curl assis': {
+    equipment: 'machine',
+    exerciseKey: 'leg-raises',
+    muscleGroup: 'Hamstrings',
+    description: 'Assisted Leg Curl'
+  },
+  'Lying Leg Curl': {
+    equipment: 'machine',
+    exerciseKey: 'leg-raises',
+    muscleGroup: 'Hamstrings',
+    description: 'Lying Leg Curl'
+  },
+
+  // Additional leg machines
+  'Hip Abductor': {
+    equipment: 'machine',
+    exerciseKey: 'lateral-raise',
+    muscleGroup: 'Glutes',
+    description: 'Hip Abductor Machine'
+  },
+  'Machine Hip Abductor': {
+    equipment: 'machine',
+    exerciseKey: 'lateral-raise',
+    muscleGroup: 'Glutes',
+    description: 'Machine Hip Abductor'
+  },
+  'Hip Adductor': {
+    equipment: 'machine',
+    exerciseKey: 'row',
+    muscleGroup: 'Glutes',
+    description: 'Hip Adductor Machine'
+  },
+  'Machine Hip Adductor': {
+    equipment: 'machine',
+    exerciseKey: 'row',
+    muscleGroup: 'Glutes',
+    description: 'Machine Hip Adductor'
+  },
+  'Ab Machine': {
+    equipment: 'machine',
+    exerciseKey: 'crunch',
+    muscleGroup: 'Abdominals',
+    description: 'Ab Machine'
+  },
+  'Cable Crunch': {
+    equipment: 'machine',
+    exerciseKey: 'crunch',
+    muscleGroup: 'Abdominals',
+    description: 'Cable Crunch'
   },
 
   // Core exercises
