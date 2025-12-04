@@ -58,17 +58,50 @@
   overflow: hidden;
   background: #000;
   box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
 }
 
 .scanner-container video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+  -webkit-appearance: none;
+  -webkit-user-select: none;
+}
+
+#barcode-scanner video {
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100%;
+}
+
+#barcode-scanner canvas {
+  width: 100% !important;
+  max-width: 100%;
 }
 
 /* Html5QRCode styles */
 #barcode-scanner {
   width: 100%;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* iOS Safari video compatibility */
+#barcode-scanner > div:first-child {
+  width: 100%;
+  height: 100%;
+}
+
+#barcode-scanner video,
+#barcode-scanner canvas {
+  -webkit-appearance: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 #barcode-scanner > div {

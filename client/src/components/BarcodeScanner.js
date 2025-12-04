@@ -13,18 +13,26 @@ function BarcodeScanner({ onBarcodeDetected, onCancel }) {
   // Handle unhandled promise rejections for media stream errors
   useEffect(() => {
     const handleUnhandledRejection = (event) => {
-      if (event.reason instanceof DOMException) {
-        const msg = event.reason.message || '';
-        // Suppress media stream abort errors
-        if (msg.includes('aborted') || msg.includes('NotAllowedError')) {
-          event.preventDefault();
-        }
+      const reason = event.reason;
+      const msg = reason?.message || String(reason) || '';
+
+      console.log('Unhandled rejection caught:', msg);
+
+      // Suppress media stream abort errors
+      if (reason instanceof DOMException ||
+          msg.includes('aborted') ||
+          msg.includes('NotAllowedError') ||
+          msg.includes('NotFoundError') ||
+          msg.includes('NotReadableError')) {
+        console.log('Suppressing expected media error:', msg);
+        event.preventDefault();
       }
     };
 
-    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    // Add listener with capture phase to catch early errors
+    window.addEventListener('unhandledrejection', handleUnhandledRejection, true);
     return () => {
-      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection, true);
     };
   }, []);
 
@@ -54,7 +62,7 @@ function BarcodeScanner({ onBarcodeDetected, onCancel }) {
           qrbox: { width: 250, height: 250 },
           aspectRatio: 1.0,
           showTorchButtonIfSupported: true,
-          disableFlip: false
+          rememberLastUsedCamera: false
         }, false);
 
         scannerRef.current = scanner;
