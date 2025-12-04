@@ -294,6 +294,29 @@ function initDatabase() {
       FOREIGN KEY(exercise_id) REFERENCES exercises(id)
     )
   `);
+
+  // Table des aliments avec macronutriments
+  db.run(`
+    CREATE TABLE IF NOT EXISTS food_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT UNIQUE NOT NULL,
+      calories INTEGER,
+      protein REAL,
+      carbs REAL,
+      fats REAL,
+      fiber REAL,
+      sugar REAL,
+      sodium INTEGER,
+      serving_size TEXT DEFAULT '100g',
+      source TEXT DEFAULT 'database',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // Index pour les recherches rapides d'aliments
+  db.run(`CREATE INDEX IF NOT EXISTS idx_food_name ON food_items(name)`, (err) => {
+    if (err) console.error('Erreur création index food_items:', err);
+  });
 }
 
 module.exports = db;

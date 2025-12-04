@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Nutrition.css';
 import FastingTimer from './FastingTimer';
+import FoodSearch from './FoodSearch';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
@@ -12,6 +13,7 @@ function Nutrition({ userId }) {
     const [showAddModal, setShowAddModal] = useState(false);
     const [showGoalsModal, setShowGoalsModal] = useState(false);
     const [showFasting, setShowFasting] = useState(false);
+    const [showFoodSearch, setShowFoodSearch] = useState(false);
     const [selectedType, setSelectedType] = useState('breakfast');
     const [goals, setGoals] = useState({
         calories: 2500,
@@ -98,9 +100,21 @@ function Nutrition({ userId }) {
             setMeals([...meals, response.data]);
             setShowAddModal(false);
             setNewMeal({ name: '', calories: '', protein: '', carbs: '', fats: '' });
+            setShowFoodSearch(false);
         } catch (err) {
             console.error('Erreur ajout repas:', err);
         }
+    };
+
+    const handleFoodSelected = (foodData) => {
+        setNewMeal({
+            name: foodData.name,
+            calories: foodData.calories.toString(),
+            protein: foodData.protein.toString(),
+            carbs: foodData.carbs.toString(),
+            fats: foodData.fats.toString()
+        });
+        setShowFoodSearch(false);
     };
 
     const handleUpdateGoals = async (e) => {
@@ -289,19 +303,38 @@ function Nutrition({ userId }) {
                             <button className="modal-close" onClick={() => setShowAddModal(false)}>✕</button>
                         </div>
 
-                        <form onSubmit={handleAddMeal} className="add-meal-form">
-                            <div className="form-group">
-                                <label>Nom de l'aliment / repas</label>
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    value={newMeal.name}
-                                    onChange={e => setNewMeal({ ...newMeal, name: e.target.value })}
-                                    placeholder="Ex: Poulet riz brocolis"
-                                    required
-                                    autoFocus
+                        {showFoodSearch ? (
+                            <div className="modal-body">
+                                <FoodSearch
+                                    onFoodSelected={handleFoodSelected}
+                                    onCancel={() => setShowFoodSearch(false)}
                                 />
                             </div>
+                        ) : (
+                            <form onSubmit={handleAddMeal} className="add-meal-form">
+                                <div className="form-actions-top">
+                                    <button
+                                        type="button"
+                                        className="btn-search-food"
+                                        onClick={() => setShowFoodSearch(true)}
+                                        title="Rechercher dans la base de données"
+                                    >
+                                        🔍 Rechercher un aliment
+                                    </button>
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Nom de l'aliment / repas</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={newMeal.name}
+                                        onChange={e => setNewMeal({ ...newMeal, name: e.target.value })}
+                                        placeholder="Ex: Poulet riz brocolis"
+                                        required
+                                        autoFocus
+                                    />
+                                </div>
 
                             <div className="form-row">
                                 <div className="form-group">
@@ -361,15 +394,16 @@ function Nutrition({ userId }) {
                                 </div>
                             </div>
 
-                            <div className="modal-footer">
-                                <button type="button" className="btn btn-secondary" onClick={() => setShowAddModal(false)}>
-                                    Annuler
-                                </button>
-                                <button type="submit" className="btn btn-primary">
-                                    Ajouter
-                                </button>
-                            </div>
-                        </form>
+                                <div className="modal-footer">
+                                    <button type="button" className="btn btn-secondary" onClick={() => setShowAddModal(false)}>
+                                        Annuler
+                                    </button>
+                                    <button type="submit" className="btn btn-primary">
+                                        Ajouter
+                                    </button>
+                                </div>
+                            </form>
+                        )}
                     </div>
                 </div>
             )}

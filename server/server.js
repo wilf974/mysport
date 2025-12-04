@@ -851,6 +851,119 @@ app.post('/api/nutrition/favorites', (req, res) => {
   );
 });
 
+// ==================== RECHERCHE D'ALIMENTS ====================
+// GET search food items with autocomplete
+app.get('/api/food-search', (req, res) => {
+  const { query, limit = 10 } = req.query;
+
+  if (!query || query.length < 2) {
+    return res.json([]);
+  }
+
+  const searchTerm = `%${query}%`;
+  db.all(
+    `SELECT id, name, calories, protein, carbs, fats, fiber, sugar, sodium, serving_size
+     FROM food_items
+     WHERE name LIKE ?
+     ORDER BY name ASC
+     LIMIT ?`,
+    [searchTerm, parseInt(limit)],
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(rows || []);
+    }
+  );
+});
+
+// GET single food item
+app.get('/api/food-items/:id', (req, res) => {
+  const { id } = req.params;
+  db.get(
+    'SELECT * FROM food_items WHERE id = ?',
+    [id],
+    (err, row) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(row || {});
+    }
+  );
+});
+
+// POST new food item to database
+app.post('/api/food-items', (req, res) => {
+  const { name, calories, protein, carbs, fats, fiber, sugar, sodium, serving_size } = req.body;
+
+  db.run(
+    `INSERT INTO food_items (name, calories, protein, carbs, fats, fiber, sugar, sodium, serving_size)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [name, calories || 0, protein || 0, carbs || 0, fats || 0, fiber || 0, sugar || 0, sodium || 0, serving_size || '100g'],
+    function (err) {
+      if (err) {
+        if (err.message.includes('UNIQUE constraint failed')) {
+          return res.status(409).json({ error: 'Cet aliment existe déjà' });
+        }
+        return res.status(500).json({ error: err.message });
+      }
+      res.json({
+        id: this.lastID,
+        name,
+        calories,
+        protein,
+        carbs,
+        fats,
+        fiber,
+        sugar,
+        sodium,
+        serving_size
+      });
+    }
+  );
+});
+
+// POST bulk import of food items
+app.post('/api/food-items/bulk', (req, res) => {
+  const { foods } = req.body; // Array of food objects
+
+  if (!Array.isArray(foods) || foods.length === 0) {
+    return res.status(400).json({ error: 'Invalid foods array' });
+  }
+
+  let inserted = 0;
+  let skipped = 0;
+
+  const insertFood = (index) => {
+    if (index >= foods.length) {
+      return res.json({ success: true, inserted, skipped });
+    }
+
+    const food = foods[index];
+    db.run(
+      `INSERT INTO food_items (name, calories, protein, carbs, fats, fiber, sugar, sodium, serving_size)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        food.name,
+        food.calories || 0,
+        food.protein || 0,
+        food.carbs || 0,
+        food.fats || 0,
+        food.fiber || 0,
+        food.sugar || 0,
+        food.sodium || 0,
+        food.serving_size || '100g'
+      ],
+      (err) => {
+        if (err && err.message.includes('UNIQUE constraint')) {
+          skipped++;
+        } else if (!err) {
+          inserted++;
+        }
+        insertFood(index + 1);
+      }
+    );
+  };
+
+  insertFood(0);
+});
+
 // ==================== JEÛNE INTERMITTENT ====================
 // GET current active fast
 app.get('/api/fasting/current/:userId', (req, res) => {
