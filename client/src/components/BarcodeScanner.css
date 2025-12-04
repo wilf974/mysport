@@ -52,6 +52,8 @@
 
 .scanner-container {
   width: 100%;
+  min-height: 400px;
+  height: auto;
   border-radius: var(--radius-md);
   overflow: hidden;
   background: #000;
@@ -126,9 +128,14 @@
   gap: 0.5rem;
 }
 
-.btn-stop-scanner:hover {
+.btn-stop-scanner:hover:not(:disabled) {
   background: #dc2626;
   transform: scale(1.02);
+}
+
+.btn-stop-scanner:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Mobile adjustments */
@@ -171,8 +178,13 @@
   }
 
   #barcode-scanner {
-    max-height: 450px;
+    height: 450px;
     border-radius: var(--radius-lg);
+  }
+
+  .scanner-container {
+    min-height: 450px;
+    height: 450px;
   }
 }
 
@@ -207,7 +219,12 @@
   }
 
   #barcode-scanner {
-    max-height: 350px;
+    height: 350px;
+  }
+
+  .scanner-container {
+    min-height: 350px;
+    height: 350px;
   }
 
   /* Adjust torch and fullscreen buttons for mobile */

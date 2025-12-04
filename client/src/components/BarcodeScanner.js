@@ -4,6 +4,7 @@ import './BarcodeScanner.css';
 
 function BarcodeScanner({ onBarcodeDetected, onCancel }) {
   const [isScanning, setIsScanning] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(false);
   const [error, setError] = useState('');
   const [lastDetected, setLastDetected] = useState('');
   const scannerRef = useRef(null);
@@ -22,6 +23,8 @@ function BarcodeScanner({ onBarcodeDetected, onCancel }) {
 
     const initializeScanner = async () => {
       try {
+        if (isMounted) setIsInitializing(true);
+
         scanner = new Html5QrcodeScanner('barcode-scanner', {
           fps: 10,
           qrbox: { width: 250, height: 250 },
@@ -63,11 +66,14 @@ function BarcodeScanner({ onBarcodeDetected, onCancel }) {
         };
 
         scanner.render(onScanSuccess, onScanError);
+
+        if (isMounted) setIsInitializing(false);
       } catch (err) {
         if (isMounted) {
-          setError('Erreur lors de l\'initialisation du scanner.');
+          setError(`Erreur scanner: ${err?.message || 'Impossible d\'initialiser le scanner'}`);
           console.error('Scanner initialization error:', err);
           setIsScanning(false);
+          setIsInitializing(false);
         }
       }
     };
@@ -122,13 +128,21 @@ function BarcodeScanner({ onBarcodeDetected, onCancel }) {
       ) : (
         <div className="scanner-active">
           <div id="barcode-scanner" className="scanner-container"></div>
+          {isInitializing && (
+            <div className="scanner-info">
+              ⏳ Initialisation du scanner...
+            </div>
+          )}
           {error && <div className="scanner-error">{error}</div>}
-          <div className="scanner-info">
-            Pointez votre caméra sur le code-barres
-          </div>
+          {!error && !isInitializing && (
+            <div className="scanner-info">
+              Pointez votre caméra sur le code-barres
+            </div>
+          )}
           <button
             className="btn-stop-scanner"
             onClick={stopScanning}
+            disabled={isInitializing}
           >
             ✕ Arrêter le scan
           </button>
