@@ -162,6 +162,34 @@
   border: 1px solid #fecaca;
 }
 
+.btn-camera-scan {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--primary-soft);
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.btn-camera-scan:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-camera-scan:active {
+  transform: translateY(0);
+}
+
 .suggestion-header {
   display: flex;
   justify-content: space-between;

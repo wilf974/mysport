@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './FoodSearch.css';
+import BarcodeScanner from './BarcodeScanner';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
@@ -12,6 +13,7 @@ function FoodSearch({ onFoodSelected, onCancel }) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchMode, setSearchMode] = useState('text'); // 'text' or 'barcode'
   const [barcodeError, setBarcodeError] = useState('');
+  const [scannerMode, setScannerMode] = useState(false); // false = manual input, true = camera scan
 
   useEffect(() => {
     if (query.length < 2) {
@@ -87,6 +89,28 @@ function FoodSearch({ onFoodSelected, onCancel }) {
     }
   };
 
+  const handleBarcodeDetected = async (detectedBarcode) => {
+    setBarcode(detectedBarcode);
+    setScannerMode(false);
+
+    try {
+      setLoading(true);
+      setBarcodeError('');
+      const response = await axios.get(`${API_URL}/food-search/barcode/${detectedBarcode}`);
+
+      if (response.data) {
+        handleFoodSelect(response.data);
+      } else {
+        setBarcodeError('Produit non trouvé. Essayez une autre recherche.');
+      }
+    } catch (err) {
+      setBarcodeError('Produit non trouvé. Entrez le code manuellement.');
+      console.error('Erreur recherche code-barres:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="food-search-container">
       <div className="search-mode-tabs">
@@ -128,13 +152,18 @@ function FoodSearch({ onFoodSelected, onCancel }) {
             {loading && <span className="search-spinner">⏳</span>}
           </div>
         </>
+      ) : scannerMode ? (
+        <BarcodeScanner
+          onBarcodeDetected={handleBarcodeDetected}
+          onCancel={() => setScannerMode(false)}
+        />
       ) : (
         <>
           <div className="barcode-input-wrapper">
             <input
               type="text"
               className="barcode-input"
-              placeholder="Scanner ou entrer le code-barres (8+ chiffres)"
+              placeholder="Entrer le code-barres (8+ chiffres)"
               value={barcode}
               onChange={(e) => setBarcode(e.target.value.replace(/\D/g, ''))}
               onKeyPress={(e) => e.key === 'Enter' && handleBarcodeSearch()}
@@ -144,11 +173,19 @@ function FoodSearch({ onFoodSelected, onCancel }) {
               className="btn-search-barcode"
               onClick={handleBarcodeSearch}
               disabled={loading || barcode.length < 8}
+              title="Rechercher le code-barres"
             >
               {loading ? '⏳' : '✓'}
             </button>
           </div>
           {barcodeError && <div className="barcode-error">{barcodeError}</div>}
+          <button
+            className="btn-camera-scan"
+            onClick={() => setScannerMode(true)}
+            title="Ouvrir la caméra pour scanner"
+          >
+            📷 Scanner avec caméra
+          </button>
         </>
       )}
 
