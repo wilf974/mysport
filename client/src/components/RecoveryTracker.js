@@ -19,7 +19,7 @@ function RecoveryTracker({ userId }) {
 
     useEffect(() => {
         fetchScores();
-    }, []);
+    }, [userId]);
 
     const fetchScores = async () => {
         try {

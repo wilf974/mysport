@@ -15,7 +15,7 @@ function FastingTimer({ userId }) {
         fetchCurrentFast();
         fetchHistory();
         return () => clearInterval(timerRef.current);
-    }, []);
+    }, [userId]);
 
     useEffect(() => {
         if (activeFast) {

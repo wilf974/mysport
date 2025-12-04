@@ -40,7 +40,7 @@ function BodyMeasurements({ userId }) {
 
   useEffect(() => {
     fetchMeasurements();
-  }, []);
+  }, [userId]);
 
   const fetchMeasurements = async () => {
     try {

@@ -30,7 +30,7 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
     } else {
       setSuggestion(null);
     }
-  }, [selectedExercise]);
+  }, [selectedExercise, userId]);
 
   const fetchWorkoutExercises = async () => {
     try {

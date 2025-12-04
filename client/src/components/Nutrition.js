@@ -43,7 +43,7 @@ function Nutrition({ userId }) {
     useEffect(() => {
         fetchMeals();
         fetchGoals();
-    }, [date]);
+    }, [date, userId]);
 
     const fetchMeals = async () => {
         try {

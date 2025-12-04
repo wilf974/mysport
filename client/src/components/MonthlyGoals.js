@@ -18,7 +18,7 @@ function MonthlyGoals({ userId }) {
 
     useEffect(() => {
         fetchGoals();
-    }, [currentDate]);
+    }, [currentDate, userId]);
 
     const fetchGoals = async () => {
         try {

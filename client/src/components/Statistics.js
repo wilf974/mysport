@@ -45,14 +45,14 @@ function Statistics({ userId }) {
     fetchExercises();
     fetchVolumeData();
     fetchStreakData();
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
     if (selectedExerciseId) {
       fetchProgressionData(selectedExerciseId);
       fetchComparisonData(selectedExerciseId);
     }
-  }, [selectedExerciseId]);
+  }, [selectedExerciseId, userId]);
 
   const fetchStats = async () => {
     try {

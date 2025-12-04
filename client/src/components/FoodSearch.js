@@ -109,7 +109,7 @@ function FoodSearch({ onFoodSelected, onCancel }) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [handleFoodSelect]);
 
   return (
     <div className="food-search-container">

@@ -27,7 +27,7 @@ function WorkoutCalendar({ userId, exercises }) {
   useEffect(() => {
     fetchWorkouts();
     checkTemplates();
-  }, [currentWeek, currentYear]);
+  }, [currentWeek, currentYear, userId]);
 
   const fetchWorkouts = async () => {
     try {
@@ -225,7 +225,6 @@ function WorkoutCalendar({ userId, exercises }) {
                     </div>
                     <WorkoutDayExercises
                       workoutId={workout.id}
-                      userId={userId}
                     />
                   </div>
                 ) : (
@@ -275,7 +274,7 @@ function getDateOfISOWeek(w, y) {
   return ISOweekStart;
 }
 
-function WorkoutDayExercises({ workoutId, userId }) {
+function WorkoutDayExercises({ workoutId }) {
   const [exercises, setExercises] = useState([]);
 
   useEffect(() => {

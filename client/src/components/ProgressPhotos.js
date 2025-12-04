@@ -33,7 +33,7 @@ function ProgressPhotos({ userId }) {
   useEffect(() => {
     fetchPhotos();
     fetchWorkouts();
-  }, []);
+  }, [userId]);
 
   const fetchWorkouts = async () => {
     try {
