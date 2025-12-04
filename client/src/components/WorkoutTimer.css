@@ -1,0 +1,114 @@
+.workout-timer {
+    background: var(--bg-surface-alt);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.timer-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.timer-display .time {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+
+.timer-display .time.finished {
+    color: var(--danger);
+    animation: blink 1s infinite;
+}
+
+.timer-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-tertiary);
+    margin-top: 0.25rem;
+}
+
+.timer-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.btn-timer-main {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-full);
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    min-width: 80px;
+}
+
+.btn-timer-main:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+.btn-timer-main.active {
+    background: var(--warning);
+}
+
+.btn-timer-adjust {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    border-radius: var(--radius-md);
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.btn-timer-adjust:hover:not(:disabled) {
+    background: var(--bg-surface-alt);
+    border-color: var(--text-tertiary);
+}
+
+.btn-timer-adjust:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-timer-reset {
+    background: transparent;
+    border: none;
+    color: var(--text-tertiary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 50%;
+    transition: var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+}
+
+.btn-timer-reset:hover {
+    background: var(--bg-surface);
+    color: var(--text-main);
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0.5;
+    }
+}

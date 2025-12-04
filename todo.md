@@ -3,37 +3,37 @@
 ## 🔵 1. Fonctions liées à l'entraînement (les plus utiles)
 
 ### 1.1 Suivi intelligent des performances
-- [ ] Graphiques automatiques de progression (charges, reps, RPE)
-- [ ] Courbes par exercice (développé couché, squat, tractions…)
-- [ ] Indication visuelle : "+6 % / semaine", "stagnation", etc.
+- [x] Graphiques automatiques de progression (charges, reps, RPE)
+- [x] Courbes par exercice (développé couché, squat, tractions…)
+- [x] Indication visuelle : "+6 % / semaine", "stagnation", etc.
 - **Technologie suggérée**: Chart.js ou Recharts pour les graphiques
 
 ### 1.2 Détection de stagnation
-- [ ] Si l'utilisateur n'augmente plus ses poids sur 2–3 séances
-- [ ] Message automatique : "Il est temps d'ajouter +2,5 kg ou d'augmenter les répétitions."
+- [x] Si l'utilisateur n'augmente plus ses poids sur 2–3 séances
+- [x] Message automatique : "Il est temps d'ajouter +2,5 kg ou d'augmenter les répétitions."
 - [ ] Système de notifications pour alerter l'utilisateur
 - **Logique**: Comparer les poids des 3 dernières séances du même exercice
 
 ### 1.3 Progression automatique du programme
-- [ ] +2,5 kg toutes les 2 semaines
-- [ ] +1 répétition / semaine si la charge est déjà lourde
-- [ ] Détection RPE pour ajuster automatiquement
-- [ ] Interface pour accepter/refuser les suggestions de progression
+- [x] +2,5 kg toutes les 2 semaines
+- [x] +1 répétition / semaine si la charge est déjà lourde
+- [x] Détection RPE pour ajuster automatiquement
+- [x] Interface pour accepter/refuser les suggestions de progression
 - **Champs à ajouter à la BD**: RPE (Rate of Perceived Exertion)
 
 ### 1.4 Timer intégré par exercice
-- [ ] Temps de repos personnalisable
-- [ ] Mode "chrono global" de la séance
+- [x] Temps de repos personnalisable
+- [x] Mode "chrono global" de la séance
 - [ ] Historique du temps total de séance
-- [ ] Notifications quand le repos est terminé
+- [x] Notifications quand le repos est terminé
 - **Composant**: Créer un composant WorkoutTimer réutilisable
 
 ### 1.5 Comparateur de séances
-- [ ] Montrer meilleure séance sur le même programme
-- [ ] Charge totale soulevée
-- [ ] Volume par muscle
-- [ ] Statistiques comparatives
-- **API endpoint**: Créer /api/workout-comparison/:userId/:exerciseId
+- [x] Montrer meilleure séance sur le même programme
+- [x] Charge totale soulevée
+- [x] Volume par muscle
+- [x] Statistiques comparatives
+- [x] **API endpoint**: Créer /api/workout-comparison/:userId/:exerciseId
 
 ---
 
@@ -47,9 +47,9 @@
 - **Nouvelle table BD**: `nutrition_goals` (user_id, tdee, proteins, carbs, fats, objective)
 
 ### 2.2 Journal alimentaire simplifié
-- [ ] Pas besoin d'énorme base de données
-- [ ] Ajouter juste "protéines / glucides / lipides / calories"
-- [ ] Enregistrer des repas favoris
+- [x] Pas besoin d'énorme base de données
+- [x] Ajouter juste "protéines / glucides / lipides / calories"
+- [x] Enregistrer des repas favoris
 - [ ] Système de suggestion automatique
 - [ ] Exemple : "Tu manques de protéines aujourd'hui."
 - **Nouvelles tables BD**: `meals`, `favorite_meals`
@@ -81,55 +81,46 @@
 - **Amélioration UI**: Créer PhotoComparison.js avec 2 images côte à côte
 
 ### 3.2 Mesure des circonférences
-- [ ] Bras
-- [ ] Épaules
-- [ ] Tour de taille
-- [ ] Cuisses
-- [ ] Graphiques comme pour les performances
-- [ ] Tendances visuelles
+- [x] Bras
+- [x] Épaules
+- [x] Tour de taille
+- [x] Cuisses
+- [x] Graphiques comme pour les performances
+- [x] Tendances visuelles
 - **Amélioration**: Étendre body_measurements existante avec graphiques
-
-### 3.3 Indicateur de recomposition corporelle
-- [ ] Score Muscle +0.4
-- [ ] Score Gras -0.3
-- [ ] Basé sur poids + mesures + performances
-- [ ] Plus fiable que l'IMC
-- [ ] Algorithme pour calculer le score
-- **Nouvelle table BD**: `body_composition_score`
-
-### 3.4 Estimation de la TDEE réelle
-- [ ] Adaptée automatiquement selon : activité, sommeil, poids, intensité
-- [ ] Mise à jour basée sur les données d'entraînement
-- [ ] Historique des TDEE estimées
-- [ ] Graphique de correction automatique
-- **Nouvelle table BD**: `tdee_history`
 
 ---
 
 ## 🟠 4. Fonctionnalités motivation / psychologie
 
 ### 4.1 Calendrier d'assiduité (système de "streak")
-- [ ] Parfait pour garder une habitude
-- [ ] Compter les jours consécutifs d'entraînement
+- [x] Parfait pour garder une habitude
+- [x] Compter les jours consécutifs d'entraînement
 - [ ] Si l'utilisateur manque 2 séances → message : "Tu vas perdre ta lancée, reprends demain !"
-- [ ] Affichage du meilleur streak
+- [x] Affichage du meilleur streak
 - [ ] Animation visuelle des jours complétés
-- **Nouvelle table BD**: `training_streak`
+- **Nouvelle table BD**: `training_streak` (calculé dynamiquement pour l'instant)
 
 ### 4.2 Score quotidien "Forme & Récupération"
-- [ ] Basé sur : sommeil, énergie perçue, humeur, intensité de la séance
-- [ ] Notation 1-10 avant chaque séance
-- [ ] Historique et tendances
-- [ ] Conseil basé sur le score (repos si bas)
+- [x] Basé sur : sommeil, énergie perçue, humeur, intensité de la séance
+- [x] Notation 1-10 avant chaque séance
+- [x] Historique et tendances
+- [x] Conseil basé sur le score (repos si bas)
 - **Nouvelle table BD**: `recovery_score`
 
 ### 4.3 Objectifs mensuels
-- [ ] Exemples : "+10 kg au squat", "Perdre 1 cm de tour de taille"
-- [ ] "Faire 10 tractions assistées avec moins d'aide"
-- [ ] Suivi automatique de la progression
-- [ ] Interface CRUD pour créer/modifier objectifs
+- [x] Exemples : "+10 kg au squat", "Perdre 1 cm de tour de taille"
+- [x] "Faire 10 tractions assistées avec moins d'aide"
+- [x] Suivi automatique de la progression (via mise à jour manuelle pour l'instant)
+- [x] Interface CRUD pour créer/modifier objectifs
 - [ ] Notifications de progression
 - **Nouvelle table BD**: `monthly_goals`
+
+### 4.4 Jeûne Intermittent (Bonus)
+- [x] Timer de jeûne (16:8, 18:6, etc.)
+- [x] Historique des jeûnes
+- [x] Intégration dans l'onglet Nutrition
+- **Nouvelle table BD**: `fasting_logs`
 
 ### 4.4 Système de notifications personnalisées
 - [ ] "Tu t'entraînes dans 1h. Pense à t'hydrater."

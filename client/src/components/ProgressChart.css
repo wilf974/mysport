@@ -1,0 +1,33 @@
+.progress-chart-container {
+    height: 300px;
+    width: 100%;
+    padding: 1rem;
+    background: var(--bg-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+.chart-empty-state {
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-surface-alt);
+    border-radius: var(--radius-lg);
+    border: 1px dashed var(--border);
+    color: var(--text-tertiary);
+    text-align: center;
+    padding: 2rem;
+}
+
+.chart-empty-state p {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.chart-empty-state small {
+    font-size: 0.85rem;
+}

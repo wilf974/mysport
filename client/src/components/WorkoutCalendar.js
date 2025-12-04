@@ -22,9 +22,11 @@ function WorkoutCalendar({ userId, exercises }) {
   const [selectedDay, setSelectedDay] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [hasTemplates, setHasTemplates] = useState(false);
 
   useEffect(() => {
     fetchWorkouts();
+    checkTemplates();
   }, [currentWeek, currentYear]);
 
   const fetchWorkouts = async () => {
@@ -40,6 +42,46 @@ function WorkoutCalendar({ userId, exercises }) {
       console.error('Erreur lors du chargement des entraînements:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const checkTemplates = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/templates/check/${userId}`);
+      setHasTemplates(response.data.hasTemplates);
+    } catch (err) {
+      console.error('Erreur vérification modèles:', err);
+    }
+  };
+
+  const handleSaveWeekAsTemplate = async () => {
+    if (!window.confirm("Voulez-vous définir cette semaine comme votre semaine type ? Cela écrasera l'ancien modèle.")) return;
+    try {
+      await axios.post(`${API_URL}/templates/save-week`, {
+        user_id: userId,
+        week: currentWeek,
+        year: currentYear
+      });
+      alert("Semaine type sauvegardée !");
+      setHasTemplates(true);
+    } catch (err) {
+      console.error('Erreur sauvegarde modèle:', err);
+      alert("Erreur lors de la sauvegarde.");
+    }
+  };
+
+  const handleApplyTemplate = async () => {
+    if (!window.confirm("Voulez-vous appliquer la semaine type à cette semaine ?")) return;
+    try {
+      await axios.post(`${API_URL}/templates/apply`, {
+        user_id: userId,
+        week: currentWeek,
+        year: currentYear
+      });
+      fetchWorkouts();
+    } catch (err) {
+      console.error('Erreur application modèle:', err);
+      alert("Erreur lors de l'application du modèle.");
     }
   };
 
@@ -76,6 +118,26 @@ function WorkoutCalendar({ userId, exercises }) {
     }
   };
 
+  const handleValidateSession = async (e, workoutId, currentStatus) => {
+    e.stopPropagation(); // Prevent opening modal
+    try {
+      await axios.put(`${API_URL}/workouts/${workoutId}`, {
+        completed: !currentStatus
+      });
+
+      // Update local state
+      const updatedWorkouts = { ...workouts };
+      // Find the day for this workout
+      const day = Object.keys(updatedWorkouts).find(key => updatedWorkouts[key].id === workoutId);
+      if (day) {
+        updatedWorkouts[day] = { ...updatedWorkouts[day], completed: !currentStatus };
+        setWorkouts(updatedWorkouts);
+      }
+    } catch (err) {
+      console.error('Erreur validation séance:', err);
+    }
+  };
+
   const previousWeek = () => {
     if (currentWeek === 1) {
       setCurrentYear(currentYear - 1);
@@ -99,41 +161,82 @@ function WorkoutCalendar({ userId, exercises }) {
     setShowModal(true);
   };
 
+  // Helper to get date for a specific day in the current week
+  const getDateForDay = (dayIndex) => {
+    const d = getDateOfISOWeek(currentWeek, currentYear);
+    // getDateOfISOWeek returns Monday. Adjust for dayIndex (0=Monday, 6=Sunday in our array, but standard JS is 0=Sunday)
+    // Our DAYS_OF_WEEK: 0=Lundi, 1=Mardi...
+    const dayDate = new Date(d);
+    dayDate.setDate(d.getDate() + dayIndex);
+    return dayDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+  };
+
   return (
     <div className="workout-calendar">
       <div className="calendar-header">
-        <button className="btn btn-secondary" onClick={previousWeek}>← Semaine précédente</button>
+        <button className="calendar-nav-btn" onClick={previousWeek}>← Semaine précédente</button>
         <h2>Semaine {currentWeek} - {currentYear}</h2>
-        <button className="btn btn-secondary" onClick={nextWeek}>Semaine suivante →</button>
+        <button className="calendar-nav-btn" onClick={nextWeek}>Semaine suivante →</button>
+      </div>
+
+      <div className="template-actions">
+        {hasTemplates && (
+          <button className="btn-template-apply" onClick={handleApplyTemplate}>
+            ⚡ Appliquer semaine type
+          </button>
+        )}
+        <button className="btn-template-save" onClick={handleSaveWeekAsTemplate}>
+          💾 Sauvegarder comme modèle
+        </button>
       </div>
 
       {loading ? (
         <div className="loading">Chargement...</div>
       ) : (
         <div className="calendar-grid">
-          {DAYS_OF_WEEK.map(day => (
-            <div
-              key={day.id}
-              className={`day-card ${workouts[day.id] ? 'has-workout' : ''}`}
-              onClick={() => openDayModal(day.id)}
-            >
-              <h3>{day.name}</h3>
-              {workouts[day.id] ? (
-                <div className="workout-info">
-                  <div className="badge badge-success">Entraînement planifié</div>
-                  <WorkoutDayExercises
-                    workoutId={workouts[day.id].id}
-                    userId={userId}
-                  />
+          {DAYS_OF_WEEK.map(day => {
+            const workout = workouts[day.id];
+            const isCompleted = workout?.completed;
+
+            return (
+              <div
+                key={day.id}
+                className={`day-card ${workout ? 'has-workout' : ''} ${isCompleted ? 'completed-session' : ''}`}
+                onClick={() => openDayModal(day.id)}
+              >
+                <div className="day-header">
+                  <h3>{day.name}</h3>
+                  <span className="day-date">{getDateForDay(day.id)}</span>
                 </div>
-              ) : (
-                <div className="no-workout">
-                  <p>Aucun entraînement</p>
-                  <button className="btn btn-primary btn-small">Ajouter</button>
-                </div>
-              )}
-            </div>
-          ))}
+
+                {workout ? (
+                  <div className="workout-info">
+                    <div className="workout-status-bar">
+                      <div className={`badge ${isCompleted ? 'badge-success' : 'badge-primary'}`}>
+                        {isCompleted ? '✅ Validé' : 'Planifié'}
+                      </div>
+                      <button
+                        className={`btn-validate-mini ${isCompleted ? 'active' : ''}`}
+                        onClick={(e) => handleValidateSession(e, workout.id, isCompleted)}
+                        title={isCompleted ? "Marquer comme non fait" : "Valider la séance"}
+                      >
+                        {isCompleted ? '↩' : '✓'}
+                      </button>
+                    </div>
+                    <WorkoutDayExercises
+                      workoutId={workout.id}
+                      userId={userId}
+                    />
+                  </div>
+                ) : (
+                  <div className="no-workout">
+                    <p>Repos</p>
+                    <button className="btn-add-mini" title="Ajouter un entraînement">+</button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -159,6 +262,17 @@ function getWeekNumber(date) {
   d.setUTCDate(d.getUTCDate() + 4 - dayNum);
   const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
   return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
+function getDateOfISOWeek(w, y) {
+  var simple = new Date(y, 0, 1 + (w - 1) * 7);
+  var dow = simple.getDay();
+  var ISOweekStart = simple;
+  if (dow <= 4)
+    ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
+  else
+    ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
+  return ISOweekStart;
 }
 
 function WorkoutDayExercises({ workoutId, userId }) {

@@ -12,11 +12,17 @@ app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
+// Health check
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
+// ==================== EXERCICES ====================
 // ==================== EXERCICES ====================
 // GET all exercises for a user
 app.get('/api/exercises/:userId', (req, res) => {
   const { userId } = req.params;
-  db.all('SELECT * FROM exercises WHERE user_id = ? ORDER BY muscle_group', [userId], (err, rows) => {
+  db.all('SELECT * FROM exercises WHERE user_id = ? ORDER BY name', [userId], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(rows);
   });
@@ -27,8 +33,8 @@ app.post('/api/exercises', (req, res) => {
   const { user_id, name, description, muscle_group, difficulty } = req.body;
   db.run(
     'INSERT INTO exercises (user_id, name, description, muscle_group, difficulty) VALUES (?, ?, ?, ?, ?)',
-    [user_id, name, description, muscle_group, difficulty || 'intermediate'],
-    function(err) {
+    [user_id, name, description, muscle_group, difficulty],
+    function (err) {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ id: this.lastID, user_id, name, description, muscle_group, difficulty });
     }
@@ -42,7 +48,7 @@ app.put('/api/exercises/:id', (req, res) => {
   db.run(
     'UPDATE exercises SET name = ?, description = ?, muscle_group = ?, difficulty = ? WHERE id = ?',
     [name, description, muscle_group, difficulty, id],
-    function(err) {
+    function (err) {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ id, name, description, muscle_group, difficulty });
     }
@@ -63,13 +69,22 @@ app.delete('/api/exercises/:id', (req, res) => {
 app.get('/api/workouts/:userId/:week/:year', (req, res) => {
   const { userId, week, year } = req.params;
   db.all(
-    'SELECT * FROM workouts WHERE user_id = ? AND week_number = ? AND year = ? ORDER BY day_of_week',
+    'SELECT id, user_id, day_of_week, week_number, year, created_at, duration, completed FROM workouts WHERE user_id = ? AND week_number = ? AND year = ? ORDER BY day_of_week',
     [userId, week, year],
     (err, rows) => {
       if (err) return res.status(500).json({ error: err.message });
+      console.log(`GET workouts for user ${userId} week ${week}:`, JSON.stringify(rows.map(r => ({ id: r.id, completed: r.completed }))));
       res.json(rows);
     }
   );
+});
+
+// DEBUG GET workout by ID
+app.get('/api/workouts/debug/:id', (req, res) => {
+  db.get('SELECT * FROM workouts WHERE id = ?', [req.params.id], (err, row) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(row);
+  });
 });
 
 // POST new workout day
@@ -78,25 +93,46 @@ app.post('/api/workouts', (req, res) => {
   db.run(
     'INSERT INTO workouts (user_id, day_of_week, week_number, year, duration) VALUES (?, ?, ?, ?, ?)',
     [user_id, day_of_week, week_number, year, duration || null],
-    function(err) {
+    function (err) {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ id: this.lastID, user_id, day_of_week, week_number, year, duration: duration || null });
     }
   );
 });
 
-// PUT update workout duration
+// PUT update workout
 app.put('/api/workouts/:id', (req, res) => {
   const { id } = req.params;
-  const { duration } = req.body;
-  db.run(
-    'UPDATE workouts SET duration = ? WHERE id = ?',
-    [duration || null, id],
-    function(err) {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ id, duration: duration || null });
+  const { duration, completed } = req.body;
+
+  console.log(`Updating workout ${id}: duration=${duration}, completed=${completed}`);
+
+  let updates = [];
+  let params = [];
+
+  if (duration !== undefined) {
+    updates.push('duration = ?');
+    params.push(duration);
+  }
+
+  if (completed !== undefined) {
+    updates.push('completed = ?');
+    params.push(completed ? 1 : 0);
+  }
+
+  if (updates.length === 0) return res.json({ success: true });
+
+  const query = `UPDATE workouts SET ${updates.join(', ')} WHERE id = ?`;
+  params.push(id);
+
+  db.run(query, params, function (err) {
+    if (err) {
+      console.error('Error updating workout:', err);
+      return res.status(500).json({ error: err.message });
     }
-  );
+    console.log(`Workout ${id} updated successfully. Changes: ${this.changes}`);
+    res.json({ id, duration, completed });
+  });
 });
 
 // DELETE workout
@@ -108,6 +144,126 @@ app.delete('/api/workouts/:id', (req, res) => {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ success: true });
     });
+  });
+});
+
+// ==================== TEMPLATES (SEMAINE TYPE) ====================
+
+// SAVE week as template
+app.post('/api/templates/save-week', (req, res) => {
+  const { user_id, week, year } = req.body;
+
+  // 1. Delete existing templates for this user
+  db.run('DELETE FROM workout_templates WHERE user_id = ?', [user_id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+
+    // 2. Get workouts for the specified week
+    db.all(
+      'SELECT * FROM workouts WHERE user_id = ? AND week_number = ? AND year = ?',
+      [user_id, week, year],
+      (err, workouts) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        if (workouts.length === 0) return res.json({ success: true, message: "Aucun entraînement à sauvegarder" });
+
+        let processed = 0;
+        workouts.forEach(workout => {
+          // Create template for this workout
+          db.run(
+            'INSERT INTO workout_templates (user_id, name, default_day) VALUES (?, ?, ?)',
+            [user_id, `Modèle ${workout.day_of_week}`, workout.day_of_week],
+            function (err) {
+              if (err) console.error(err);
+              const templateId = this.lastID;
+
+              // Copy exercises
+              db.all('SELECT * FROM workout_exercises WHERE workout_id = ?', [workout.id], (err, exercises) => {
+                if (exercises.length > 0) {
+                  const placeholders = exercises.map(() => '(?, ?, ?, ?, ?, ?)').join(',');
+                  const values = [];
+                  exercises.forEach(ex => {
+                    values.push(templateId, ex.exercise_id, ex.sets, ex.reps, ex.weight, ex.notes);
+                  });
+
+                  db.run(
+                    `INSERT INTO workout_template_exercises (template_id, exercise_id, sets, reps, weight, notes) VALUES ${placeholders}`,
+                    values,
+                    (err) => {
+                      if (err) console.error(err);
+                    }
+                  );
+                }
+              });
+            }
+          );
+          processed++;
+        });
+        res.json({ success: true, count: processed });
+      }
+    );
+  });
+});
+
+// APPLY templates to week
+app.post('/api/templates/apply', (req, res) => {
+  const { user_id, week, year } = req.body;
+
+  // 1. Get templates
+  db.all('SELECT * FROM workout_templates WHERE user_id = ?', [user_id], (err, templates) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (templates.length === 0) return res.status(404).json({ error: "Aucun modèle trouvé" });
+
+    let created = 0;
+    templates.forEach(template => {
+      // Check if workout already exists for this day/week
+      db.get(
+        'SELECT id FROM workouts WHERE user_id = ? AND week_number = ? AND year = ? AND day_of_week = ?',
+        [user_id, week, year, template.default_day],
+        (err, existing) => {
+          if (!existing) {
+            // Create workout
+            db.run(
+              'INSERT INTO workouts (user_id, day_of_week, week_number, year) VALUES (?, ?, ?, ?)',
+              [user_id, template.default_day, week, year],
+              function (err) {
+                if (err) return console.error(err);
+                const workoutId = this.lastID;
+
+                // Copy exercises from template
+                db.all('SELECT * FROM workout_template_exercises WHERE template_id = ?', [template.id], (err, exercises) => {
+                  if (exercises.length > 0) {
+                    const placeholders = exercises.map(() => '(?, ?, ?, ?, ?, ?)').join(',');
+                    const values = [];
+                    exercises.forEach(ex => {
+                      values.push(workoutId, ex.exercise_id, ex.sets, ex.reps, ex.weight, ex.notes);
+                    });
+
+                    db.run(
+                      `INSERT INTO workout_exercises (workout_id, exercise_id, sets, reps, weight, notes) VALUES ${placeholders}`,
+                      values
+                    );
+                  }
+                });
+              }
+            );
+            created++;
+          }
+        }
+      );
+    });
+
+    // Give a small delay for async DB ops to start
+    setTimeout(() => {
+      res.json({ success: true, message: "Semaine type appliquée" });
+    }, 500);
+  });
+});
+
+// CHECK if templates exist
+app.get('/api/templates/check/:userId', (req, res) => {
+  db.get('SELECT COUNT(*) as count FROM workout_templates WHERE user_id = ?', [req.params.userId], (err, row) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ hasTemplates: row.count > 0 });
   });
 });
 
@@ -133,7 +289,7 @@ app.post('/api/workout-exercises', (req, res) => {
   db.run(
     'INSERT INTO workout_exercises (workout_id, exercise_id, sets, reps, weight, notes) VALUES (?, ?, ?, ?, ?, ?)',
     [workout_id, exercise_id, sets || 3, reps || 10, weight || 0, notes || ''],
-    function(err) {
+    function (err) {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ id: this.lastID, workout_id, exercise_id, sets, reps, weight, notes });
     }
@@ -147,7 +303,7 @@ app.put('/api/workout-exercises/:id', (req, res) => {
   db.run(
     'UPDATE workout_exercises SET sets = ?, reps = ?, weight = ?, notes = ?, completed = ? WHERE id = ?',
     [sets, reps, weight, notes, completed, id],
-    function(err) {
+    function (err) {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ id, sets, reps, weight, notes, completed });
     }
@@ -161,6 +317,69 @@ app.delete('/api/workout-exercises/:id', (req, res) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ success: true });
   });
+});
+
+// GET progression suggestion for an exercise
+app.get('/api/workout-exercises/suggestion/:userId/:exerciseId', (req, res) => {
+  const { userId, exerciseId } = req.params;
+
+  // Get last 3 completed sessions for this exercise
+  db.all(
+    `SELECT we.*, w.created_at 
+     FROM workout_exercises we
+     JOIN workouts w ON we.workout_id = w.id
+     WHERE w.user_id = ? AND we.exercise_id = ? AND we.completed = 1
+     ORDER BY w.created_at DESC LIMIT 3`,
+    [userId, exerciseId],
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+
+      if (rows.length < 2) {
+        return res.json({ suggestion: null, reason: "Pas assez de données" });
+      }
+
+      const last = rows[0];
+      const prev = rows[1];
+
+      // Logic 1: If last 2 sessions have same weight and reps >= target (e.g. 10), suggest +2.5kg
+      if (last.weight === prev.weight && last.reps >= 10 && prev.reps >= 10) {
+        return res.json({
+          suggestion: {
+            weight: last.weight + 2.5,
+            reps: last.reps,
+            sets: last.sets
+          },
+          reason: "Charge stable sur 2 séances, augmentez de 2.5kg !"
+        });
+      }
+
+      // Logic 2: If RPE is low (< 7) on last session
+      if (last.rpe && last.rpe < 7) {
+        return res.json({
+          suggestion: {
+            weight: last.weight + 2.5,
+            reps: last.reps,
+            sets: last.sets
+          },
+          reason: "RPE faible, vous pouvez augmenter la charge."
+        });
+      }
+
+      // Logic 3: If reps increased significantly
+      if (last.weight === prev.weight && last.reps > prev.reps + 2) {
+        return res.json({
+          suggestion: {
+            weight: last.weight + 1.25, // Micro-loading
+            reps: last.reps - 2,
+            sets: last.sets
+          },
+          reason: "Progression en reps validée, augmentez légèrement le poids."
+        });
+      }
+
+      res.json({ suggestion: null, reason: "Continuez votre progression actuelle." });
+    }
+  );
 });
 
 // ==================== PROGRESSION ====================
@@ -183,7 +402,7 @@ app.post('/api/progress', (req, res) => {
   db.run(
     'INSERT INTO progress (workout_exercise_id, weight, sets, reps, total_volume, notes) VALUES (?, ?, ?, ?, ?, ?)',
     [workout_exercise_id, weight, sets, reps, total_volume, notes],
-    function(err) {
+    function (err) {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ id: this.lastID, workout_exercise_id, weight, sets, reps, total_volume, notes });
     }
@@ -247,7 +466,7 @@ app.post('/api/progress-photos', (req, res) => {
   db.run(
     'INSERT INTO progress_photos (user_id, photo_data, muscle_focus, weight, notes, workout_id) VALUES (?, ?, ?, ?, ?, ?)',
     [user_id, photo_data, muscle_focus, weight, notes, workout_id || null],
-    function(err) {
+    function (err) {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ id: this.lastID, user_id, muscle_focus, weight, notes, workout_id });
     }
@@ -285,11 +504,21 @@ app.post('/api/measurements', (req, res) => {
      (user_id, neck, shoulders, chest, waist, hips, biceps, forearms, thighs, calves, weight, body_fat_percentage, notes)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [user_id, neck, shoulders, chest, waist, hips, biceps, forearms, thighs, calves, weight, body_fat_percentage, notes],
-    function(err) {
+    function (err) {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ id: this.lastID });
     }
   );
+});
+
+
+// DELETE body measurement
+app.delete('/api/measurements/:id', (req, res) => {
+  const { id } = req.params;
+  db.run('DELETE FROM body_measurements WHERE id = ?', [id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true });
+  });
 });
 
 // ==================== STATISTIQUES ====================
@@ -318,9 +547,366 @@ app.get('/api/stats/:userId', (req, res) => {
   });
 });
 
+// GET progression stats for a specific exercise
+app.get('/api/stats/progression/:userId/:exerciseId', (req, res) => {
+  const { userId, exerciseId } = req.params;
+  db.all(
+    `SELECT w.created_at as date, we.weight, we.reps, we.sets, (we.weight * we.reps * we.sets) as volume
+     FROM workout_exercises we
+     JOIN workouts w ON we.workout_id = w.id
+     WHERE w.user_id = ? AND we.exercise_id = ? AND we.completed = 1
+     ORDER BY w.created_at ASC`,
+    [userId, exerciseId],
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(rows);
+    }
+  );
+});
+
+// GET user streak and attendance
+app.get('/api/stats/streak/:userId', (req, res) => {
+  const { userId } = req.params;
+
+  db.all(
+    `SELECT created_at FROM workouts 
+     WHERE user_id = ? 
+     ORDER BY created_at DESC`,
+    [userId],
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+
+      if (rows.length === 0) {
+        return res.json({ currentStreak: 0, maxStreak: 0, lastWorkout: null });
+      }
+
+      const dates = rows.map(r => new Date(r.created_at).toISOString().split('T')[0]);
+      const uniqueDates = [...new Set(dates)];
+
+      let currentStreak = 0;
+      let maxStreak = 0;
+      let tempStreak = 0;
+
+      // Calculate current streak
+      const today = new Date().toISOString().split('T')[0];
+      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+
+      if (uniqueDates.includes(today) || uniqueDates.includes(yesterday)) {
+        currentStreak = 1;
+        let checkDate = new Date(uniqueDates[0]);
+
+        for (let i = 1; i < uniqueDates.length; i++) {
+          const prevDate = new Date(uniqueDates[i]);
+          const diffTime = Math.abs(checkDate - prevDate);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+          if (diffDays === 1) {
+            currentStreak++;
+            checkDate = prevDate;
+          } else {
+            break;
+          }
+        }
+      }
+
+      // Calculate max streak
+      if (uniqueDates.length > 0) {
+        tempStreak = 1;
+        let checkDate = new Date(uniqueDates[0]);
+
+        for (let i = 1; i < uniqueDates.length; i++) {
+          const prevDate = new Date(uniqueDates[i]);
+          const diffTime = Math.abs(checkDate - prevDate);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+          if (diffDays === 1) {
+            tempStreak++;
+          } else {
+            maxStreak = Math.max(maxStreak, tempStreak);
+            tempStreak = 1;
+          }
+          checkDate = prevDate;
+        }
+        maxStreak = Math.max(maxStreak, tempStreak);
+      }
+
+      res.json({
+        currentStreak,
+        maxStreak,
+        lastWorkout: uniqueDates[0],
+        totalWorkouts: rows.length
+      });
+    }
+  );
+});
+
+// GET comparison stats for a specific exercise
+app.get('/api/stats/comparison/:userId/:exerciseId', (req, res) => {
+  const { userId, exerciseId } = req.params;
+
+  // Get all completed sessions for this exercise
+  db.all(
+    `SELECT w.created_at as date, we.weight, we.reps, we.sets, (we.weight * we.reps * we.sets) as volume
+     FROM workout_exercises we
+     JOIN workouts w ON we.workout_id = w.id
+     WHERE w.user_id = ? AND we.exercise_id = ? AND we.completed = 1
+     ORDER BY w.created_at ASC`,
+    [userId, exerciseId],
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+
+      if (rows.length === 0) {
+        return res.json({ message: "No data available" });
+      }
+
+      // Calculate stats
+      const current = rows[rows.length - 1];
+
+      // Find best weight (PR)
+      const bestWeight = rows.reduce((prev, current) => (prev.weight > current.weight) ? prev : current);
+
+      // Find best volume
+      const bestVolume = rows.reduce((prev, current) => (prev.volume > current.volume) ? prev : current);
+
+      res.json({
+        current,
+        best_weight: bestWeight,
+        best_volume: bestVolume,
+        total_sessions: rows.length
+      });
+    }
+  );
+});
+
+// GET volume per muscle group (last 30 days)
+app.get('/api/stats/volume/:userId', (req, res) => {
+  const { userId } = req.params;
+
+  db.all(
+    `SELECT e.muscle_group, SUM(we.weight * we.reps * we.sets) as total_volume
+     FROM workout_exercises we
+     JOIN workouts w ON we.workout_id = w.id
+     JOIN exercises e ON we.exercise_id = e.id
+     WHERE w.user_id = ? AND we.completed = 1
+     AND w.created_at >= date('now', '-30 days')
+     GROUP BY e.muscle_group`,
+    [userId],
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(rows);
+    }
+  );
+});
+
+// ==================== NUTRITION ====================
+// GET meals for a specific date (or all if no date provided)
+app.get('/api/nutrition/:userId', (req, res) => {
+  const { userId } = req.params;
+  const { date } = req.query; // Format YYYY-MM-DD
+
+  let query = 'SELECT * FROM meals WHERE user_id = ?';
+  let params = [userId];
+
+  if (date) {
+    query += ' AND date(date) = date(?)';
+    params.push(date);
+  }
+
+  query += ' ORDER BY date DESC';
+
+  db.all(query, params, (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
+  });
+});
+
+// POST new meal
+app.post('/api/nutrition', (req, res) => {
+  const { user_id, name, calories, protein, carbs, fats, date, type } = req.body;
+  db.run(
+    'INSERT INTO meals (user_id, name, calories, protein, carbs, fats, date, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    [user_id, name, calories, protein, carbs, fats, date || new Date().toISOString(), type || 'snack'],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ id: this.lastID, user_id, name, calories, protein, carbs, fats, date, type });
+    }
+  );
+});
+
+// DELETE meal
+app.delete('/api/nutrition/:id', (req, res) => {
+  const { id } = req.params;
+  db.run('DELETE FROM meals WHERE id = ?', [id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true });
+  });
+});
+
+// GET nutrition goals
+app.get('/api/nutrition/goals/:userId', (req, res) => {
+  const { userId } = req.params;
+  db.get('SELECT * FROM nutrition_goals WHERE user_id = ?', [userId], (err, row) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(row || {});
+  });
+});
+
+// POST/UPDATE nutrition goals
+app.post('/api/nutrition/goals', (req, res) => {
+  const {
+    user_id, weight, height, age, gender, activity_level, goal
+  } = req.body;
+
+  // Calculate TDEE and Macros
+  let bmr;
+  if (gender === 'male') {
+    bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+  } else {
+    bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+  }
+
+  let tdee;
+  switch (activity_level) {
+    case 'sedentary': tdee = bmr * 1.2; break;
+    case 'light': tdee = bmr * 1.375; break;
+    case 'moderate': tdee = bmr * 1.55; break;
+    case 'active': tdee = bmr * 1.725; break;
+    case 'very_active': tdee = bmr * 1.9; break;
+    default: tdee = bmr * 1.2;
+  }
+
+  let targetCalories = tdee;
+  if (goal === 'cut') targetCalories -= 500;
+  else if (goal === 'bulk') targetCalories += 300;
+
+  // Macro split (Protein 2g/kg, Fats 0.8g/kg, Rest Carbs)
+  const protein = Math.round(weight * 2);
+  const fats = Math.round(weight * 0.9);
+  const carbs = Math.round((targetCalories - (protein * 4 + fats * 9)) / 4);
+
+  db.run(`
+    INSERT INTO nutrition_goals (
+      user_id, calories, protein, carbs, fats, 
+      weight, height, age, gender, activity_level, goal, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(user_id) DO UPDATE SET
+      calories = excluded.calories,
+      protein = excluded.protein,
+      carbs = excluded.carbs,
+      fats = excluded.fats,
+      weight = excluded.weight,
+      height = excluded.height,
+      age = excluded.age,
+      gender = excluded.gender,
+      activity_level = excluded.activity_level,
+      goal = excluded.goal,
+      updated_at = CURRENT_TIMESTAMP
+  `, [
+    user_id, Math.round(targetCalories), protein, carbs, fats,
+    weight, height, age, gender, activity_level, goal
+  ], function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({
+      success: true,
+      goals: {
+        calories: Math.round(targetCalories),
+        protein,
+        carbs,
+        fats
+      }
+    });
+  });
+});
+
+// GET favorite meals
+app.get('/api/nutrition/favorites/:userId', (req, res) => {
+  const { userId } = req.params;
+  db.all('SELECT * FROM favorite_meals WHERE user_id = ?', [userId], (err, rows) => {
+    res.json(rows);
+  });
+});
+
+// POST favorite meal
+app.post('/api/nutrition/favorites', (req, res) => {
+  const { user_id, name, calories, protein, carbs, fats } = req.body;
+  db.run(
+    'INSERT INTO favorite_meals (user_id, name, calories, protein, carbs, fats) VALUES (?, ?, ?, ?, ?, ?)',
+    [user_id, name, calories, protein, carbs, fats],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ id: this.lastID, user_id, name, calories, protein, carbs, fats });
+    }
+  );
+});
+
+// ==================== JEÛNE INTERMITTENT ====================
+// GET current active fast
+app.get('/api/fasting/current/:userId', (req, res) => {
+  const { userId } = req.params;
+  db.get(
+    "SELECT * FROM fasting_logs WHERE user_id = ? AND status = 'active' ORDER BY start_time DESC LIMIT 1",
+    [userId],
+    (err, row) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(row || null);
+    }
+  );
+});
+
+// GET fasting history
+app.get('/api/fasting/history/:userId', (req, res) => {
+  const { userId } = req.params;
+  db.all(
+    "SELECT * FROM fasting_logs WHERE user_id = ? AND status = 'completed' ORDER BY end_time DESC LIMIT 20",
+    [userId],
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(rows);
+    }
+  );
+});
+
+// POST start fast
+app.post('/api/fasting/start', (req, res) => {
+  const { user_id, start_time, target_hours } = req.body;
+
+  // Close any existing active fasts first
+  db.run(
+    "UPDATE fasting_logs SET status = 'completed', end_time = ? WHERE user_id = ? AND status = 'active'",
+    [start_time, user_id],
+    (err) => {
+      if (err) console.error("Error closing previous fast:", err);
+
+      // Start new fast
+      db.run(
+        "INSERT INTO fasting_logs (user_id, start_time, target_hours, status) VALUES (?, ?, ?, 'active')",
+        [user_id, start_time, target_hours],
+        function (err) {
+          if (err) return res.status(500).json({ error: err.message });
+          res.json({ id: this.lastID, user_id, start_time, target_hours, status: 'active' });
+        }
+      );
+    }
+  );
+});
+
+// PUT end fast
+app.put('/api/fasting/end', (req, res) => {
+  const { user_id, end_time } = req.body;
+  db.run(
+    "UPDATE fasting_logs SET status = 'completed', end_time = ? WHERE user_id = ? AND status = 'active'",
+    [end_time, user_id],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ success: true, end_time });
+    }
+  );
+});
+
 // ==================== START SERVER ====================
 app.listen(PORT, () => {
   console.log(`Serveur MySport en cours d'exécution sur le port ${PORT}`);
 });
 
 module.exports = app;
+// End of file

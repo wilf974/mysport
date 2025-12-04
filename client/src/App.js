@@ -5,8 +5,11 @@ import Header from './components/Header';
 import WorkoutCalendar from './components/WorkoutCalendar';
 import ExerciseList from './components/ExerciseList';
 import ProgressPhotos from './components/ProgressPhotos';
-import BodyMeasurements from './components/BodyMeasurements';
+import Measurements from './components/Measurements';
 import Statistics from './components/Statistics';
+import Nutrition from './components/Nutrition';
+import RecoveryTracker from './components/RecoveryTracker';
+import MonthlyGoals from './components/MonthlyGoals';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
@@ -92,6 +95,18 @@ function App() {
           💪 Exercices
         </button>
         <button
+          className={`tab-btn ${activeTab === 'nutrition' ? 'active' : ''}`}
+          onClick={() => setActiveTab('nutrition')}
+        >
+          🍏 Nutrition
+        </button>
+        <button
+          className={`tab-btn ${activeTab === 'goals' ? 'active' : ''}`}
+          onClick={() => setActiveTab('goals')}
+        >
+          🎯 Objectifs
+        </button>
+        <button
           className={`tab-btn ${activeTab === 'photos' ? 'active' : ''}`}
           onClick={() => setActiveTab('photos')}
         >
@@ -102,6 +117,12 @@ function App() {
           onClick={() => setActiveTab('measurements')}
         >
           📏 Mesures
+        </button>
+        <button
+          className={`tab-btn ${activeTab === 'recovery' ? 'active' : ''}`}
+          onClick={() => setActiveTab('recovery')}
+        >
+          🔋 Forme
         </button>
         <button
           className={`tab-btn ${activeTab === 'stats' ? 'active' : ''}`}
@@ -127,11 +148,20 @@ function App() {
                 onDelete={handleDeleteExercise}
               />
             )}
+            {activeTab === 'nutrition' && (
+              <Nutrition userId={currentUser} />
+            )}
+            {activeTab === 'goals' && (
+              <MonthlyGoals userId={currentUser} />
+            )}
             {activeTab === 'photos' && (
               <ProgressPhotos userId={currentUser} />
             )}
             {activeTab === 'measurements' && (
-              <BodyMeasurements userId={currentUser} />
+              <Measurements userId={currentUser} />
+            )}
+            {activeTab === 'recovery' && (
+              <RecoveryTracker userId={currentUser} />
             )}
             {activeTab === 'stats' && (
               <Statistics userId={currentUser} />
