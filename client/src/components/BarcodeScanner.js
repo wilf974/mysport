@@ -22,11 +22,7 @@ function BarcodeScanner({ onBarcodeDetected, onCancel }) {
         fps: 10,
         qrbox: { width: 250, height: 250 },
         aspectRatio: 1.0,
-        showTorchButtonIfSupported: true,
-        supportedScanTypes: [
-          'EAN_13',  // Most common food barcode format (Europe/Asia)
-          'UPC_A'    // North American food barcode format
-        ]
+        showTorchButtonIfSupported: true
       }, false);
 
       scannerRef.current = scanner;
