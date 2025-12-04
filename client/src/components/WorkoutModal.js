@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import WorkoutTimer from './WorkoutTimer';
+import WorkoutTracker from './WorkoutTracker';
 import './WorkoutModal.css';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
@@ -15,6 +15,7 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
   const [isEditingDuration, setIsEditingDuration] = useState(false);
   const [loading, setLoading] = useState(false);
   const [suggestion, setSuggestion] = useState(null);
+  const [showTracker, setShowTracker] = useState(false);
 
   useEffect(() => {
     if (workout) {
@@ -154,6 +155,21 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
     onAdd(duration ? parseInt(duration) : null);
   };
 
+  const handleFinishWorkout = async (totalDuration) => {
+    try {
+      // Mettre à jour la durée de la séance
+      await axios.put(`${API_URL}/workouts/${workout.id}`, {
+        duration: Math.floor(totalDuration / 60) // Convertir en minutes
+      });
+      setDuration(Math.floor(totalDuration / 60));
+      setShowTracker(false);
+      onWorkoutUpdate();
+      alert('Entraînement terminé ! Durée: ' + Math.floor(totalDuration / 60) + ' min');
+    } catch (err) {
+      console.error('Erreur:', err);
+    }
+  };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -185,9 +201,16 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
             </div>
           ) : (
             <>
-              <div className="workout-header-actions">
-                <WorkoutTimer defaultDuration={90} />
-              </div>
+              {workoutExercises.length > 0 && (
+                <div className="start-workout-section">
+                  <button
+                    className="btn btn-primary btn-lg-full"
+                    onClick={() => setShowTracker(true)}
+                  >
+                    ▶ Démarrer l'entraînement
+                  </button>
+                </div>
+              )}
               <div className="workout-duration-section">
                 <div className="duration-display">
                   <h3>⏱️ Durée de la séance</h3>
@@ -369,6 +392,14 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
           </div>
         )}
       </div>
+
+      {showTracker && workout && (
+        <WorkoutTracker
+          exercises={workoutExercises}
+          onClose={() => setShowTracker(false)}
+          onFinish={handleFinishWorkout}
+        />
+      )}
     </div>
   );
 }

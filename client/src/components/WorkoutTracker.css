@@ -1,0 +1,429 @@
+.workout-tracker-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.workout-tracker {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.tracker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  border-radius: 16px 16px 0 0;
+}
+
+.tracker-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Timer Section */
+.timer-section {
+  padding: 2rem 1.5rem;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(14, 165, 233, 0.08));
+  text-align: center;
+  border-bottom: 2px solid var(--border);
+}
+
+.timer-display {
+  margin-bottom: 1.5rem;
+}
+
+.timer-time {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2px;
+}
+
+.timer-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+.timer-controls {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-lg {
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-lg:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-lg.resumed {
+  animation: pulse 0.5s ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Progress Bar */
+.progress-bar-container {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.progress-info {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  transition: width 0.3s ease;
+}
+
+/* Current Exercise */
+.current-exercise {
+  padding: 2rem 1.5rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.exercise-name {
+  margin: 0 0 1.5rem 0;
+  color: var(--dark);
+  font-size: 1.4rem;
+  text-transform: capitalize;
+}
+
+.exercise-details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.detail-box {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(14, 165, 233, 0.08));
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  border: 2px solid var(--border);
+}
+
+.detail-label {
+  font-size: 0.85rem;
+  color: #999;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* Reps Counter */
+.reps-counter-section {
+  padding: 2rem 1.5rem;
+  border-bottom: 2px solid var(--border);
+  text-align: center;
+}
+
+.reps-counter-section h4 {
+  margin: 0 0 1.5rem 0;
+  color: var(--dark);
+}
+
+.reps-counter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.counter-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  background: var(--primary);
+  color: white;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.counter-btn:hover:not(:disabled) {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.counter-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.counter-display {
+  font-size: 4rem;
+  font-weight: 700;
+  color: var(--primary);
+  min-width: 120px;
+  font-family: 'Courier New', monospace;
+}
+
+.counter-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+/* Exercise Navigation */
+.exercise-navigation {
+  padding: 1.5rem;
+  border-bottom: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.exercise-list {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.5rem 0;
+  flex: 1;
+  justify-content: center;
+}
+
+.exercise-item {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+  background: white;
+  cursor: pointer;
+  font-weight: 600;
+  color: #666;
+  transition: all 0.3s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.exercise-item:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.exercise-item.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.exercise-item.completed {
+  background: var(--secondary);
+  color: white;
+  border-color: var(--secondary);
+}
+
+.exercise-item.completed .checkmark {
+  position: absolute;
+  font-size: 0.9rem;
+}
+
+.exercise-index {
+  display: block;
+}
+
+.exercise-item.completed .exercise-index {
+  display: none;
+}
+
+/* Exercise Notes */
+.exercise-notes {
+  padding: 1rem 1.5rem;
+  background: rgba(249, 115, 22, 0.08);
+  border-left: 4px solid var(--accent);
+  color: #666;
+  font-style: italic;
+}
+
+/* Tracker Summary */
+.tracker-summary {
+  padding: 1.5rem;
+  background: #f9f9f9;
+  display: flex;
+  justify-content: space-around;
+  gap: 1rem;
+  border-radius: 0 0 16px 16px;
+}
+
+.summary-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.summary-stat .label {
+  font-size: 0.85rem;
+  color: #999;
+  margin-bottom: 0.5rem;
+}
+
+.summary-stat .value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .workout-tracker {
+    border-radius: 12px;
+  }
+
+  .timer-time {
+    font-size: 2.5rem;
+  }
+
+  .counter-display {
+    font-size: 3rem;
+  }
+
+  .counter-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+  }
+
+  .exercise-details {
+    grid-template-columns: 1fr;
+  }
+
+  .exercise-navigation {
+    flex-direction: column;
+  }
+
+  .exercise-list {
+    width: 100%;
+  }
+
+  .btn {
+    flex: 1;
+  }
+
+  .tracker-summary {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 400px) {
+  .timer-time {
+    font-size: 2rem;
+  }
+
+  .timer-controls {
+    flex-direction: column;
+  }
+
+  .timer-controls .btn {
+    width: 100%;
+  }
+
+  .counter-display {
+    font-size: 2.5rem;
+  }
+
+  .counter-btn {
+    width: 45px;
+    height: 45px;
+    font-size: 1.2rem;
+  }
+
+  .reps-counter {
+    gap: 1rem;
+  }
+}
