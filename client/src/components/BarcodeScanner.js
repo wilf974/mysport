@@ -58,13 +58,7 @@ function BarcodeScanner({ onBarcodeDetected, onCancel }) {
         }
       };
 
-      scanner
-        .render(onScanSuccess, onScanError)
-        .catch((err) => {
-          setError('Impossible d\'accéder à la caméra. Vérifiez les permissions.');
-          console.error('Scanner error:', err);
-          setIsScanning(false);
-        });
+      scanner.render(onScanSuccess, onScanError);
     } catch (err) {
       setError('Erreur lors de l\'initialisation du scanner.');
       console.error('Scanner initialization error:', err);
