@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './FoodSearch.css';
 import BarcodeScanner from './BarcodeScanner';
@@ -89,7 +89,7 @@ function FoodSearch({ onFoodSelected, onCancel }) {
     }
   };
 
-  const handleBarcodeDetected = async (detectedBarcode) => {
+  const handleBarcodeDetected = useCallback(async (detectedBarcode) => {
     setBarcode(detectedBarcode);
     setScannerMode(false);
 
@@ -109,7 +109,7 @@ function FoodSearch({ onFoodSelected, onCancel }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   return (
     <div className="food-search-container">
