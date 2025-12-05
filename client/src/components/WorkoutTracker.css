@@ -5,7 +5,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 1010;
+  /* Higher than all modals */
   padding: 1rem;
 }
 
@@ -18,6 +19,8 @@
   max-height: 90vh;
   overflow-y: auto;
   animation: slideUp 0.3s ease-out;
+  z-index: 1011;
+  /* Ensure content is above overlay */
 }
 
 @keyframes slideUp {
@@ -268,6 +271,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 60px;
+  min-height: 60px;
 }
 
 .counter-btn:hover:not(:disabled) {
@@ -314,8 +319,8 @@
 
 .exercise-item {
   flex: 0 0 auto;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 2px solid #ddd;
   background: white;
@@ -327,6 +332,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .exercise-item:hover {
@@ -413,9 +420,11 @@
   }
 
   .counter-btn {
-    width: 50px;
-    height: 50px;
+    width: 54px;
+    height: 54px;
     font-size: 1.5rem;
+    min-width: 54px;
+    min-height: 54px;
   }
 
   .exercise-header {
@@ -467,12 +476,75 @@
   }
 
   .counter-btn {
-    width: 45px;
-    height: 45px;
+    width: 50px;
+    height: 50px;
     font-size: 1.2rem;
+    min-width: 50px;
+    min-height: 50px;
   }
 
   .reps-counter {
     gap: 1rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .timer-time {
+    font-size: 1.8rem;
+  }
+
+  .counter-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 1.1rem;
+    min-width: 48px;
+    min-height: 48px;
+  }
+
+  .counter-display {
+    font-size: 2.2rem;
+  }
+
+  .current-exercise {
+    padding: 1rem;
+  }
+
+  .exercise-details {
+    gap: 0.5rem;
+  }
+
+  .detail-box {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 320px) {
+  .timer-time {
+    font-size: 1.5rem;
+  }
+
+  .counter-btn {
+    width: 46px;
+    height: 46px;
+    font-size: 1rem;
+    min-width: 46px;
+    min-height: 46px;
+  }
+
+  .counter-display {
+    font-size: 2rem;
+  }
+
+  .reps-counter-section h4 {
+    font-size: 1rem;
+  }
+
+  .tracker-summary {
+    gap: 0.75rem;
+  }
+
+  .summary-stat {
+    padding: 0.75rem;
   }
 }

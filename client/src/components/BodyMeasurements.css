@@ -276,3 +276,67 @@
     flex-direction: column;
   }
 }
+
+@media (max-width: 600px) {
+  .measurements-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .measurements-display {
+    grid-template-columns: 1fr;
+  }
+
+  .measurement-value {
+    font-size: 1.5rem;
+  }
+
+  .current-measurements,
+  .measurements-history {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .measurements-header {
+    flex-direction: column;
+  }
+
+  .measurements-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .measurement-form {
+    padding: 1rem;
+  }
+
+  .measurement-form h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+
+  .measurement-item {
+    padding: 1rem;
+  }
+
+  .measurement-label {
+    font-size: 0.8rem;
+  }
+
+  .measurement-value {
+    font-size: 1.3rem;
+  }
+
+  .history-date {
+    font-size: 0.9rem;
+  }
+
+  .value-item {
+    font-size: 0.85rem;
+    gap: 0.5rem;
+  }
+
+  .history-notes {
+    font-size: 0.8rem;
+  }
+}

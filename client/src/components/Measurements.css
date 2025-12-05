@@ -216,4 +216,71 @@
     .btn-add-measure {
         width: 100%;
     }
+
+    .history-table {
+        min-width: 100%;
+    }
+
+    .history-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+@media (max-width: 600px) {
+    .history-table {
+        font-size: 0.85rem;
+    }
+
+    .history-table th,
+    .history-table td {
+        padding: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .history-table {
+        display: block;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .history-table thead {
+        display: none;
+    }
+
+    .history-table tbody,
+    .history-table tr,
+    .history-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .history-table tr {
+        margin-bottom: 1rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+
+    .history-table td {
+        border-bottom: none;
+        padding: 0.5rem 1rem;
+        padding-left: 50%;
+        position: relative;
+        text-align: right;
+    }
+
+    .history-table td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 50%;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--primary);
+        padding: 0.5rem 1rem;
+    }
 }
