@@ -1,0 +1,63 @@
+/**
+ * Z-Index Scale - Standardized layering for all components
+ *
+ * This file documents the z-index hierarchy to prevent stacking conflicts
+ * across all components in the application.
+ *
+ * Guidelines:
+ * - Each layer is separated by at least 10 points
+ * - Related components use consecutive values (overlay, content, interactive elements)
+ * - Higher numbers = higher on screen (topmost)
+ * - Values are grouped in 100-point ranges for future expansion
+ */
+
+/* ============================================
+   Z-INDEX SCALE RANGES
+   ============================================ */
+
+/*
+   0-50:      Content layer (default), relative positioning
+   50-100:    Local components (carousel buttons, close buttons)
+   100-200:   Dropdowns and autocomplete suggestions
+   500-600:   Tooltips and popovers
+   900-999:   Standard modals and overlays
+   1000-1099: Primary overlay modals (WorkoutTracker)
+   1500-1599: Notification toasts (if implemented)
+   2000+:     Highest priority overlays (ExerciseDemo over WorkoutTracker)
+*/
+
+/* ============================================
+   IMPLEMENTED Z-INDEX VALUES
+   ============================================ */
+
+/* Local Interactive Elements (PhotoCarousel, WorkoutModal buttons) */
+.carousel-btn { z-index: 10; }
+.modal-close-btn { z-index: 10; }
+
+/* Dropdowns and Autocomplete */
+.food-search-autocomplete { z-index: 100; }
+
+/* Standard Modals */
+.workout-modal-overlay { z-index: 900; }
+.workout-modal-content { z-index: 901; }
+
+/* High-Priority Overlays (Tracker) */
+.workout-tracker-overlay { z-index: 1010; }
+.workout-tracker { z-index: 1011; }
+
+/* Highest Priority (Demo over Tracker) */
+.exercise-demo-overlay { z-index: 2000; }
+.exercise-demo-modal { z-index: 2001; }
+
+/* ============================================
+   RESERVED RANGES (For Future Components)
+   ============================================ */
+
+/* 200-300: Sticky elements, notifications */
+/* 300-400: Floating action buttons */
+/* 400-500: Floating toolbars, floating windows */
+/* 600-700: Popovers, context menus */
+/* 700-800: Inline overlays, image lightbox */
+/* 800-900: Side panels, drawers, menus */
+/* 1100-1200: Snackbars, toast notifications */
+/* 1200-1500: Alert dialogs */

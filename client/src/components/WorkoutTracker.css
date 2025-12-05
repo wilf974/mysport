@@ -38,7 +38,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
+  padding: max(1.5rem, env(safe-area-inset-top, 0)) 1.5rem 1.5rem 1.5rem;
   background: linear-gradient(135deg, var(--primary), var(--secondary));
   color: white;
   border-radius: 16px 16px 0 0;
@@ -525,11 +525,11 @@
   }
 
   .counter-btn {
-    width: 46px;
-    height: 46px;
+    width: 48px;
+    height: 48px;
     font-size: 1rem;
-    min-width: 46px;
-    min-height: 46px;
+    min-width: 48px;
+    min-height: 48px;
   }
 
   .counter-display {

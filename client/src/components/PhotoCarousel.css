@@ -267,9 +267,11 @@
   }
 
   .carousel-btn {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     font-size: 1.1rem;
+    min-width: 44px;
+    min-height: 44px;
   }
 
   .carousel-header {

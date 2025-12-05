@@ -414,3 +414,31 @@
     width: 100%;
   }
 }
+
+@media (max-width: 480px) {
+  .form-row {
+    grid-template-columns: 1fr;
+    /* Single column on very small screens */
+  }
+
+  .form-row select {
+    grid-column: auto;
+  }
+
+  .form-row button {
+    grid-column: auto;
+  }
+
+  .btn-move {
+    padding: 0.25rem 0.3rem;
+    font-size: 0.7rem;
+    min-width: 24px;
+    min-height: 44px;
+  }
+
+  .form-control {
+    padding: 0.6rem;
+    font-size: 16px;
+    /* Ensure 16px for iOS to prevent zoom */
+  }
+}

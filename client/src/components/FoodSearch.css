@@ -351,7 +351,8 @@
   }
 
   .suggestion-source {
-    font-size: 0.65rem;
+    font-size: 0.8rem;
+    /* Increased from 0.65rem for better readability on tablets */
     padding: 0.2rem 0.4rem;
   }
 
