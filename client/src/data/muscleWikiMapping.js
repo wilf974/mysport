@@ -529,6 +529,188 @@ const exerciseMapping = {
     exerciseKey: 'calf-raise',
     muscleGroup: 'Calves',
     description: 'Dumbbell Calf Raise'
+  },
+
+  // French exercise names (Noms d'exercices en français)
+  'Presse à cuisses': {
+    equipment: 'machine',
+    exerciseKey: 'leg-press',
+    muscleGroup: 'Quadriceps',
+    description: 'Leg Press Machine'
+  },
+  'Presse à poitrine': {
+    equipment: 'barbell',
+    exerciseKey: 'bench-press',
+    muscleGroup: 'Chest',
+    description: 'Barbell Bench Press'
+  },
+  'Curl biceps': {
+    equipment: 'barbell',
+    exerciseKey: 'bicep-curl',
+    muscleGroup: 'Biceps',
+    description: 'Barbell Bicep Curl'
+  },
+  'Curl des biceps': {
+    equipment: 'barbell',
+    exerciseKey: 'bicep-curl',
+    muscleGroup: 'Biceps',
+    description: 'Barbell Bicep Curl'
+  },
+  'Curl haltères': {
+    equipment: 'dumbbell',
+    exerciseKey: 'bicep-curl',
+    muscleGroup: 'Biceps',
+    description: 'Dumbbell Bicep Curl'
+  },
+  'Triceps dips': {
+    equipment: 'bodyweight',
+    exerciseKey: 'tricep-dips',
+    muscleGroup: 'Triceps',
+    description: 'Tricep Dips'
+  },
+  'Développé haltères': {
+    equipment: 'dumbbell',
+    exerciseKey: 'dumbbell-bench-press',
+    muscleGroup: 'Chest',
+    description: 'Dumbbell Bench Press'
+  },
+  'Soulevé de terre': {
+    equipment: 'barbell',
+    exerciseKey: 'deadlift',
+    muscleGroup: 'Back',
+    description: 'Barbell Deadlift'
+  },
+  'Squat': {
+    equipment: 'barbell',
+    exerciseKey: 'squat',
+    muscleGroup: 'Quadriceps',
+    description: 'Barbell Squat'
+  },
+  'Squat barre': {
+    equipment: 'barbell',
+    exerciseKey: 'squat',
+    muscleGroup: 'Quadriceps',
+    description: 'Barbell Squat'
+  },
+  'Tirage horizontal': {
+    equipment: 'barbell',
+    exerciseKey: 'row',
+    muscleGroup: 'Back',
+    description: 'Barbell Row'
+  },
+  'Tirage horizontal assis': {
+    equipment: 'machine',
+    exerciseKey: 'seated-row',
+    muscleGroup: 'Back',
+    description: 'Seated Row Machine'
+  },
+  'Traction': {
+    equipment: 'bodyweight',
+    exerciseKey: 'pull-up',
+    muscleGroup: 'Lats',
+    description: 'Pull-up'
+  },
+  'Tractions': {
+    equipment: 'bodyweight',
+    exerciseKey: 'pull-up',
+    muscleGroup: 'Lats',
+    description: 'Pull-up'
+  },
+  'Développé épaules': {
+    equipment: 'barbell',
+    exerciseKey: 'overhead-press',
+    muscleGroup: 'Shoulders',
+    description: 'Barbell Overhead Press'
+  },
+  'Développé militaire': {
+    equipment: 'barbell',
+    exerciseKey: 'overhead-press',
+    muscleGroup: 'Shoulders',
+    description: 'Barbell Overhead Press'
+  },
+  'Échauffement': {
+    equipment: 'bodyweight',
+    exerciseKey: 'pushup',
+    muscleGroup: 'Chest',
+    description: 'Warm-up Exercise'
+  },
+  'Flexions': {
+    equipment: 'bodyweight',
+    exerciseKey: 'pushup',
+    muscleGroup: 'Chest',
+    description: 'Push-up'
+  },
+  'Flexion': {
+    equipment: 'bodyweight',
+    exerciseKey: 'pushup',
+    muscleGroup: 'Chest',
+    description: 'Push-up'
+  },
+  'Crunch': {
+    equipment: 'bodyweight',
+    exerciseKey: 'crunch',
+    muscleGroup: 'Abs',
+    description: 'Ab Crunch'
+  },
+  'Crunches': {
+    equipment: 'bodyweight',
+    exerciseKey: 'crunch',
+    muscleGroup: 'Abs',
+    description: 'Ab Crunch'
+  },
+  'Relevés de jambes': {
+    equipment: 'bodyweight',
+    exerciseKey: 'leg-raises',
+    muscleGroup: 'Abs',
+    description: 'Leg Raises'
+  },
+  'Extension jambes': {
+    equipment: 'machine',
+    exerciseKey: 'leg-extension',
+    muscleGroup: 'Quadriceps',
+    description: 'Leg Extension Machine'
+  },
+  'Flexion jambes': {
+    equipment: 'machine',
+    exerciseKey: 'leg-curl',
+    muscleGroup: 'Hamstrings',
+    description: 'Leg Curl Machine'
+  },
+  'Curl jambes assis': {
+    equipment: 'machine',
+    exerciseKey: 'leg-curl',
+    muscleGroup: 'Hamstrings',
+    description: 'Seated Leg Curl Machine'
+  },
+  'Abducteur hanche': {
+    equipment: 'machine',
+    exerciseKey: 'hip-abductor',
+    muscleGroup: 'Abductors',
+    description: 'Hip Abductor Machine'
+  },
+  'Adducteur hanche': {
+    equipment: 'machine',
+    exerciseKey: 'hip-adductor',
+    muscleGroup: 'Adductors',
+    description: 'Hip Adductor Machine'
+  },
+  'Relevé mollets': {
+    equipment: 'bodyweight',
+    exerciseKey: 'calf-raise',
+    muscleGroup: 'Calves',
+    description: 'Calf Raise'
+  },
+  'Relevé mollets barre': {
+    equipment: 'barbell',
+    exerciseKey: 'calf-raise',
+    muscleGroup: 'Calves',
+    description: 'Barbell Calf Raise'
+  },
+  'Extension torse': {
+    equipment: 'bodyweight',
+    exerciseKey: 'pushup',
+    muscleGroup: 'Chest',
+    description: 'Push-up'
   }
 };
 
