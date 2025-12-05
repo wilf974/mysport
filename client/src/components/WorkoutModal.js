@@ -195,8 +195,11 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+    <>
+      {/* Only show modal if tracker is not active */}
+      {!showTracker && (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{day?.name}</h2>
           <button className="modal-close" onClick={onClose}>✕</button>
@@ -433,8 +436,11 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
             </button>
           </div>
         )}
+        </div>
       </div>
+      )}
 
+      {/* Render WorkoutTracker outside of modal when active */}
       {showTracker && workout && (
         <WorkoutTracker
           exercises={workoutExercises}
@@ -442,7 +448,7 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
           onFinish={handleFinishWorkout}
         />
       )}
-    </div>
+    </>
   );
 }
 
