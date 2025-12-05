@@ -71,16 +71,16 @@ const exerciseMapping = {
     description: 'Dumbbell Chest Flys'
   },
   'Machine Chest Fly': {
-    equipment: 'machine',
+    equipment: 'dumbbell',
     exerciseKey: 'incline-chest-flys',
     muscleGroup: 'Chest',
-    description: 'Machine Chest Fly'
+    description: 'Dumbbell Incline Chest Flys'
   },
   'Chest Fly Machine': {
-    equipment: 'machine',
+    equipment: 'dumbbell',
     exerciseKey: 'incline-chest-flys',
     muscleGroup: 'Chest',
-    description: 'Chest Fly Machine'
+    description: 'Dumbbell Incline Chest Flys'
   },
   'Diamond Pushup': {
     equipment: 'bodyweight',
@@ -122,33 +122,33 @@ const exerciseMapping = {
   },
   'Dumbbell Row': {
     equipment: 'dumbbell',
-    exerciseKey: 'row',
+    exerciseKey: 'row-unilateral',
     muscleGroup: 'Lats',
-    description: 'Dumbbell Row'
+    description: 'Dumbbell Unilateral Row'
   },
   'Machine Row': {
-    equipment: 'machine',
-    exerciseKey: 'row',
+    equipment: 'dumbbell',
+    exerciseKey: 'row-unilateral',
     muscleGroup: 'Lats',
-    description: 'Machine Row'
+    description: 'Dumbbell Unilateral Row'
   },
   'Cable Row': {
-    equipment: 'machine',
-    exerciseKey: 'row',
+    equipment: 'dumbbell',
+    exerciseKey: 'row-unilateral',
     muscleGroup: 'Lats',
-    description: 'Cable Row'
+    description: 'Dumbbell Unilateral Row'
   },
   'Seated Row': {
-    equipment: 'machine',
-    exerciseKey: 'row',
+    equipment: 'dumbbell',
+    exerciseKey: 'row-unilateral',
     muscleGroup: 'Lats',
-    description: 'Seated Row'
+    description: 'Dumbbell Unilateral Row'
   },
   'Machine Shrug': {
-    equipment: 'machine',
+    equipment: 'dumbbell',
     exerciseKey: 'shrug',
     muscleGroup: 'Traps',
-    description: 'Machine Shrug'
+    description: 'Dumbbell Shrug'
   },
   'Barbell Shrug': {
     equipment: 'barbell',
@@ -189,22 +189,22 @@ const exerciseMapping = {
     description: 'Dumbbell Lateral Raise'
   },
   'Machine Shoulder Press': {
-    equipment: 'machine',
+    equipment: 'dumbbell',
     exerciseKey: 'seated-overhead-press',
     muscleGroup: 'Shoulder',
-    description: 'Machine Shoulder Press'
+    description: 'Dumbbell Seated Overhead Press'
   },
   'Shoulder Press Machine': {
-    equipment: 'machine',
+    equipment: 'dumbbell',
     exerciseKey: 'seated-overhead-press',
     muscleGroup: 'Shoulder',
-    description: 'Shoulder Press Machine'
+    description: 'Dumbbell Seated Overhead Press'
   },
   'Cable Lateral Raise': {
-    equipment: 'machine',
+    equipment: 'dumbbell',
     exerciseKey: 'lateral-raise',
     muscleGroup: 'Shoulder',
-    description: 'Cable Lateral Raise'
+    description: 'Dumbbell Lateral Raise'
   },
 
   // Arm exercises - Biceps
@@ -233,16 +233,16 @@ const exerciseMapping = {
     description: 'Reverse Barbell Curl'
   },
   'Machine Curl': {
-    equipment: 'machine',
+    equipment: 'barbell',
     exerciseKey: 'curl',
     muscleGroup: 'Biceps',
-    description: 'Machine Curl'
+    description: 'Barbell Curl'
   },
   'Cable Curl': {
-    equipment: 'machine',
+    equipment: 'dumbbell',
     exerciseKey: 'curl',
     muscleGroup: 'Biceps',
-    description: 'Cable Curl'
+    description: 'Dumbbell Curl'
   },
   'Preacher Curl': {
     equipment: 'barbell',
@@ -251,10 +251,10 @@ const exerciseMapping = {
     description: 'Preacher Curl'
   },
   'Machine Preacher Curl': {
-    equipment: 'machine',
+    equipment: 'barbell',
     exerciseKey: 'curl',
     muscleGroup: 'Biceps',
-    description: 'Machine Preacher Curl'
+    description: 'Barbell Curl'
   },
 
   // Arm exercises - Triceps
@@ -295,10 +295,10 @@ const exerciseMapping = {
     description: 'Tricep Extension'
   },
   'Cable Tricep Extension': {
-    equipment: 'machine',
+    equipment: 'dumbbell',
     exerciseKey: 'overhead-tricep-extension',
     muscleGroup: 'Triceps',
-    description: 'Cable Tricep Extension'
+    description: 'Dumbbell Overhead Tricep Extension'
   },
 
   // Leg exercises - Quads
@@ -310,13 +310,13 @@ const exerciseMapping = {
   },
   'Barbell Squat': {
     equipment: 'barbell',
-    exerciseKey: 'high-bar-squat',
+    exerciseKey: 'highbar-squat',
     muscleGroup: 'Quads',
     description: 'Barbell Squat'
   },
   'High Bar Squat': {
     equipment: 'barbell',
-    exerciseKey: 'high-bar-squat',
+    exerciseKey: 'highbar-squat',
     muscleGroup: 'Quads',
     description: 'High Bar Squat'
   },
@@ -327,22 +327,22 @@ const exerciseMapping = {
     description: 'Dumbbell Goblet Squat'
   },
   'Machine Squat': {
-    equipment: 'machine',
-    exerciseKey: 'high-bar-squat',
+    equipment: 'barbell',
+    exerciseKey: 'highbar-squat',
     muscleGroup: 'Quads',
-    description: 'Machine Squat'
+    description: 'Barbell High Bar Squat'
   },
   'Leg Press': {
-    equipment: 'machine',
+    equipment: 'dumbbell',
     exerciseKey: 'goblet-squat',
     muscleGroup: 'Quads',
-    description: 'Leg Press Machine'
+    description: 'Dumbbell Goblet Squat'
   },
   'Machine Leg Press': {
-    equipment: 'machine',
+    equipment: 'dumbbell',
     exerciseKey: 'goblet-squat',
     muscleGroup: 'Quads',
-    description: 'Machine Leg Press'
+    description: 'Dumbbell Goblet Squat'
   },
   'Forward Lunge': {
     equipment: 'bodyweight',
@@ -351,16 +351,16 @@ const exerciseMapping = {
     description: 'Forward Lunge'
   },
   'Leg Extension': {
-    equipment: 'machine',
-    exerciseKey: 'high-bar-squat',
+    equipment: 'barbell',
+    exerciseKey: 'highbar-squat',
     muscleGroup: 'Quads',
-    description: 'Leg Extension Machine'
+    description: 'Barbell High Bar Squat (quad alternative)'
   },
   'Machine Leg Extension': {
-    equipment: 'machine',
-    exerciseKey: 'high-bar-squat',
+    equipment: 'barbell',
+    exerciseKey: 'highbar-squat',
     muscleGroup: 'Quads',
-    description: 'Machine Leg Extension'
+    description: 'Barbell High Bar Squat (quad alternative)'
   },
   'Bulgarian Split Squat': {
     equipment: 'bodyweight',
@@ -391,78 +391,78 @@ const exerciseMapping = {
 
   // Leg curl exercises
   'Leg Curl': {
-    equipment: 'machine',
-    exerciseKey: 'leg-raises',
+    equipment: 'barbell',
+    exerciseKey: 'deadlift',
     muscleGroup: 'Hamstrings',
-    description: 'Leg Curl Machine'
+    description: 'Barbell Deadlift (hamstring alternative)'
   },
   'Machine Leg Curl': {
-    equipment: 'machine',
-    exerciseKey: 'leg-raises',
+    equipment: 'barbell',
+    exerciseKey: 'deadlift',
     muscleGroup: 'Hamstrings',
-    description: 'Machine Leg Curl'
+    description: 'Barbell Deadlift (hamstring alternative)'
   },
   'Seated Leg Curl': {
-    equipment: 'machine',
-    exerciseKey: 'leg-raises',
+    equipment: 'barbell',
+    exerciseKey: 'deadlift',
     muscleGroup: 'Hamstrings',
-    description: 'Seated Leg Curl'
+    description: 'Barbell Deadlift (hamstring alternative)'
   },
   'Leg Curl Assis': {
-    equipment: 'machine',
-    exerciseKey: 'leg-raises',
+    equipment: 'barbell',
+    exerciseKey: 'deadlift',
     muscleGroup: 'Hamstrings',
-    description: 'Assisted Leg Curl'
+    description: 'Barbell Deadlift (hamstring alternative)'
   },
   'Leg curl assis': {
-    equipment: 'machine',
-    exerciseKey: 'leg-raises',
+    equipment: 'barbell',
+    exerciseKey: 'deadlift',
     muscleGroup: 'Hamstrings',
-    description: 'Assisted Leg Curl'
+    description: 'Barbell Deadlift (hamstring alternative)'
   },
   'Lying Leg Curl': {
-    equipment: 'machine',
-    exerciseKey: 'leg-raises',
+    equipment: 'barbell',
+    exerciseKey: 'deadlift',
     muscleGroup: 'Hamstrings',
-    description: 'Lying Leg Curl'
+    description: 'Barbell Deadlift (hamstring alternative)'
   },
 
   // Additional leg machines
   'Hip Abductor': {
-    equipment: 'machine',
-    exerciseKey: 'lateral-raise',
+    equipment: 'bodyweight',
+    exerciseKey: 'bulgarian-split-squat',
     muscleGroup: 'Glutes',
-    description: 'Hip Abductor Machine'
+    description: 'Bulgarian Split Squat (glute alternative)'
   },
   'Machine Hip Abductor': {
-    equipment: 'machine',
-    exerciseKey: 'lateral-raise',
+    equipment: 'bodyweight',
+    exerciseKey: 'bulgarian-split-squat',
     muscleGroup: 'Glutes',
-    description: 'Machine Hip Abductor'
+    description: 'Bulgarian Split Squat (glute alternative)'
   },
   'Hip Adductor': {
-    equipment: 'machine',
-    exerciseKey: 'row',
+    equipment: 'bodyweight',
+    exerciseKey: 'squat',
     muscleGroup: 'Glutes',
-    description: 'Hip Adductor Machine'
+    description: 'Bodyweight Squat (adductor alternative)'
   },
   'Machine Hip Adductor': {
-    equipment: 'machine',
-    exerciseKey: 'row',
+    equipment: 'bodyweight',
+    exerciseKey: 'squat',
     muscleGroup: 'Glutes',
-    description: 'Machine Hip Adductor'
+    description: 'Bodyweight Squat (adductor alternative)'
   },
   'Ab Machine': {
-    equipment: 'machine',
+    equipment: 'bodyweight',
     exerciseKey: 'crunch',
     muscleGroup: 'Abdominals',
-    description: 'Ab Machine'
+    description: 'Bodyweight Crunch'
   },
   'Cable Crunch': {
-    equipment: 'machine',
+    equipment: 'bodyweight',
     exerciseKey: 'crunch',
     muscleGroup: 'Abdominals',
-    description: 'Cable Crunch'
+    description: 'Bodyweight Crunch'
   },
 
   // Core exercises
@@ -533,10 +533,10 @@ const exerciseMapping = {
 
   // French exercise names (Noms d'exercices en français)
   'Presse à cuisses': {
-    equipment: 'machine',
-    exerciseKey: 'leg-press',
+    equipment: 'dumbbell',
+    exerciseKey: 'goblet-squat',
     muscleGroup: 'Quadriceps',
-    description: 'Leg Press Machine'
+    description: 'Dumbbell Goblet Squat'
   },
   'Presse à poitrine': {
     equipment: 'barbell',
@@ -546,21 +546,21 @@ const exerciseMapping = {
   },
   'Curl biceps': {
     equipment: 'barbell',
-    exerciseKey: 'bicep-curl',
+    exerciseKey: 'curl',
     muscleGroup: 'Biceps',
-    description: 'Barbell Bicep Curl'
+    description: 'Barbell Curl'
   },
   'Curl des biceps': {
     equipment: 'barbell',
-    exerciseKey: 'bicep-curl',
+    exerciseKey: 'curl',
     muscleGroup: 'Biceps',
-    description: 'Barbell Bicep Curl'
+    description: 'Barbell Curl'
   },
   'Curl haltères': {
     equipment: 'dumbbell',
-    exerciseKey: 'bicep-curl',
+    exerciseKey: 'curl',
     muscleGroup: 'Biceps',
-    description: 'Dumbbell Bicep Curl'
+    description: 'Dumbbell Curl'
   },
   'Triceps dips': {
     equipment: 'bodyweight',
@@ -570,9 +570,9 @@ const exerciseMapping = {
   },
   'Développé haltères': {
     equipment: 'dumbbell',
-    exerciseKey: 'dumbbell-bench-press',
+    exerciseKey: 'incline-bench-press',
     muscleGroup: 'Chest',
-    description: 'Dumbbell Bench Press'
+    description: 'Dumbbell Incline Bench Press'
   },
   'Soulevé de terre': {
     equipment: 'barbell',
@@ -582,27 +582,27 @@ const exerciseMapping = {
   },
   'Squat': {
     equipment: 'barbell',
-    exerciseKey: 'squat',
+    exerciseKey: 'highbar-squat',
     muscleGroup: 'Quadriceps',
-    description: 'Barbell Squat'
+    description: 'Barbell High Bar Squat'
   },
   'Squat barre': {
     equipment: 'barbell',
-    exerciseKey: 'squat',
+    exerciseKey: 'highbar-squat',
     muscleGroup: 'Quadriceps',
-    description: 'Barbell Squat'
+    description: 'Barbell High Bar Squat'
   },
   'Tirage horizontal': {
     equipment: 'barbell',
-    exerciseKey: 'row',
+    exerciseKey: 'bent-over-row',
     muscleGroup: 'Back',
-    description: 'Barbell Row'
+    description: 'Barbell Bent Over Row'
   },
   'Tirage horizontal assis': {
-    equipment: 'machine',
-    exerciseKey: 'seated-row',
+    equipment: 'dumbbell',
+    exerciseKey: 'row-unilateral',
     muscleGroup: 'Back',
-    description: 'Seated Row Machine'
+    description: 'Dumbbell Unilateral Row'
   },
   'Traction': {
     equipment: 'bodyweight',
@@ -665,34 +665,34 @@ const exerciseMapping = {
     description: 'Leg Raises'
   },
   'Extension jambes': {
-    equipment: 'machine',
-    exerciseKey: 'leg-extension',
+    equipment: 'barbell',
+    exerciseKey: 'highbar-squat',
     muscleGroup: 'Quadriceps',
-    description: 'Leg Extension Machine'
+    description: 'Barbell High Bar Squat (quad alternative)'
   },
   'Flexion jambes': {
-    equipment: 'machine',
-    exerciseKey: 'leg-curl',
+    equipment: 'barbell',
+    exerciseKey: 'deadlift',
     muscleGroup: 'Hamstrings',
-    description: 'Leg Curl Machine'
+    description: 'Barbell Deadlift (hamstring alternative)'
   },
   'Curl jambes assis': {
-    equipment: 'machine',
-    exerciseKey: 'leg-curl',
+    equipment: 'barbell',
+    exerciseKey: 'deadlift',
     muscleGroup: 'Hamstrings',
-    description: 'Seated Leg Curl Machine'
+    description: 'Barbell Deadlift (hamstring alternative)'
   },
   'Abducteur hanche': {
-    equipment: 'machine',
-    exerciseKey: 'hip-abductor',
+    equipment: 'bodyweight',
+    exerciseKey: 'bulgarian-split-squat',
     muscleGroup: 'Abductors',
-    description: 'Hip Abductor Machine'
+    description: 'Bulgarian Split Squat (glute alternative)'
   },
   'Adducteur hanche': {
-    equipment: 'machine',
-    exerciseKey: 'hip-adductor',
+    equipment: 'bodyweight',
+    exerciseKey: 'squat',
     muscleGroup: 'Adductors',
-    description: 'Hip Adductor Machine'
+    description: 'Bodyweight Squat (adductor alternative)'
   },
   'Relevé mollets': {
     equipment: 'bodyweight',
