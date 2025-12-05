@@ -8,8 +8,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1010;
-  /* Higher than all modals */
+  z-index: 2000;
+  /* Higher than parent WorkoutTracker overlay (1010) */
   padding: 1rem;
 }
 
@@ -23,7 +23,7 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  z-index: 1011;
+  z-index: 2001;
   /* Ensure content is above overlay */
 }
 
