@@ -2,16 +2,124 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const axios = require('axios');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const db = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const JWT_SECRET = process.env.JWT_SECRET || 'mysport_secret_key_2024';
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+
+// ==================== AUTHENTIFICATION ====================
+// Middleware pour vérifier le JWT token
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: 'Token manquant' });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: 'Token invalide ou expiré' });
+    }
+    req.user = user;
+    next();
+  });
+};
+
+// REGISTER - Créer un nouvel utilisateur
+app.post('/auth/register', async (req, res) => {
+  const { username, email, password } = req.body;
+
+  if (!username || !email || !password) {
+    return res.status(400).json({ error: 'Username, email et password sont requis' });
+  }
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    db.run(
+      'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
+      [username, email, hashedPassword],
+      function (err) {
+        if (err) {
+          if (err.message.includes('UNIQUE constraint failed')) {
+            return res.status(400).json({ error: 'Username ou email déjà utilisé' });
+          }
+          return res.status(500).json({ error: err.message });
+        }
+
+        const userId = this.lastID;
+        const token = jwt.sign({ id: userId, username, email }, JWT_SECRET, { expiresIn: '30d' });
+        res.json({
+          id: userId,
+          username,
+          email,
+          token,
+          message: 'Inscription réussie!'
+        });
+      }
+    );
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// LOGIN - Authentifier un utilisateur
+app.post('/auth/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username et password sont requis' });
+  }
+
+  db.get('SELECT * FROM users WHERE username = ?', [username], async (err, user) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (!user) {
+      return res.status(401).json({ error: 'Username ou mot de passe incorrect' });
+    }
+
+    try {
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+
+      if (!isPasswordValid) {
+        return res.status(401).json({ error: 'Username ou mot de passe incorrect' });
+      }
+
+      const token = jwt.sign({ id: user.id, username: user.username, email: user.email }, JWT_SECRET, { expiresIn: '30d' });
+      res.json({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        token,
+        message: 'Connexion réussie!'
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+});
+
+// GET current user info (protégé par JWT)
+app.get('/auth/me', authenticateToken, (req, res) => {
+  db.get('SELECT id, username, email, created_at FROM users WHERE id = ?', [req.user.id], (err, user) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(user);
+  });
+});
 
 // Health check
 app.get('/health', (req, res) => {
@@ -1316,8 +1424,41 @@ app.put('/api/fasting/end', (req, res) => {
 });
 
 // ==================== START SERVER ====================
+
+// Créer le compte admin au démarrage s'il n'existe pas
+const createAdminAccount = async () => {
+  db.get('SELECT id FROM users WHERE username = ?', ['administrateur'], async (err, user) => {
+    if (err) {
+      console.error('Erreur lors de la vérification du compte admin:', err.message);
+      return;
+    }
+
+    if (!user) {
+      try {
+        const hashedPassword = await bcrypt.hash('@dm1n1str@t3uR!', 10);
+        db.run(
+          'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
+          ['administrateur', 'admin@mysport.local', hashedPassword],
+          (err) => {
+            if (err) {
+              console.error('Erreur lors de la création du compte admin:', err.message);
+            } else {
+              console.log('✅ Compte admin créé: username=administrateur, password=@dm1n1str@t3uR!');
+            }
+          }
+        );
+      } catch (error) {
+        console.error('Erreur bcrypt:', error.message);
+      }
+    } else {
+      console.log('✅ Compte admin existe déjà');
+    }
+  });
+};
+
 app.listen(PORT, () => {
-  console.log(`Serveur MySport en cours d'exécution sur le port ${PORT}`);
+  console.log(`🚀 Serveur MySport en cours d'exécution sur le port ${PORT}`);
+  createAdminAccount();
 });
 
 module.exports = app;
