@@ -37,14 +37,6 @@ function Login() {
     }
   };
 
-  const handleDemoLogin = async () => {
-    try {
-      await login('administrateur', '@dm1n1str@t3uR!');
-      navigate('/');
-    } catch (err) {
-      setLocalError(err.message || 'Erreur lors de la connexion');
-    }
-  };
 
   return (
     <div className="auth-container">
@@ -93,17 +85,6 @@ function Login() {
             {isLoading ? 'Connexion...' : 'Se connecter'}
           </button>
         </form>
-
-        <div className="auth-divider">OU</div>
-
-        <button
-          type="button"
-          className="auth-button auth-button-secondary"
-          onClick={handleDemoLogin}
-          disabled={isLoading}
-        >
-          {isLoading ? 'Chargement...' : '🔐 Connexion Admin (Démo)'}
-        </button>
 
         <p className="auth-footer">
           Pas encore de compte?{' '}
