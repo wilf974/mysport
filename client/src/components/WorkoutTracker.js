@@ -131,7 +131,9 @@ function WorkoutTracker({ exercises, onClose, onFinish }) {
   };
 
   const currentExercise = exercises[currentIndex];
-  const completedCount = Object.values(exerciseProgress).filter(p => p.completed).length;
+  const completedCount = Object.entries(seriesHistory)
+    .filter(([_, seriesArray]) => seriesArray && seriesArray.some(s => s !== null))
+    .length;
   const progressPercentage = (completedCount / exercises.length) * 100;
 
   return (
@@ -284,11 +286,11 @@ function WorkoutTracker({ exercises, onClose, onFinish }) {
                 key={index}
                 className={`exercise-item ${
                   index === currentIndex ? 'active' : ''
-                } ${exerciseProgress[index]?.completed ? 'completed' : ''}`}
+                } ${seriesHistory[index]?.some(s => s !== null) ? 'completed' : ''}`}
                 onClick={() => setCurrentIndex(index)}
                 title={ex.name}
               >
-                {exerciseProgress[index]?.completed ? (
+                {seriesHistory[index]?.some(s => s !== null) ? (
                   <span className="checkmark">✓</span>
                 ) : (
                   <span className="exercise-index">{index + 1}</span>
