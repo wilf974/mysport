@@ -220,17 +220,83 @@ function ExerciseList({ exercises, onAdd, onUpdate, onDelete }) {
           <p>Aucun exercice trouvé</p>
         </div>
       ) : (
-        <div className="exercises-grid">
-          {filteredExercises.map(exercise => (
-            <div key={exercise.id} className="exercise-card">
-              <div className="card-top">
-                <div className="card-header">
-                  <div className="exercise-title-wrapper">
-                    <h3>{exercise.name}</h3>
-                    <span className={`badge ${getDifficultyColor(exercise.difficulty)}`}>
+        <>
+          {/* Grid view for desktop */}
+          <div className="exercises-grid">
+            {filteredExercises.map(exercise => (
+              <div key={exercise.id} className="exercise-card">
+                <div className="card-top">
+                  <div className="card-header">
+                    <div className="exercise-title-wrapper">
+                      <h3>{exercise.name}</h3>
+                      <span className={`badge ${getDifficultyColor(exercise.difficulty)}`}>
+                        {exercise.difficulty}
+                      </span>
+                    </div>
+                    <button
+                      className="menu-button"
+                      onClick={() => setOpenMenuId(openMenuId === exercise.id ? null : exercise.id)}
+                      aria-label="Options"
+                    >
+                      ⋮
+                    </button>
+                  </div>
+
+                  {openMenuId === exercise.id && (
+                    <div className="action-menu">
+                      <button
+                        className="menu-item edit"
+                        onClick={() => {
+                          handleEdit(exercise);
+                          setOpenMenuId(null);
+                        }}
+                      >
+                        ✏️ Modifier
+                      </button>
+                      <button
+                        className="menu-item delete"
+                        onClick={() => {
+                          if (window.confirm('Êtes-vous sûr de vouloir supprimer cet exercice ?')) {
+                            onDelete(exercise.id);
+                          }
+                          setOpenMenuId(null);
+                        }}
+                      >
+                        🗑️ Supprimer
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {exercise.description && (
+                  <p className="exercise-description">{exercise.description}</p>
+                )}
+
+                <div className="exercise-meta">
+                  <span className="badge badge-muscle">
+                    {muscleIcons[exercise.muscle_group]} {exercise.muscle_group}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* List view for mobile */}
+          <div className="exercises-list">
+            {filteredExercises.map(exercise => (
+              <div key={exercise.id} className="exercise-item">
+                <div className="exercise-item-content">
+                  <h4 className="exercise-item-title">{exercise.name}</h4>
+                  <div className="exercise-item-meta">
+                    <span className={`badge badge-sm ${getDifficultyColor(exercise.difficulty)}`}>
                       {exercise.difficulty}
                     </span>
+                    <span className="badge badge-sm badge-muscle">
+                      {muscleIcons[exercise.muscle_group]}
+                    </span>
                   </div>
+                </div>
+                <div className="exercise-item-menu">
                   <button
                     className="menu-button"
                     onClick={() => setOpenMenuId(openMenuId === exercise.id ? null : exercise.id)}
@@ -238,46 +304,35 @@ function ExerciseList({ exercises, onAdd, onUpdate, onDelete }) {
                   >
                     ⋮
                   </button>
+                  {openMenuId === exercise.id && (
+                    <div className="action-menu">
+                      <button
+                        className="menu-item edit"
+                        onClick={() => {
+                          handleEdit(exercise);
+                          setOpenMenuId(null);
+                        }}
+                      >
+                        ✏️ Modifier
+                      </button>
+                      <button
+                        className="menu-item delete"
+                        onClick={() => {
+                          if (window.confirm('Êtes-vous sûr de vouloir supprimer cet exercice ?')) {
+                            onDelete(exercise.id);
+                          }
+                          setOpenMenuId(null);
+                        }}
+                      >
+                        🗑️ Supprimer
+                      </button>
+                    </div>
+                  )}
                 </div>
-
-                {openMenuId === exercise.id && (
-                  <div className="action-menu">
-                    <button
-                      className="menu-item edit"
-                      onClick={() => {
-                        handleEdit(exercise);
-                        setOpenMenuId(null);
-                      }}
-                    >
-                      ✏️ Modifier
-                    </button>
-                    <button
-                      className="menu-item delete"
-                      onClick={() => {
-                        if (window.confirm('Êtes-vous sûr de vouloir supprimer cet exercice ?')) {
-                          onDelete(exercise.id);
-                        }
-                        setOpenMenuId(null);
-                      }}
-                    >
-                      🗑️ Supprimer
-                    </button>
-                  </div>
-                )}
               </div>
-
-              {exercise.description && (
-                <p className="exercise-description">{exercise.description}</p>
-              )}
-
-              <div className="exercise-meta">
-                <span className="badge badge-muscle">
-                  {muscleIcons[exercise.muscle_group]} {exercise.muscle_group}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
