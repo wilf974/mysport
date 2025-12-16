@@ -640,6 +640,10 @@
 }
 
 @media (max-width: 320px) {
+  .timer-time {
+    font-size: 1.5rem;
+  }
+
   .series-header {
     flex-direction: column;
   }
@@ -651,6 +655,7 @@
   .series-badge {
     font-size: 0.8rem;
     padding: 0.4rem 0.8rem;
+    align-self: flex-start;
   }
 
   .series-list {
@@ -661,22 +666,6 @@
   .series-item {
     padding: 0.5rem;
     gap: 0.5rem;
-  }
-
-  .counter-display {
-    font-size: 2rem;
-  }
-
-  .counter-btn {
-    width: 44px;
-    height: 44px;
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 320px) {
-  .timer-time {
-    font-size: 1.5rem;
   }
 
   .counter-btn {
