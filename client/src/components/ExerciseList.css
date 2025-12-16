@@ -155,47 +155,6 @@
   background: rgba(124, 58, 237, 0.6);
 }
 
-.exercises-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  max-height: 600px;
-  overflow-y: auto;
-  padding-right: 0;
-  scroll-behavior: smooth;
-  /* Hide scrollbar but keep functionality */
-  scrollbar-width: thin;
-  scrollbar-color: rgba(124, 58, 237, 0.3) transparent;
-}
-
-.exercises-list::-webkit-scrollbar {
-  width: 4px;
-}
-
-.exercises-list::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.exercises-list::-webkit-scrollbar-thumb {
-  background: rgba(124, 58, 237, 0.3);
-  border-radius: 2px;
-}
-
-.exercises-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(124, 58, 237, 0.5);
-}
-
-[data-theme="dark"] .exercises-list {
-  scrollbar-color: rgba(124, 58, 237, 0.4) transparent;
-}
-
-[data-theme="dark"] .exercises-list::-webkit-scrollbar-thumb {
-  background: rgba(124, 58, 237, 0.4);
-}
-
-[data-theme="dark"] .exercises-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(124, 58, 237, 0.6);
-}
 
 .exercise-card {
   background: var(--bg-surface);
@@ -211,55 +170,6 @@
   overflow: hidden;
 }
 
-.exercise-item {
-  background: var(--bg-surface);
-  border-radius: var(--radius-md);
-  padding: 1rem;
-  border: 1px solid var(--border);
-  transition: var(--transition-fast);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-shrink: 0;
-}
-
-.exercise-item:hover {
-  background-color: var(--bg-surface-alt);
-  border-color: var(--primary);
-}
-
-.exercise-item-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.exercise-item-title {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text-main);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.exercise-item-meta {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.25rem;
-  flex-wrap: wrap;
-}
-
-.exercise-item-badge {
-  font-size: 0.7rem;
-  padding: 0.25rem 0.5rem;
-}
-
-.exercise-item-menu {
-  position: relative;
-  flex-shrink: 0;
-}
 
 .exercise-card::before {
   content: '';
@@ -422,10 +332,6 @@
   border: 1px solid rgba(124, 58, 237, 0.3);
 }
 
-.badge-sm {
-  font-size: 0.7rem !important;
-  padding: 0.25rem 0.5rem !important;
-}
 
 .empty-state {
   text-align: center;
@@ -464,12 +370,9 @@
   }
 
   .exercises-grid {
-    display: none !important;
-  }
-
-  .exercises-list {
-    display: flex !important;
-    flex: 1;
+    grid-template-columns: 1fr;
+    max-height: 600px;
+    padding: 0;
   }
 
   .exercise-card {
