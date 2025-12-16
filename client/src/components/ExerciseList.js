@@ -6,6 +6,7 @@ function ExerciseList({ exercises, onAdd, onUpdate, onDelete }) {
   const [editingId, setEditingId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterMuscle, setFilterMuscle] = useState('');
+  const [openMenuId, setOpenMenuId] = useState(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -19,6 +20,21 @@ function ExerciseList({ exercises, onAdd, onUpdate, onDelete }) {
     'Jambes', 'Quadriceps', 'Ischio-jambiers', 'Mollets', 'Abdominaux',
     'Fessiers', 'Corps entier'
   ];
+
+  const muscleIcons = {
+    'Poitrine': '🫀',
+    'Dos': '🔙',
+    'Épaules': '💪',
+    'Bras': '💪',
+    'Avant-bras': '✋',
+    'Jambes': '🦵',
+    'Quadriceps': '🦵',
+    'Ischio-jambiers': '🦵',
+    'Mollets': '🦵',
+    'Abdominaux': '⚽',
+    'Fessiers': '🍑',
+    'Corps entier': '🧘'
+  };
 
   const difficulties = ['Débutant', 'Intermédiaire', 'Avancé'];
 
@@ -207,11 +223,47 @@ function ExerciseList({ exercises, onAdd, onUpdate, onDelete }) {
         <div className="exercises-grid">
           {filteredExercises.map(exercise => (
             <div key={exercise.id} className="exercise-card">
-              <div className="card-header">
-                <h3>{exercise.name}</h3>
-                <span className={`badge ${getDifficultyColor(exercise.difficulty)}`}>
-                  {exercise.difficulty}
-                </span>
+              <div className="card-top">
+                <div className="card-header">
+                  <div className="exercise-title-wrapper">
+                    <h3>{exercise.name}</h3>
+                    <span className={`badge ${getDifficultyColor(exercise.difficulty)}`}>
+                      {exercise.difficulty}
+                    </span>
+                  </div>
+                  <button
+                    className="menu-button"
+                    onClick={() => setOpenMenuId(openMenuId === exercise.id ? null : exercise.id)}
+                    aria-label="Options"
+                  >
+                    ⋮
+                  </button>
+                </div>
+
+                {openMenuId === exercise.id && (
+                  <div className="action-menu">
+                    <button
+                      className="menu-item edit"
+                      onClick={() => {
+                        handleEdit(exercise);
+                        setOpenMenuId(null);
+                      }}
+                    >
+                      ✏️ Modifier
+                    </button>
+                    <button
+                      className="menu-item delete"
+                      onClick={() => {
+                        if (window.confirm('Êtes-vous sûr de vouloir supprimer cet exercice ?')) {
+                          onDelete(exercise.id);
+                        }
+                        setOpenMenuId(null);
+                      }}
+                    >
+                      🗑️ Supprimer
+                    </button>
+                  </div>
+                )}
               </div>
 
               {exercise.description && (
@@ -219,28 +271,9 @@ function ExerciseList({ exercises, onAdd, onUpdate, onDelete }) {
               )}
 
               <div className="exercise-meta">
-                <span className="badge badge-secondary">
-                  {exercise.muscle_group}
+                <span className="badge badge-muscle">
+                  {muscleIcons[exercise.muscle_group]} {exercise.muscle_group}
                 </span>
-              </div>
-
-              <div className="exercise-actions">
-                <button
-                  className="btn btn-secondary btn-small"
-                  onClick={() => handleEdit(exercise)}
-                >
-                  ✏️ Modifier
-                </button>
-                <button
-                  className="btn btn-danger btn-small"
-                  onClick={() => {
-                    if (window.confirm('Êtes-vous sûr de vouloir supprimer cet exercice ?')) {
-                      onDelete(exercise.id);
-                    }
-                  }}
-                >
-                  🗑️ Supprimer
-                </button>
               </div>
             </div>
           ))}
