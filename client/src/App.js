@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
+import { useTheme } from './hooks/useTheme';
 import Header from './components/Header';
 import WorkoutCalendar from './components/WorkoutCalendar';
 import ExerciseList from './components/ExerciseList';
@@ -14,6 +15,9 @@ import MonthlyGoals from './components/MonthlyGoals';
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 function App() {
+  // Initialize theme management
+  useTheme();
+
   const [currentUser, setCurrentUser] = useState(1); // ID utilisateur (on utilise 1 pour la démo)
   const [activeTab, setActiveTab] = useState('calendar');
   const [exercises, setExercises] = useState([]);

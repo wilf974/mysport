@@ -1,0 +1,97 @@
+/* Variables du mode sombre */
+[data-theme="dark"] {
+  /* Brand Colors - Same as light mode */
+  --primary: #6366f1; /* Indigo 500 */
+  --primary-hover: #818cf8; /* Indigo 400 */
+  --primary-light: #a5b4fc; /* Indigo 300 */
+  --primary-soft: #312e81; /* Indigo 900 */
+
+  --secondary: #06b6d4; /* Cyan 500 */
+  --secondary-hover: #22d3ee; /* Cyan 400 */
+
+  --accent: #fbbf24; /* Amber 400 */
+
+  /* Neutral Colors - Dark mode palette */
+  --bg-body: #0f172a; /* Slate 950 */
+  --bg-surface: #1e293b; /* Slate 800 */
+  --bg-surface-alt: #334155; /* Slate 700 */
+
+  --text-main: #f1f5f9; /* Slate 100 */
+  --text-secondary: #cbd5e1; /* Slate 300 */
+  --text-tertiary: #94a3b8; /* Slate 400 */
+  --text-inverse: #0f172a;
+
+  --border: #475569; /* Slate 600 */
+  --border-focus: #6366f1;
+
+  /* Semantic Colors - Dark mode */
+  --success: #10b981; /* Emerald 500 */
+  --success-bg: #064e3b; /* Emerald 900 */
+  --warning: #f59e0b; /* Amber 500 */
+  --warning-bg: #78350f; /* Amber 900 */
+  --danger: #ef4444; /* Red 500 */
+  --danger-bg: #7f1d1d; /* Red 900 */
+  --info: #3b82f6; /* Blue 500 */
+  --info-bg: #1e3a8a; /* Blue 900 */
+
+  /* Shadows - Adapted for dark mode */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6), 0 8px 10px -6px rgb(0 0 0 / 0.5);
+  --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.3);
+
+  /* Radius - Same as light mode */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  /* Transitions - Same as light mode */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth transition during theme change */
+[data-theme="dark"],
+[data-theme="dark"] * {
+  transition: background-color var(--transition-normal), color var(--transition-normal), border-color var(--transition-normal);
+}
+
+/* Modal overlay pour dark mode */
+[data-theme="dark"] .modal-overlay {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Glassmorphism pour dark mode */
+[data-theme="dark"] .glass {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+[data-theme="dark"] .glass-dark {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+/* Scrollbar styling pour dark mode */
+[data-theme="dark"] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: var(--bg-body);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
