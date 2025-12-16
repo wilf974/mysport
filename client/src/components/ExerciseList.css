@@ -118,37 +118,40 @@
   gap: 0.5rem;
   max-height: 600px;
   overflow-y: auto;
-  padding-right: 0.5rem;
+  padding-right: 0;
+  scroll-behavior: smooth;
+  /* Hide scrollbar but keep functionality */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(124, 58, 237, 0.3) transparent;
 }
 
 .exercises-list::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 .exercises-list::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 10px;
+  background: transparent;
 }
 
 .exercises-list::-webkit-scrollbar-thumb {
-  background: rgba(124, 58, 237, 0.4);
-  border-radius: 10px;
+  background: rgba(124, 58, 237, 0.3);
+  border-radius: 2px;
 }
 
 .exercises-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(124, 58, 237, 0.6);
-}
-
-[data-theme="dark"] .exercises-list::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-[data-theme="dark"] .exercises-list::-webkit-scrollbar-thumb {
   background: rgba(124, 58, 237, 0.5);
 }
 
+[data-theme="dark"] .exercises-list {
+  scrollbar-color: rgba(124, 58, 237, 0.4) transparent;
+}
+
+[data-theme="dark"] .exercises-list::-webkit-scrollbar-thumb {
+  background: rgba(124, 58, 237, 0.4);
+}
+
 [data-theme="dark"] .exercises-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(124, 58, 237, 0.7);
+  background: rgba(124, 58, 237, 0.6);
 }
 
 .exercise-card {
