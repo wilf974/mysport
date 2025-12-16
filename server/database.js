@@ -317,6 +317,53 @@ function initDatabase() {
   db.run(`CREATE INDEX IF NOT EXISTS idx_food_name ON food_items(name)`, (err) => {
     if (err) console.error('Erreur création index food_items:', err);
   });
+
+  // Table des sessions d'entraînement complétées
+  db.run(`
+    CREATE TABLE IF NOT EXISTS workout_sessions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      workout_id INTEGER,
+      date DATETIME DEFAULT CURRENT_TIMESTAMP,
+      duration INTEGER, -- durée en secondes
+      total_volume REAL, -- volume total (kg)
+      notes TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(user_id) REFERENCES users(id),
+      FOREIGN KEY(workout_id) REFERENCES workouts(id)
+    )
+  `);
+
+  // Index pour recherches rapides des sessions d'entraînement
+  db.run(`CREATE INDEX IF NOT EXISTS idx_workout_sessions_user ON workout_sessions(user_id, date)`, (err) => {
+    if (err) console.error('Erreur création index workout_sessions:', err);
+  });
+
+  // Table des séries individuelles d'une session d'entraînement
+  db.run(`
+    CREATE TABLE IF NOT EXISTS workout_session_series (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      session_id INTEGER NOT NULL,
+      exercise_id INTEGER NOT NULL,
+      exercise_order INTEGER, -- ordre de l'exercice dans la session
+      series_number INTEGER, -- numéro de la série (1, 2, 3...)
+      reps INTEGER, -- nombre de répétitions effectuées
+      weight REAL, -- poids utilisé (optionnel)
+      notes TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(session_id) REFERENCES workout_sessions(id),
+      FOREIGN KEY(exercise_id) REFERENCES exercises(id)
+    )
+  `);
+
+  // Index pour recherches rapides des séries
+  db.run(`CREATE INDEX IF NOT EXISTS idx_session_series_session ON workout_session_series(session_id)`, (err) => {
+    if (err) console.error('Erreur création index workout_session_series:', err);
+  });
+
+  db.run(`CREATE INDEX IF NOT EXISTS idx_session_series_exercise ON workout_session_series(exercise_id)`, (err) => {
+    if (err) console.error('Erreur création index workout_session_series exercise:', err);
+  });
 }
 
 module.exports = db;

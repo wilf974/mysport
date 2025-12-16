@@ -711,6 +711,212 @@ app.get('/api/stats/volume/:userId', (req, res) => {
   );
 });
 
+// ==================== WORKOUT SESSIONS (Completed Workouts) ====================
+
+// POST save completed workout session with series data
+app.post('/api/workout-sessions/complete', (req, res) => {
+  const { user_id, workout_id, duration, notes, seriesHistory, exercisesList } = req.body;
+
+  // Create workout session
+  db.run(
+    `INSERT INTO workout_sessions (user_id, workout_id, date, duration, notes)
+     VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?)`,
+    [user_id, workout_id || null, duration || 0, notes || ''],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+
+      const sessionId = this.lastID;
+
+      // Calculate total volume and insert series data
+      let totalVolume = 0;
+      let seriesInserted = 0;
+      const totalSeries = Object.keys(seriesHistory || {}).length;
+
+      if (!seriesHistory || totalSeries === 0) {
+        // No series data, just return the session
+        return res.json({
+          id: sessionId,
+          user_id,
+          workout_id,
+          duration,
+          notes,
+          total_volume: 0
+        });
+      }
+
+      // Insert each series from seriesHistory
+      Object.entries(seriesHistory).forEach(([exerciseIndex, series]) => {
+        const idx = parseInt(exerciseIndex);
+        const exercise = exercisesList ? exercisesList[idx] : null;
+        const exerciseId = exercise?.exercise_id;
+
+        if (!Array.isArray(series)) return;
+
+        series.forEach((reps, seriesNum) => {
+          if (reps === null) return; // Skip incomplete series
+
+          const weight = exercise?.weight || 0;
+          const volume = (weight || 0) * reps;
+          totalVolume += volume;
+
+          db.run(
+            `INSERT INTO workout_session_series
+             (session_id, exercise_id, exercise_order, series_number, reps, weight)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [sessionId, exerciseId, idx, seriesNum + 1, reps, weight || null]
+          );
+
+          seriesInserted++;
+        });
+      });
+
+      // Update session total volume after a brief delay (for async inserts)
+      setTimeout(() => {
+        db.run(
+          'UPDATE workout_sessions SET total_volume = ? WHERE id = ?',
+          [totalVolume, sessionId],
+          (err) => {
+            if (err) console.error('Error updating session volume:', err);
+          }
+        );
+      }, 100);
+
+      res.json({
+        id: sessionId,
+        user_id,
+        workout_id,
+        duration,
+        notes,
+        total_volume: totalVolume,
+        series_count: seriesInserted
+      });
+    }
+  );
+});
+
+// GET workout history for user (with series summary)
+app.get('/api/workout-sessions/:userId', (req, res) => {
+  const { userId } = req.params;
+  const { limit = 50, offset = 0 } = req.query;
+
+  db.all(
+    `SELECT
+       ws.id,
+       ws.user_id,
+       ws.workout_id,
+       ws.date,
+       ws.duration,
+       ws.total_volume,
+       ws.notes,
+       COUNT(wss.id) as series_count,
+       COUNT(DISTINCT wss.exercise_id) as exercise_count
+     FROM workout_sessions ws
+     LEFT JOIN workout_session_series wss ON ws.id = wss.session_id
+     WHERE ws.user_id = ?
+     GROUP BY ws.id
+     ORDER BY ws.date DESC
+     LIMIT ? OFFSET ?`,
+    [userId, limit, offset],
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(rows);
+    }
+  );
+});
+
+// GET single workout session with full series details
+app.get('/api/workout-sessions/:sessionId/details', (req, res) => {
+  const { sessionId } = req.params;
+
+  // Get session header
+  db.get(
+    `SELECT * FROM workout_sessions WHERE id = ?`,
+    [sessionId],
+    (err, session) => {
+      if (err) return res.status(500).json({ error: err.message });
+      if (!session) return res.status(404).json({ error: 'Session not found' });
+
+      // Get all series for this session
+      db.all(
+        `SELECT wss.*, e.name as exercise_name, e.muscle_group
+         FROM workout_session_series wss
+         LEFT JOIN exercises e ON wss.exercise_id = e.id
+         WHERE wss.session_id = ?
+         ORDER BY wss.exercise_order ASC, wss.series_number ASC`,
+        [sessionId],
+        (err, series) => {
+          if (err) return res.status(500).json({ error: err.message });
+
+          // Group series by exercise
+          const groupedByExercise = {};
+          series.forEach(s => {
+            if (!groupedByExercise[s.exercise_order]) {
+              groupedByExercise[s.exercise_order] = {
+                exercise_id: s.exercise_id,
+                exercise_name: s.exercise_name,
+                muscle_group: s.muscle_group,
+                series: []
+              };
+            }
+            groupedByExercise[s.exercise_order].series.push({
+              series_number: s.series_number,
+              reps: s.reps,
+              weight: s.weight
+            });
+          });
+
+          res.json({
+            ...session,
+            exercises: Object.values(groupedByExercise)
+          });
+        }
+      );
+    }
+  );
+});
+
+// GET workout statistics (volume by muscle group from completed sessions)
+app.get('/api/stats/session-volume/:userId', (req, res) => {
+  const { userId } = req.params;
+  const { days = 30 } = req.query;
+
+  db.all(
+    `SELECT
+       e.muscle_group,
+       COUNT(DISTINCT wss.session_id) as session_count,
+       COUNT(wss.id) as total_series,
+       SUM(wss.reps * COALESCE(wss.weight, 0)) as total_volume,
+       AVG(wss.reps) as avg_reps,
+       AVG(COALESCE(wss.weight, 0)) as avg_weight
+     FROM workout_session_series wss
+     JOIN workout_sessions ws ON wss.session_id = ws.id
+     LEFT JOIN exercises e ON wss.exercise_id = e.id
+     WHERE ws.user_id = ?
+       AND ws.date >= date('now', '-' || ? || ' days')
+     GROUP BY e.muscle_group
+     ORDER BY total_volume DESC`,
+    [userId, parseInt(days) || 30],
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(rows);
+    }
+  );
+});
+
+// DELETE workout session (and all its series)
+app.delete('/api/workout-sessions/:sessionId', (req, res) => {
+  const { sessionId } = req.params;
+
+  db.run('DELETE FROM workout_session_series WHERE session_id = ?', [sessionId], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+
+    db.run('DELETE FROM workout_sessions WHERE id = ?', [sessionId], (err) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ success: true });
+    });
+  });
+});
+
 // ==================== NUTRITION ====================
 // GET meals for a specific date (or all if no date provided)
 app.get('/api/nutrition/:userId', (req, res) => {

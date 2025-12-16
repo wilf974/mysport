@@ -39,7 +39,7 @@ function WorkoutTracker({ exercises, onClose, onFinish }) {
 
   const handleStopWorkout = () => {
     stop();
-    onFinish(timer);
+    onFinish(timer, seriesHistory, exercises);
   };
 
   const handlePauseResume = () => {

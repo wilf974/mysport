@@ -155,18 +155,37 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
     onAdd(duration ? parseInt(duration) : null);
   };
 
-  const handleFinishWorkout = async (totalDuration) => {
+  const handleFinishWorkout = async (totalDuration, seriesHistory, exercises) => {
     try {
-      // Mettre à jour la durée de la séance
-      await axios.put(`${API_URL}/workouts/${workout.id}`, {
-        duration: Math.floor(totalDuration / 60) // Convertir en minutes
+      // Duration in minutes
+      const durationMinutes = Math.floor(totalDuration / 60);
+
+      // Save completed workout session with series data
+      const sessionResponse = await axios.post(`${API_URL}/workout-sessions/complete`, {
+        user_id: userId,
+        workout_id: workout.id,
+        duration: totalDuration, // in seconds
+        notes: '',
+        seriesHistory: seriesHistory,
+        exercisesList: exercises
       });
-      setDuration(Math.floor(totalDuration / 60));
+
+      // Update the workout duration
+      await axios.put(`${API_URL}/workouts/${workout.id}`, {
+        duration: durationMinutes
+      });
+
+      setDuration(durationMinutes);
       setShowTracker(false);
       onWorkoutUpdate();
-      alert('Entraînement terminé ! Durée: ' + Math.floor(totalDuration / 60) + ' min');
+
+      // Show success message with session data
+      const totalVolume = sessionResponse.data.total_volume || 0;
+      const seriesCount = sessionResponse.data.series_count || 0;
+      alert(`✅ Entraînement terminé !\n\n⏱️ Durée: ${durationMinutes} min\n📊 Séries: ${seriesCount}\n💪 Volume total: ${Math.round(totalVolume)} kg`);
     } catch (err) {
       console.error('Erreur:', err);
+      alert('Erreur lors de la sauvegarde de l\'entraînement');
     }
   };
 
