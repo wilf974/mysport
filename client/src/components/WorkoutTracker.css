@@ -237,6 +237,38 @@
   color: var(--primary);
 }
 
+/* Series Counter */
+.series-counter-section {
+  padding: 2rem 1.5rem;
+  border-bottom: 2px solid var(--border);
+  text-align: center;
+}
+
+.series-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.series-counter-section h4 {
+  margin: 0;
+  color: var(--dark);
+  flex: 1;
+}
+
+.series-badge {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  min-width: 60px;
+  white-space: nowrap;
+}
+
 /* Reps Counter */
 .reps-counter-section {
   padding: 2rem 1.5rem;
@@ -297,6 +329,67 @@
   display: flex;
   gap: 1rem;
   justify-content: center;
+}
+
+/* Series History */
+.series-history {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid var(--border);
+}
+
+.series-history h5 {
+  margin: 0 0 1rem 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.series-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+.series-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(16, 185, 129, 0.05);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.series-item.completed {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1));
+  border-color: var(--primary);
+}
+
+.series-item.pending {
+  opacity: 0.6;
+  background: rgba(107, 114, 128, 0.05);
+}
+
+.series-number {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  flex: 1;
+}
+
+.series-reps {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary);
+  min-width: 60px;
+  text-align: right;
+}
+
+.btn-block {
+  width: 100% !important;
 }
 
 /* Exercise Navigation */
@@ -516,6 +609,68 @@
   .detail-box {
     padding: 0.5rem;
     font-size: 0.85rem;
+  }
+
+  .series-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .series-badge {
+    align-self: flex-start;
+  }
+
+  .series-list {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  .series-item {
+    flex-direction: column;
+    padding: 0.5rem;
+  }
+
+  .series-number {
+    font-size: 0.75rem;
+  }
+
+  .series-reps {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 320px) {
+  .series-header {
+    flex-direction: column;
+  }
+
+  .series-counter-section h4 {
+    font-size: 1rem;
+  }
+
+  .series-badge {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .series-list {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .series-item {
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .counter-display {
+    font-size: 2rem;
+  }
+
+  .counter-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 1rem;
   }
 }
 

@@ -7,17 +7,31 @@ import { useBackgroundTimer } from '../hooks/useBackgroundTimer';
 function WorkoutTracker({ exercises, onClose, onFinish }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [repsCompleted, setRepsCompleted] = useState(0);
-  const [exerciseProgress, setExerciseProgress] = useState({});
+  const [currentSeries, setCurrentSeries] = useState(0);
+  const [seriesHistory, setSeriesHistory] = useState({});
   const [showExerciseDemo, setShowExerciseDemo] = useState(false);
   const [demonstrationExercise, setDemonstrationExercise] = useState(null);
 
   // Use background timer that works even when device is locked
   const { time: timer, isRunning, isPaused, start, pause, resume, stop, reset } = useBackgroundTimer();
 
-  // Reset reps when changing exercise
+  // Initialize series history for current exercise on mount and when exercise changes
   useEffect(() => {
-    setRepsCompleted(0);
-  }, [currentIndex]);
+    const currentExercise = exercises[currentIndex];
+    if (currentExercise && !seriesHistory[currentIndex]) {
+      const seriesCount = currentExercise.sets || 1;
+      setSeriesHistory(prev => ({
+        ...prev,
+        [currentIndex]: Array(seriesCount).fill(null)
+      }));
+      setCurrentSeries(0);
+      setRepsCompleted(0);
+    } else if (currentExercise && seriesHistory[currentIndex]) {
+      // Reset reps for new series
+      setRepsCompleted(0);
+      setCurrentSeries(0);
+    }
+  }, [currentIndex, exercises, seriesHistory]);
 
   const handleStartWorkout = () => {
     start();
@@ -48,12 +62,35 @@ function WorkoutTracker({ exercises, onClose, onFinish }) {
     setRepsCompleted(0);
   };
 
+  const handleValidateSeries = () => {
+    if (repsCompleted > 0 && seriesHistory[currentIndex]) {
+      const updatedSeries = [...seriesHistory[currentIndex]];
+      updatedSeries[currentSeries] = repsCompleted;
+
+      setSeriesHistory(prev => ({
+        ...prev,
+        [currentIndex]: updatedSeries
+      }));
+
+      // Check if all series are completed
+      const totalSeries = exercises[currentIndex].sets || 1;
+      if (currentSeries < totalSeries - 1) {
+        // Move to next series
+        setCurrentSeries(currentSeries + 1);
+        setRepsCompleted(0);
+      } else {
+        // All series completed for this exercise
+        setRepsCompleted(0);
+      }
+    }
+  };
+
   const handleCompleteExercise = () => {
-    if (repsCompleted > 0) {
-      setExerciseProgress({
-        ...exerciseProgress,
-        [currentIndex]: { completed: true, reps: repsCompleted }
-      });
+    // Check if all series have been done
+    const totalSeries = exercises[currentIndex].sets || 1;
+    const completedSeries = seriesHistory[currentIndex]?.filter(s => s !== null).length || 0;
+
+    if (completedSeries > 0) {
       if (currentIndex < exercises.length - 1) {
         setCurrentIndex(currentIndex + 1);
       }
@@ -180,26 +217,56 @@ function WorkoutTracker({ exercises, onClose, onFinish }) {
           </div>
         )}
 
-        {/* Reps Counter */}
-        <div className="reps-counter-section">
-          <h4>Compteur de répétitions</h4>
+        {/* Series Counter */}
+        <div className="series-counter-section">
+          <div className="series-header">
+            <h4>📊 Série {currentSeries + 1}/{currentExercise?.sets || 1}</h4>
+            <span className="series-badge">{currentSeries + 1}/{currentExercise?.sets || 1}</span>
+          </div>
+
           <div className="reps-counter">
             <button className="counter-btn" onClick={handleRepDecrement}>−</button>
             <div className="counter-display">{repsCompleted}</div>
             <button className="counter-btn" onClick={handleRepIncrement}>+</button>
           </div>
+
           <div className="counter-actions">
             <button className="btn btn-secondary" onClick={handleResetReps}>
               Réinitialiser
             </button>
             <button
               className="btn btn-success"
-              onClick={handleCompleteExercise}
+              onClick={handleValidateSeries}
               disabled={repsCompleted === 0}
             >
-              Valider l'exercice
+              ✓ Valider cette série
             </button>
           </div>
+
+          {/* Series History */}
+          {seriesHistory[currentIndex] && seriesHistory[currentIndex].some(s => s !== null) && (
+            <div className="series-history">
+              <h5>📝 Séries complétées:</h5>
+              <div className="series-list">
+                {seriesHistory[currentIndex].map((reps, idx) => (
+                  <div key={idx} className={`series-item ${reps !== null ? 'completed' : 'pending'}`}>
+                    <span className="series-number">Série {idx + 1}</span>
+                    <span className="series-reps">{reps !== null ? `${reps} reps` : '—'}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Complete Exercise Button */}
+          <button
+            className="btn btn-primary btn-block"
+            onClick={handleCompleteExercise}
+            disabled={!seriesHistory[currentIndex]?.some(s => s !== null)}
+            style={{ marginTop: '1rem' }}
+          >
+            ➜ Exercice suivant
+          </button>
         </div>
 
         {/* Exercise Navigation */}
