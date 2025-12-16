@@ -2,27 +2,17 @@ import React, { useState, useEffect } from 'react';
 import './WorkoutTracker.css';
 import ExerciseDemo from './ExerciseDemo';
 import { getMuscleWikiExercise } from '../data/muscleWikiMapping';
+import { useBackgroundTimer } from '../hooks/useBackgroundTimer';
 
 function WorkoutTracker({ exercises, onClose, onFinish }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [timer, setTimer] = useState(0);
-  const [isRunning, setIsRunning] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
   const [repsCompleted, setRepsCompleted] = useState(0);
   const [exerciseProgress, setExerciseProgress] = useState({});
   const [showExerciseDemo, setShowExerciseDemo] = useState(false);
   const [demonstrationExercise, setDemonstrationExercise] = useState(null);
 
-  // Timer effect
-  useEffect(() => {
-    let interval = null;
-    if (isRunning && !isPaused) {
-      interval = setInterval(() => {
-        setTimer(prev => prev + 1);
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isRunning, isPaused]);
+  // Use background timer that works even when device is locked
+  const { time: timer, isRunning, isPaused, start, pause, resume, stop, reset } = useBackgroundTimer();
 
   // Reset reps when changing exercise
   useEffect(() => {
@@ -30,16 +20,20 @@ function WorkoutTracker({ exercises, onClose, onFinish }) {
   }, [currentIndex]);
 
   const handleStartWorkout = () => {
-    setIsRunning(true);
+    start();
   };
 
   const handleStopWorkout = () => {
-    setIsRunning(false);
+    stop();
     onFinish(timer);
   };
 
   const handlePauseResume = () => {
-    setIsPaused(!isPaused);
+    if (isPaused) {
+      resume();
+    } else {
+      pause();
+    }
   };
 
   const handleRepIncrement = () => {
