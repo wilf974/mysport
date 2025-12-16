@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import axios from 'axios';
 import './App.css';
 import { useTheme } from './hooks/useTheme';
 import Header from './components/Header';
-import WorkoutCalendar from './components/WorkoutCalendar';
-import ExerciseList from './components/ExerciseList';
-import ProgressPhotos from './components/ProgressPhotos';
-import Measurements from './components/Measurements';
-import Statistics from './components/Statistics';
-import Nutrition from './components/Nutrition';
-import RecoveryTracker from './components/RecoveryTracker';
-import MonthlyGoals from './components/MonthlyGoals';
+import LoadingSpinner from './components/LoadingSpinner';
+
+// Code splitting: charger les composants d'onglet de manière asynchrone
+const WorkoutCalendar = lazy(() => import('./components/WorkoutCalendar'));
+const ExerciseList = lazy(() => import('./components/ExerciseList'));
+const ProgressPhotos = lazy(() => import('./components/ProgressPhotos'));
+const Measurements = lazy(() => import('./components/Measurements'));
+const Statistics = lazy(() => import('./components/Statistics'));
+const Nutrition = lazy(() => import('./components/Nutrition'));
+const RecoveryTracker = lazy(() => import('./components/RecoveryTracker'));
+const MonthlyGoals = lazy(() => import('./components/MonthlyGoals'));
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
@@ -137,41 +140,43 @@ function App() {
       </nav>
 
       <div className="container">
-        {loading && activeTab === 'calendar' ? (
-          <div className="loading">Chargement...</div>
-        ) : (
-          <>
-            {activeTab === 'calendar' && (
-              <WorkoutCalendar userId={currentUser} exercises={exercises} />
-            )}
-            {activeTab === 'exercises' && (
-              <ExerciseList
-                exercises={exercises}
-                onAdd={handleAddExercise}
-                onUpdate={handleUpdateExercise}
-                onDelete={handleDeleteExercise}
-              />
-            )}
-            {activeTab === 'nutrition' && (
-              <Nutrition userId={currentUser} />
-            )}
-            {activeTab === 'goals' && (
-              <MonthlyGoals userId={currentUser} />
-            )}
-            {activeTab === 'photos' && (
-              <ProgressPhotos userId={currentUser} />
-            )}
-            {activeTab === 'measurements' && (
-              <Measurements userId={currentUser} />
-            )}
-            {activeTab === 'recovery' && (
-              <RecoveryTracker userId={currentUser} />
-            )}
-            {activeTab === 'stats' && (
-              <Statistics userId={currentUser} />
-            )}
-          </>
-        )}
+        <Suspense fallback={<LoadingSpinner message="Chargement du contenu..." />}>
+          {loading && activeTab === 'calendar' ? (
+            <LoadingSpinner message="Chargement des exercices..." />
+          ) : (
+            <>
+              {activeTab === 'calendar' && (
+                <WorkoutCalendar userId={currentUser} exercises={exercises} />
+              )}
+              {activeTab === 'exercises' && (
+                <ExerciseList
+                  exercises={exercises}
+                  onAdd={handleAddExercise}
+                  onUpdate={handleUpdateExercise}
+                  onDelete={handleDeleteExercise}
+                />
+              )}
+              {activeTab === 'nutrition' && (
+                <Nutrition userId={currentUser} />
+              )}
+              {activeTab === 'goals' && (
+                <MonthlyGoals userId={currentUser} />
+              )}
+              {activeTab === 'photos' && (
+                <ProgressPhotos userId={currentUser} />
+              )}
+              {activeTab === 'measurements' && (
+                <Measurements userId={currentUser} />
+              )}
+              {activeTab === 'recovery' && (
+                <RecoveryTracker userId={currentUser} />
+              )}
+              {activeTab === 'stats' && (
+                <Statistics userId={currentUser} />
+              )}
+            </>
+          )}
+        </Suspense>
       </div>
     </div>
   );
