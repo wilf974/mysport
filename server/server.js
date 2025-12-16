@@ -36,7 +36,7 @@ const authenticateToken = (req, res, next) => {
 };
 
 // REGISTER - Créer un nouvel utilisateur
-app.post('/auth/register', async (req, res) => {
+app.post('/api/auth/register', async (req, res) => {
   const { username, email, password } = req.body;
 
   if (!username || !email || !password) {
@@ -74,7 +74,7 @@ app.post('/auth/register', async (req, res) => {
 });
 
 // LOGIN - Authentifier un utilisateur
-app.post('/auth/login', async (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
@@ -112,7 +112,7 @@ app.post('/auth/login', async (req, res) => {
 });
 
 // GET current user info (protégé par JWT)
-app.get('/auth/me', authenticateToken, (req, res) => {
+app.get('/api/auth/me', authenticateToken, (req, res) => {
   db.get('SELECT id, username, email, created_at FROM users WHERE id = ?', [req.user.id], (err, user) => {
     if (err) {
       return res.status(500).json({ error: err.message });
@@ -122,7 +122,7 @@ app.get('/auth/me', authenticateToken, (req, res) => {
 });
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
