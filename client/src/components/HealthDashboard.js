@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { axiosInstance } from '../utils/apiClient';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useAuth } from '../hooks/useAuth';
 import './HealthDashboard.css';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 function HealthDashboard() {
   const { user } = useAuth();
@@ -30,7 +28,7 @@ function HealthDashboard() {
 
   const fetchWearablesStatus = async () => {
     try {
-      const response = await axios.get(`${API_URL}/wearables/status`);
+      const response = await axiosInstance.get('/wearables/status');
       setWearablesStatus(response.data);
     } catch (err) {
       console.error('Erreur lors du chargement du statut:', err);
@@ -42,7 +40,7 @@ function HealthDashboard() {
       const endDate = new Date().toISOString();
       const startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
-      const response = await axios.get(`${API_URL}/wearables/health-data`, {
+      const response = await axiosInstance.get('/wearables/health-data', {
         params: { startDate, endDate }
       });
 
@@ -64,7 +62,7 @@ function HealthDashboard() {
 
   const fetchActivities = async () => {
     try {
-      const response = await axios.get(`${API_URL}/wearables/activities`);
+      const response = await axiosInstance.get('/wearables/activities');
       setActivities(response.data);
     } catch (err) {
       console.error('Erreur lors du chargement des activités:', err);
@@ -73,7 +71,7 @@ function HealthDashboard() {
 
   const handleGoogleFitConnect = async () => {
     try {
-      const response = await axios.get(`${API_URL}/oauth/google/url`);
+      const response = await axiosInstance.get('/oauth/google/url');
       window.location.href = response.data.authUrl;
     } catch (err) {
       setError('Erreur lors de la connexion à Google Fit');
@@ -83,7 +81,7 @@ function HealthDashboard() {
 
   const handleStravaConnect = async () => {
     try {
-      const response = await axios.get(`${API_URL}/oauth/strava/url`);
+      const response = await axiosInstance.get('/oauth/strava/url');
       window.location.href = response.data.authUrl;
     } catch (err) {
       setError('Erreur lors de la connexion à Strava');
@@ -94,7 +92,7 @@ function HealthDashboard() {
   const handleSyncGoogleFit = async () => {
     setSyncing(prev => ({ ...prev, googleFit: true }));
     try {
-      await axios.post(`${API_URL}/wearables/sync/google-fit`);
+      await axiosInstance.post('/wearables/sync/google-fit');
       fetchHealthData();
       fetchWearablesStatus();
     } catch (err) {
@@ -108,7 +106,7 @@ function HealthDashboard() {
   const handleSyncStrava = async () => {
     setSyncing(prev => ({ ...prev, strava: true }));
     try {
-      await axios.post(`${API_URL}/wearables/sync/strava`);
+      await axiosInstance.post('/wearables/sync/strava');
       fetchActivities();
       fetchWearablesStatus();
     } catch (err) {

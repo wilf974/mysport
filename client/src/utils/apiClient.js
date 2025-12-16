@@ -134,9 +134,13 @@ export const apiDelete = (url, config = {}) => {
   return withRetry(() => axiosInstance.delete(url, config));
 };
 
+// Export axiosInstance for direct use with JWT interceptors
+export { axiosInstance };
+
 export default {
   apiGet,
   apiPost,
   apiPut,
-  apiDelete
+  apiDelete,
+  axiosInstance
 };
