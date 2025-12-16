@@ -171,6 +171,19 @@ button {
   background-color: #059669; /* Emerald 600 */
 }
 
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none !important;
+}
+
+.btn:disabled:hover {
+  background-color: inherit;
+  box-shadow: none;
+  transform: none;
+}
+
 .btn-ghost {
   background-color: transparent;
   color: var(--text-secondary);

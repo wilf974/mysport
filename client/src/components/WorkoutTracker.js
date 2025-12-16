@@ -226,6 +226,10 @@ function WorkoutTracker({ exercises, onClose, onFinish }) {
             <span className="series-badge">{currentSeries + 1}/{currentExercise?.sets || 1}</span>
           </div>
 
+          <div className="counter-instruction">
+            <p>Combien de répétitions effectuées ?</p>
+          </div>
+
           <div className="reps-counter">
             <button className="counter-btn" onClick={handleRepDecrement}>−</button>
             <div className="counter-display">{repsCompleted}</div>

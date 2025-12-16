@@ -281,6 +281,21 @@
   color: var(--dark);
 }
 
+.counter-instruction {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.08), rgba(14, 165, 233, 0.08));
+  border-radius: 8px;
+  border-left: 4px solid var(--primary);
+}
+
+.counter-instruction p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
 .reps-counter {
   display: flex;
   align-items: center;
@@ -313,8 +328,11 @@
 }
 
 .counter-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
+  background: #ccc;
+  box-shadow: none;
+  transform: none;
 }
 
 .counter-display {
