@@ -16,6 +16,7 @@ function WorkoutTracker({ exercises, onClose, onFinish }) {
   const { time: timer, isRunning, isPaused, start, pause, resume, stop, reset } = useBackgroundTimer();
 
   // Initialize series history for current exercise on mount and when exercise changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const currentExercise = exercises[currentIndex];
     if (currentExercise && !seriesHistory[currentIndex]) {
@@ -26,12 +27,21 @@ function WorkoutTracker({ exercises, onClose, onFinish }) {
       }));
       setCurrentSeries(0);
       setRepsCompleted(0);
-    } else if (currentExercise && seriesHistory[currentIndex]) {
-      // Reset reps for new series
-      setRepsCompleted(0);
-      setCurrentSeries(0);
     }
-  }, [currentIndex, exercises, seriesHistory]);
+  }, [currentIndex, exercises]);
+
+  // Reset reps when series changes (but not when just validating)
+  useEffect(() => {
+    // This only resets reps count for display, doesn't touch currentSeries
+    // It's a separate effect to avoid interfering with series progression
+    if (seriesHistory[currentIndex]) {
+      const allSeriesForExercise = seriesHistory[currentIndex];
+      // Only auto-reset reps if we're viewing an incomplete series
+      if (currentSeries < allSeriesForExercise.length && allSeriesForExercise[currentSeries] === null) {
+        setRepsCompleted(0);
+      }
+    }
+  }, [currentSeries, currentIndex, seriesHistory]);
 
   const handleStartWorkout = () => {
     start();
