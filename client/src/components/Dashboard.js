@@ -15,6 +15,7 @@ const Statistics = lazy(() => import('./Statistics'));
 const Nutrition = lazy(() => import('./Nutrition'));
 const RecoveryTracker = lazy(() => import('./RecoveryTracker'));
 const MonthlyGoals = lazy(() => import('./MonthlyGoals'));
+const HealthDashboard = lazy(() => import('./HealthDashboard'));
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
@@ -140,6 +141,12 @@ function Dashboard() {
         >
           📊 Stats
         </button>
+        <button
+          className={`tab-btn ${activeTab === 'health' ? 'active' : ''}`}
+          onClick={() => setActiveTab('health')}
+        >
+          🏥 Santé
+        </button>
       </nav>
 
       <div className="container">
@@ -176,6 +183,9 @@ function Dashboard() {
               )}
               {activeTab === 'stats' && (
                 <Statistics userId={user.id} />
+              )}
+              {activeTab === 'health' && (
+                <HealthDashboard />
               )}
             </>
           )}

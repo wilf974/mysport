@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { google } = require('googleapis');
 require('dotenv').config();
 const db = require('./database');
 
@@ -1419,6 +1420,350 @@ app.put('/api/fasting/end', (req, res) => {
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ success: true, end_time });
+    }
+  );
+});
+
+// ==================== WEARABLES & HEALTH DATA ====================
+
+// Configuration Google Fit OAuth
+const oauth2Client = new google.auth.OAuth2(
+  process.env.GOOGLE_CLIENT_ID || 'your-client-id',
+  process.env.GOOGLE_CLIENT_SECRET || 'your-client-secret',
+  process.env.GOOGLE_REDIRECT_URI || 'http://localhost:5000/api/oauth/google/callback'
+);
+
+// GET Google Fit auth URL
+app.get('/api/oauth/google/url', authenticateToken, (req, res) => {
+  try {
+    const authUrl = oauth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: [
+        'https://www.googleapis.com/auth/fitness.heart_rate.read',
+        'https://www.googleapis.com/auth/fitness.activity.read',
+        'https://www.googleapis.com/auth/fitness.sleep.read'
+      ]
+    });
+    res.json({ authUrl });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST Google Fit OAuth callback
+app.post('/api/oauth/google/callback', authenticateToken, async (req, res) => {
+  const { code } = req.body;
+
+  try {
+    const { tokens } = await oauth2Client.getToken(code);
+    const userId = req.user.id;
+
+    // Store tokens in database
+    db.run(
+      `INSERT OR REPLACE INTO oauth_google_fit
+       (user_id, access_token, refresh_token, expires_at, scope, connected_at)
+       VALUES (?, ?, ?, datetime(?), ?, CURRENT_TIMESTAMP)`,
+      [
+        userId,
+        tokens.access_token,
+        tokens.refresh_token,
+        new Date(tokens.expiry_date).toISOString(),
+        tokens.scope
+      ],
+      (err) => {
+        if (err) {
+          console.error('Error saving Google Fit tokens:', err);
+          return res.status(500).json({ error: err.message });
+        }
+        res.json({ success: true, message: 'Google Fit connecté avec succès' });
+      }
+    );
+  } catch (error) {
+    console.error('Error exchanging code for tokens:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET Strava auth URL
+app.get('/api/oauth/strava/url', authenticateToken, (req, res) => {
+  try {
+    const authUrl = new URL('https://www.strava.com/oauth/authorize');
+    authUrl.searchParams.append('client_id', process.env.STRAVA_CLIENT_ID || 'your-client-id');
+    authUrl.searchParams.append('redirect_uri', process.env.STRAVA_REDIRECT_URI || 'http://localhost:5000/api/oauth/strava/callback');
+    authUrl.searchParams.append('response_type', 'code');
+    authUrl.searchParams.append('scope', 'activity:read_all');
+
+    res.json({ authUrl: authUrl.toString() });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST Strava OAuth callback
+app.post('/api/oauth/strava/callback', authenticateToken, async (req, res) => {
+  const { code } = req.body;
+
+  try {
+    const response = await axios.post('https://www.strava.com/oauth/token', {
+      client_id: process.env.STRAVA_CLIENT_ID,
+      client_secret: process.env.STRAVA_CLIENT_SECRET,
+      code: code,
+      grant_type: 'authorization_code'
+    });
+
+    const { access_token, refresh_token, expires_at, athlete } = response.data;
+    const userId = req.user.id;
+
+    db.run(
+      `INSERT OR REPLACE INTO oauth_strava
+       (user_id, access_token, refresh_token, expires_at, athlete_id, connected_at)
+       VALUES (?, ?, ?, datetime(?), ?, CURRENT_TIMESTAMP)`,
+      [userId, access_token, refresh_token, new Date(expires_at * 1000).toISOString(), athlete.id],
+      (err) => {
+        if (err) {
+          console.error('Error saving Strava tokens:', err);
+          return res.status(500).json({ error: err.message });
+        }
+        res.json({ success: true, message: 'Strava connecté avec succès' });
+      }
+    );
+  } catch (error) {
+    console.error('Error exchanging Strava code:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET connected services status
+app.get('/api/wearables/status', authenticateToken, (req, res) => {
+  const userId = req.user.id;
+
+  db.get('SELECT * FROM oauth_google_fit WHERE user_id = ?', [userId], (err, googleFit) => {
+    db.get('SELECT * FROM oauth_strava WHERE user_id = ?', [userId], (err, strava) => {
+      res.json({
+        googleFit: !!googleFit,
+        strava: !!strava,
+        lastSyncGoogleFit: googleFit?.last_sync,
+        lastSyncStrava: strava?.last_sync
+      });
+    });
+  });
+});
+
+// POST sync health data from Google Fit
+app.post('/api/wearables/sync/google-fit', authenticateToken, async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    db.get('SELECT * FROM oauth_google_fit WHERE user_id = ?', [userId], async (err, googleFitAuth) => {
+      if (err || !googleFitAuth) {
+        return res.status(400).json({ error: 'Google Fit non connecté' });
+      }
+
+      // Set credentials
+      oauth2Client.setCredentials({
+        access_token: googleFitAuth.access_token,
+        refresh_token: googleFitAuth.refresh_token,
+        expiry_date: new Date(googleFitAuth.expires_at).getTime()
+      });
+
+      try {
+        const fitness = google.fitness('v1');
+
+        // Fetch step count for the last 7 days
+        const endTimeMs = Date.now();
+        const startTimeMs = endTimeMs - (7 * 24 * 60 * 60 * 1000);
+
+        const response = await fitness.users.dataset.aggregate({
+          auth: oauth2Client,
+          userId: 'me',
+          requestBody: {
+            aggregateBy: [
+              {
+                dataTypeName: 'com.google.step_count.delta'
+              },
+              {
+                dataTypeName: 'com.google.heart_rate.bpm'
+              },
+              {
+                dataTypeName: 'com.google.calories.expended'
+              }
+            ],
+            bucketByTime: { durationMillis: 86400000 }, // 1 day
+            startTimeMillis: startTimeMs,
+            endTimeMillis: endTimeMs
+          }
+        });
+
+        // Save to database
+        const buckets = response.data.bucket || [];
+        for (const bucket of buckets) {
+          const timestamp = new Date(parseInt(bucket.startTimeMillis)).toISOString();
+
+          for (const dataset of bucket.dataset) {
+            const dataTypeName = dataset.dataSource[0]?.dataType?.name;
+
+            for (const point of dataset.point) {
+              const value = point.value[0]?.intVal || point.value[0]?.fpVal || 0;
+
+              if (value > 0) {
+                let dataType = 'unknown';
+                let unit = '';
+
+                if (dataTypeName === 'com.google.step_count.delta') {
+                  dataType = 'steps';
+                  unit = 'steps';
+                } else if (dataTypeName === 'com.google.heart_rate.bpm') {
+                  dataType = 'heart_rate';
+                  unit = 'bpm';
+                } else if (dataTypeName === 'com.google.calories.expended') {
+                  dataType = 'calories';
+                  unit = 'kcal';
+                }
+
+                if (dataType !== 'unknown') {
+                  db.run(
+                    `INSERT OR IGNORE INTO health_data
+                     (user_id, data_type, timestamp, value, unit, source)
+                     VALUES (?, ?, ?, ?, ?, 'google_fit')`,
+                    [userId, dataType, timestamp, value, unit],
+                    (err) => {
+                      if (err && !err.message.includes('UNIQUE')) {
+                        console.error('Error saving health data:', err);
+                      }
+                    }
+                  );
+                }
+              }
+            }
+          }
+        }
+
+        // Update last sync timestamp
+        db.run(
+          'UPDATE oauth_google_fit SET last_sync = CURRENT_TIMESTAMP WHERE user_id = ?',
+          [userId]
+        );
+
+        res.json({ success: true, message: 'Données Google Fit synchronisées' });
+      } catch (apiError) {
+        console.error('Google Fit API error:', apiError);
+        res.status(500).json({ error: apiError.message });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST sync activities from Strava
+app.post('/api/wearables/sync/strava', authenticateToken, async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    db.get('SELECT * FROM oauth_strava WHERE user_id = ?', [userId], async (err, stravaAuth) => {
+      if (err || !stravaAuth) {
+        return res.status(400).json({ error: 'Strava non connecté' });
+      }
+
+      try {
+        // Fetch activities from Strava
+        const response = await axios.get('https://www.strava.com/api/v3/athlete/activities', {
+          headers: {
+            'Authorization': `Bearer ${stravaAuth.access_token}`
+          },
+          params: {
+            per_page: 30,
+            page: 1
+          }
+        });
+
+        const activities = response.data;
+
+        // Save to database
+        for (const activity of activities) {
+          db.run(
+            `INSERT OR REPLACE INTO strava_activities
+             (user_id, strava_id, name, sport_type, start_date, elapsed_time, moving_time,
+              distance, elevation_gain, average_heart_rate, max_heart_rate, average_speed, max_speed, calories)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              userId,
+              activity.id,
+              activity.name,
+              activity.type.toLowerCase(),
+              new Date(activity.start_date).toISOString(),
+              activity.elapsed_time,
+              activity.moving_time,
+              activity.distance,
+              activity.total_elevation_gain,
+              activity.average_heartrate || null,
+              activity.max_heartrate || null,
+              activity.average_speed,
+              activity.max_speed,
+              activity.calories || null
+            ],
+            (err) => {
+              if (err) {
+                console.error('Error saving Strava activity:', err);
+              }
+            }
+          );
+        }
+
+        // Update last sync timestamp
+        db.run(
+          'UPDATE oauth_strava SET last_sync = CURRENT_TIMESTAMP WHERE user_id = ?',
+          [userId]
+        );
+
+        res.json({ success: true, message: 'Données Strava synchronisées' });
+      } catch (apiError) {
+        console.error('Strava API error:', apiError);
+        res.status(500).json({ error: apiError.message });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET health data
+app.get('/api/wearables/health-data', authenticateToken, (req, res) => {
+  const userId = req.user.id;
+  const { dataType, startDate, endDate } = req.query;
+
+  let query = 'SELECT * FROM health_data WHERE user_id = ?';
+  const params = [userId];
+
+  if (dataType) {
+    query += ' AND data_type = ?';
+    params.push(dataType);
+  }
+
+  if (startDate && endDate) {
+    query += ' AND timestamp BETWEEN ? AND ?';
+    params.push(startDate, endDate);
+  }
+
+  query += ' ORDER BY timestamp DESC LIMIT 500';
+
+  db.all(query, params, (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows || []);
+  });
+});
+
+// GET strava activities
+app.get('/api/wearables/activities', authenticateToken, (req, res) => {
+  const userId = req.user.id;
+  const { limit = 30 } = req.query;
+
+  db.all(
+    'SELECT * FROM strava_activities WHERE user_id = ? ORDER BY start_date DESC LIMIT ?',
+    [userId, limit],
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(rows || []);
     }
   );
 });

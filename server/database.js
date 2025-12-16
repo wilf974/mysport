@@ -364,6 +364,87 @@ function initDatabase() {
   db.run(`CREATE INDEX IF NOT EXISTS idx_session_series_exercise ON workout_session_series(exercise_id)`, (err) => {
     if (err) console.error('Erreur création index workout_session_series exercise:', err);
   });
+
+  // Table pour stocker les connexions Google Fit
+  db.run(`
+    CREATE TABLE IF NOT EXISTS oauth_google_fit (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL UNIQUE,
+      access_token TEXT NOT NULL,
+      refresh_token TEXT,
+      expires_at DATETIME,
+      scope TEXT,
+      connected_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      last_sync DATETIME,
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+  `);
+
+  // Table pour stocker les connexions Strava
+  db.run(`
+    CREATE TABLE IF NOT EXISTS oauth_strava (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL UNIQUE,
+      access_token TEXT NOT NULL,
+      refresh_token TEXT,
+      expires_at DATETIME,
+      athlete_id INTEGER,
+      connected_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      last_sync DATETIME,
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+  `);
+
+  // Table pour stocker les données de santé synchronisées
+  db.run(`
+    CREATE TABLE IF NOT EXISTS health_data (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      data_type TEXT NOT NULL, -- 'heart_rate', 'steps', 'calories', 'sleep', 'workout'
+      timestamp DATETIME NOT NULL,
+      value REAL NOT NULL,
+      unit TEXT, -- 'bpm', 'steps', 'kcal', 'minutes', etc.
+      source TEXT NOT NULL, -- 'google_fit', 'strava'
+      metadata TEXT, -- JSON pour données additionnelles
+      synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+  `);
+
+  // Index pour recherches rapides des données de santé
+  db.run(`CREATE INDEX IF NOT EXISTS idx_health_data_user ON health_data(user_id, data_type, timestamp)`, (err) => {
+    if (err) console.error('Erreur création index health_data:', err);
+  });
+
+  // Table pour stocker les workouts depuis Strava
+  db.run(`
+    CREATE TABLE IF NOT EXISTS strava_activities (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      strava_id INTEGER NOT NULL UNIQUE,
+      name TEXT,
+      sport_type TEXT, -- 'run', 'cycling', 'swim', etc.
+      start_date DATETIME,
+      elapsed_time INTEGER, -- durée en secondes
+      moving_time INTEGER,
+      distance REAL, -- en mètres
+      elevation_gain REAL,
+      average_heart_rate REAL,
+      max_heart_rate REAL,
+      average_speed REAL,
+      max_speed REAL,
+      calories REAL,
+      description TEXT,
+      map_url TEXT,
+      imported_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+  `);
+
+  // Index pour recherches rapides des activités Strava
+  db.run(`CREATE INDEX IF NOT EXISTS idx_strava_activities_user ON strava_activities(user_id, start_date)`, (err) => {
+    if (err) console.error('Erreur création index strava_activities:', err);
+  });
 }
 
 module.exports = db;
