@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import WorkoutTracker from './WorkoutTracker';
+import WorkoutPhaseFlow from './WorkoutPhaseFlow';
 import './WorkoutModal.css';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
@@ -459,12 +459,17 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
       </div>
       )}
 
-      {/* Render WorkoutTracker outside of modal when active */}
+      {/* Render WorkoutPhaseFlow (warm-up -> workout -> cool-down) outside of modal when active */}
       {showTracker && workout && (
-        <WorkoutTracker
+        <WorkoutPhaseFlow
           exercises={workoutExercises}
           onClose={() => setShowTracker(false)}
-          onFinish={handleFinishWorkout}
+          onFinish={(workoutDuration) => {
+            handleFinishWorkout(workoutDuration, {}, workoutExercises);
+            setShowTracker(false);
+          }}
+          warmupDuration={300}
+          cooldownDuration={600}
         />
       )}
     </>
