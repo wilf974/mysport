@@ -107,11 +107,11 @@ function ExerciseList({ exercises, onAdd, onUpdate, onDelete }) {
     });
   };
 
-  const filteredExercises = exercises.filter(ex => {
+  const filteredExercises = EXERCISES.filter(ex => {
     const matchesSearch =
       ex.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (ex.nameEn && ex.nameEn.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesMuscle = !filterMuscle || ex.muscle_group === filterMuscle;
+    const matchesMuscle = !filterMuscle || ex.muscleGroup === filterMuscle;
     return matchesSearch && matchesMuscle;
   });
 
@@ -260,10 +260,12 @@ function ExerciseList({ exercises, onAdd, onUpdate, onDelete }) {
       <div className="exercises-grid">
         {filteredExercises.length === 0 ? (
           <div className="empty-state">
-            <p>Aucun exercice trouvé. Ajoute un exercice pour commencer!</p>
+            <p>Aucun exercice trouvé. Essaie une autre recherche!</p>
           </div>
         ) : (
-          filteredExercises.map(exercise => (
+          filteredExercises.map(exercise => {
+            const isAdded = exercises.some(ex => ex.name === exercise.name);
+            return (
             <div key={exercise.id} className="exercise-card">
               <div className="card-top">
                 <div className="card-header">
@@ -279,26 +281,50 @@ function ExerciseList({ exercises, onAdd, onUpdate, onDelete }) {
                   </button>
                   {openMenuId === exercise.id && (
                     <div className="action-menu">
-                      <button
-                        className="menu-item edit"
-                        onClick={() => {
-                          handleEdit(exercise);
-                          setOpenMenuId(null);
-                        }}
-                      >
-                        ✏️ Modifier
-                      </button>
-                      <button
-                        className="menu-item delete"
-                        onClick={() => {
-                          if (window.confirm('Supprimer cet exercice ?')) {
-                            onDelete(exercise.id);
+                      {!isAdded ? (
+                        <button
+                          className="menu-item add"
+                          onClick={() => {
+                            onAdd({
+                              name: exercise.name,
+                              nameEn: exercise.nameEn,
+                              description: '',
+                              muscle_group: exercise.muscleGroup,
+                              difficulty: exercise.difficulty
+                            });
                             setOpenMenuId(null);
-                          }
-                        }}
-                      >
-                        🗑️ Supprimer
-                      </button>
+                          }}
+                        >
+                          ➕ Ajouter au workout
+                        </button>
+                      ) : (
+                        <>
+                          <button
+                            className="menu-item edit"
+                            onClick={() => {
+                              const addedExercise = exercises.find(ex => ex.name === exercise.name);
+                              if (addedExercise) {
+                                handleEdit(addedExercise);
+                                setOpenMenuId(null);
+                              }
+                            }}
+                          >
+                            ✏️ Modifier
+                          </button>
+                          <button
+                            className="menu-item delete"
+                            onClick={() => {
+                              const addedExercise = exercises.find(ex => ex.name === exercise.name);
+                              if (addedExercise && window.confirm('Supprimer cet exercice ?')) {
+                                onDelete(addedExercise.id);
+                                setOpenMenuId(null);
+                              }
+                            }}
+                          >
+                            🗑️ Supprimer
+                          </button>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
@@ -306,7 +332,7 @@ function ExerciseList({ exercises, onAdd, onUpdate, onDelete }) {
 
               <div className="exercise-meta">
                 <span className={`badge-muscle`}>
-                  {muscleIcons[exercise.muscle_group]} {exercise.muscle_group.charAt(0).toUpperCase() + exercise.muscle_group.slice(1)}
+                  {muscleIcons[exercise.muscleGroup || exercise.muscle_group]} {(exercise.muscleGroup || exercise.muscle_group).charAt(0).toUpperCase() + (exercise.muscleGroup || exercise.muscle_group).slice(1)}
                 </span>
                 <span className={`badge-difficulty ${getDifficultyColor(exercise.difficulty)}`}>
                   {difficulties[exercise.difficulty]}
@@ -317,7 +343,8 @@ function ExerciseList({ exercises, onAdd, onUpdate, onDelete }) {
                 <p className="exercise-description">{exercise.description}</p>
               )}
             </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>
