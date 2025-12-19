@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import EXERCISES from '../data/exercises';
 import './ExerciseList.css';
 
 function ExerciseList({ exercises, onAdd, onUpdate, onDelete }) {
@@ -10,33 +11,44 @@ function ExerciseList({ exercises, onAdd, onUpdate, onDelete }) {
 
   const [formData, setFormData] = useState({
     name: '',
+    nameEn: '',
     description: '',
-    muscle_group: 'Poitrine',
+    muscle_group: '',
     difficulty: 'intermediate'
   });
 
-  const muscleGroups = [
-    'Poitrine', 'Dos', 'Épaules', 'Bras', 'Avant-bras',
-    'Jambes', 'Quadriceps', 'Ischio-jambiers', 'Mollets', 'Abdominaux',
-    'Fessiers', 'Corps entier'
-  ];
-
   const muscleIcons = {
-    'Poitrine': '🫀',
-    'Dos': '🔙',
-    'Épaules': '💪',
-    'Bras': '💪',
-    'Avant-bras': '✋',
-    'Jambes': '🦵',
-    'Quadriceps': '🦵',
-    'Ischio-jambiers': '🦵',
-    'Mollets': '🦵',
-    'Abdominaux': '⚽',
-    'Fessiers': '🍑',
-    'Corps entier': '🧘'
+    'pectoraux': '🫀',
+    'dos': '🔙',
+    'épaules': '💪',
+    'biceps': '💪',
+    'triceps': '✋',
+    'avant-bras': '✋',
+    'jambes': '🦵',
+    'fesses': '🍑',
+    'abs': '⚽'
   };
 
-  const difficulties = ['Débutant', 'Intermédiaire', 'Avancé'];
+  const difficulties = {
+    'beginner': 'Débutant',
+    'intermediate': 'Intermédiaire',
+    'advanced': 'Avancé'
+  };
+
+  const uniqueMuscleGroups = [...new Set(EXERCISES.map(ex => ex.muscleGroup))].sort();
+
+  const handleSelectExercise = (e) => {
+    const selectedExercise = EXERCISES.find(ex => ex.id === parseInt(e.target.value));
+    if (selectedExercise) {
+      setFormData({
+        name: selectedExercise.name,
+        nameEn: selectedExercise.nameEn,
+        description: '',
+        muscle_group: selectedExercise.muscleGroup,
+        difficulty: selectedExercise.difficulty
+      });
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -49,6 +61,11 @@ function ExerciseList({ exercises, onAdd, onUpdate, onDelete }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    if (!formData.name) {
+      alert('Veuillez sélectionner un exercice');
+      return;
+    }
+
     if (editingId) {
       onUpdate(editingId, formData);
       setEditingId(null);
@@ -58,8 +75,9 @@ function ExerciseList({ exercises, onAdd, onUpdate, onDelete }) {
 
     setFormData({
       name: '',
+      nameEn: '',
       description: '',
-      muscle_group: 'Poitrine',
+      muscle_group: '',
       difficulty: 'intermediate'
     });
     setShowForm(false);
@@ -68,8 +86,9 @@ function ExerciseList({ exercises, onAdd, onUpdate, onDelete }) {
   const handleEdit = (exercise) => {
     setFormData({
       name: exercise.name,
+      nameEn: exercise.nameEn || '',
       description: exercise.description || '',
-      muscle_group: exercise.muscle_group || 'Poitrine',
+      muscle_group: exercise.muscle_group,
       difficulty: exercise.difficulty || 'intermediate'
     });
     setEditingId(exercise.id);
@@ -81,108 +100,133 @@ function ExerciseList({ exercises, onAdd, onUpdate, onDelete }) {
     setEditingId(null);
     setFormData({
       name: '',
+      nameEn: '',
       description: '',
-      muscle_group: 'Poitrine',
+      muscle_group: '',
       difficulty: 'intermediate'
     });
   };
 
   const filteredExercises = exercises.filter(ex => {
-    const matchesSearch = ex.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      ex.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (ex.nameEn && ex.nameEn.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesMuscle = !filterMuscle || ex.muscle_group === filterMuscle;
     return matchesSearch && matchesMuscle;
   });
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
-      case 'Débutant':
+      case 'beginner':
         return 'badge-success';
-      case 'Intermédiaire':
+      case 'intermediate':
         return 'badge-warning';
-      case 'Avancé':
+      case 'advanced':
         return 'badge-danger';
       default:
-        return '';
+        return 'badge-info';
     }
   };
 
   return (
     <div className="exercise-list">
       <div className="exercise-header">
-        <h2>💪 Gestion des Exercices</h2>
-        <button
-          className="btn btn-primary"
-          onClick={() => setShowForm(!showForm)}
-        >
-          {showForm ? '✕ Annuler' : '+ Ajouter un exercice'}
-        </button>
+        <h2>💪 Mes Exercices</h2>
+        {!showForm && (
+          <button className="btn-add" onClick={() => setShowForm(true)}>
+            + Ajouter un exercice
+          </button>
+        )}
       </div>
 
       {showForm && (
-        <div className="exercise-form card">
-          <h3>{editingId ? 'Modifier l\'exercice' : 'Nouvel exercice'}</h3>
+        <div className="exercise-form">
+          <h3>{editingId ? 'Modifier l\'exercice' : 'Ajouter un exercice'}</h3>
+
           <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>Nom de l'exercice *</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                placeholder="Ex: Développé couché"
-                required
-              />
+            <div className="form-row">
+              <div className="form-group">
+                <label>Sélectionner un exercice *</label>
+                <select
+                  onChange={handleSelectExercise}
+                  defaultValue=""
+                  disabled={editingId}
+                >
+                  <option value="">-- Choisir un exercice --</option>
+                  {EXERCISES.map(ex => (
+                    <option key={ex.id} value={ex.id}>
+                      {ex.name} ({ex.nameEn})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {formData.name && (
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Nom (FR)</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    disabled
+                    placeholder="Nom de l'exercice"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Nom (EN)</label>
+                  <input
+                    type="text"
+                    name="nameEn"
+                    value={formData.nameEn}
+                    onChange={handleInputChange}
+                    disabled
+                    placeholder="Exercise name"
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>Groupe musculaire</label>
+                <input
+                  type="text"
+                  value={formData.muscle_group}
+                  disabled
+                  placeholder="Groupe musculaire"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Difficulté</label>
+                <select name="difficulty" value={formData.difficulty} onChange={handleInputChange}>
+                  <option value="beginner">Débutant</option>
+                  <option value="intermediate">Intermédiaire</option>
+                  <option value="advanced">Avancé</option>
+                </select>
+              </div>
             </div>
 
             <div className="form-group">
-              <label>Description</label>
+              <label>Notes (optionnel)</label>
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                placeholder="Détails sur l'exercice..."
-                rows="3"
+                placeholder="Notes ou variantes..."
+                rows="2"
               />
             </div>
 
-            <div className="form-row">
-              <div className="form-group">
-                <label>Groupe musculaire *</label>
-                <select
-                  name="muscle_group"
-                  value={formData.muscle_group}
-                  onChange={handleInputChange}
-                  required
-                >
-                  {muscleGroups.map(group => (
-                    <option key={group} value={group}>{group}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>Difficulté *</label>
-                <select
-                  name="difficulty"
-                  value={formData.difficulty}
-                  onChange={handleInputChange}
-                >
-                  {difficulties.map(diff => (
-                    <option key={diff} value={diff}>{diff}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
             <div className="form-buttons">
-              <button type="submit" className="btn btn-success">
+              <button type="submit" className="btn-save">
                 {editingId ? 'Mettre à jour' : 'Ajouter'}
               </button>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={handleCancel}
-              >
+              <button type="button" className="btn-cancel" onClick={handleCancel}>
                 Annuler
               </button>
             </div>
@@ -190,95 +234,92 @@ function ExerciseList({ exercises, onAdd, onUpdate, onDelete }) {
         </div>
       )}
 
-      <div className="exercise-filters card">
+      <div className="exercise-filters">
         <input
           type="text"
-          placeholder="🔍 Rechercher un exercice..."
+          className="search-input"
+          placeholder="Rechercher un exercice..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
         />
-
         <select
+          className="filter-select"
           value={filterMuscle}
           onChange={(e) => setFilterMuscle(e.target.value)}
-          className="filter-select"
         >
-          <option value="">Tous les groupes musculaires</option>
-          {muscleGroups.map(group => (
-            <option key={group} value={group}>{group}</option>
+          <option value="">Tous les groupes</option>
+          {uniqueMuscleGroups.map(group => (
+            <option key={group} value={group}>
+              {muscleIcons[group]} {group.charAt(0).toUpperCase() + group.slice(1)}
+            </option>
           ))}
         </select>
-
-        <span className="result-count">
-          {filteredExercises.length} exercice{filteredExercises.length !== 1 ? 's' : ''}
-        </span>
+        <span className="result-count">{filteredExercises.length} exercice(s)</span>
       </div>
 
-      {filteredExercises.length === 0 ? (
-        <div className="empty-state">
-          <p>Aucun exercice trouvé</p>
-        </div>
-      ) : (
-        <div className="exercises-grid">
-          {filteredExercises.map(exercise => (
+      <div className="exercises-grid">
+        {filteredExercises.length === 0 ? (
+          <div className="empty-state">
+            <p>Aucun exercice trouvé. Ajoute un exercice pour commencer!</p>
+          </div>
+        ) : (
+          filteredExercises.map(exercise => (
             <div key={exercise.id} className="exercise-card">
               <div className="card-top">
                 <div className="card-header">
                   <div className="exercise-title-wrapper">
                     <h3>{exercise.name}</h3>
-                    <span className={`badge ${getDifficultyColor(exercise.difficulty)}`}>
-                      {exercise.difficulty}
-                    </span>
+                    <p className="exercise-subtitle">{exercise.nameEn}</p>
                   </div>
                   <button
                     className="menu-button"
                     onClick={() => setOpenMenuId(openMenuId === exercise.id ? null : exercise.id)}
-                    aria-label="Options"
                   >
                     ⋮
                   </button>
+                  {openMenuId === exercise.id && (
+                    <div className="action-menu">
+                      <button
+                        className="menu-item edit"
+                        onClick={() => {
+                          handleEdit(exercise);
+                          setOpenMenuId(null);
+                        }}
+                      >
+                        ✏️ Modifier
+                      </button>
+                      <button
+                        className="menu-item delete"
+                        onClick={() => {
+                          if (window.confirm('Supprimer cet exercice ?')) {
+                            onDelete(exercise.id);
+                            setOpenMenuId(null);
+                          }
+                        }}
+                      >
+                        🗑️ Supprimer
+                      </button>
+                    </div>
+                  )}
                 </div>
+              </div>
 
-                {openMenuId === exercise.id && (
-                  <div className="action-menu">
-                    <button
-                      className="menu-item edit"
-                      onClick={() => {
-                        handleEdit(exercise);
-                        setOpenMenuId(null);
-                      }}
-                    >
-                      ✏️ Modifier
-                    </button>
-                    <button
-                      className="menu-item delete"
-                      onClick={() => {
-                        if (window.confirm('Êtes-vous sûr de vouloir supprimer cet exercice ?')) {
-                          onDelete(exercise.id);
-                        }
-                        setOpenMenuId(null);
-                      }}
-                    >
-                      🗑️ Supprimer
-                    </button>
-                  </div>
-                )}
+              <div className="exercise-meta">
+                <span className={`badge-muscle`}>
+                  {muscleIcons[exercise.muscle_group]} {exercise.muscle_group.charAt(0).toUpperCase() + exercise.muscle_group.slice(1)}
+                </span>
+                <span className={`badge-difficulty ${getDifficultyColor(exercise.difficulty)}`}>
+                  {difficulties[exercise.difficulty]}
+                </span>
               </div>
 
               {exercise.description && (
                 <p className="exercise-description">{exercise.description}</p>
               )}
-
-              <div className="exercise-meta">
-                <span className="badge badge-muscle">
-                  {muscleIcons[exercise.muscle_group]} {exercise.muscle_group}
-                </span>
-              </div>
             </div>
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
     </div>
   );
 }
