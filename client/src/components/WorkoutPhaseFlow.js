@@ -13,6 +13,8 @@ import './WorkoutPhaseFlow.css';
 function WorkoutPhaseFlow({ exercises, onClose, onFinish, warmupDuration = 300, cooldownDuration = 600 }) {
   const phaseTimer = usePhaseTimer(warmupDuration, cooldownDuration);
   const [workoutDuration, setWorkoutDuration] = useState(0);
+  const [transitionPhase, setTransitionPhase] = useState(null); // Track transition screens
+
   const [phaseCompleted, setPhaseCompleted] = useState({
     warmup: false,
     workout: false,
@@ -60,10 +62,10 @@ function WorkoutPhaseFlow({ exercises, onClose, onFinish, warmupDuration = 300, 
     const { currentPhase } = phaseTimer;
 
     if (currentPhase === 'warmup') {
-      setPhaseCompleted(prev => ({ ...prev, warmup: true }));
+      setTransitionPhase('warmup_complete');
       showPhaseTransition('warmup', 'workout');
     } else if (currentPhase === 'cooldown') {
-      setPhaseCompleted(prev => ({ ...prev, cooldown: true }));
+      setTransitionPhase('cooldown_complete');
       finishAllPhases();
     }
   };
@@ -79,29 +81,38 @@ function WorkoutPhaseFlow({ exercises, onClose, onFinish, warmupDuration = 300, 
   };
 
   const transitionToWorkout = () => {
-    setPhaseCompleted(prev => ({ ...prev, warmup: false }));
+    setTransitionPhase(null);
+    setPhaseCompleted(prev => ({ ...prev, warmup: true }));
   };
 
   const transitionToCooldown = () => {
-    setPhaseCompleted(prev => ({ ...prev, workout: false }));
+    setTransitionPhase(null);
+    setPhaseCompleted(prev => ({ ...prev, workout: true }));
     const cooldownTime = cooldownDuration || 600;
     phaseTimer.startCooldownPhase(cooldownTime);
   };
 
   const handleWorkoutFinish = (duration, seriesHistory, exercisesList) => {
     setWorkoutDuration(duration);
-    setPhaseCompleted(prev => ({ ...prev, workout: true }));
-    transitionToCooldown();
+    setTransitionPhase('workout_complete');
+    setTimeout(() => {
+      transitionToCooldown();
+    }, 2000);
   };
 
   const handleSkipPhase = () => {
     const { currentPhase } = phaseTimer;
 
     if (currentPhase === 'warmup') {
-      setPhaseCompleted(prev => ({ ...prev, warmup: true }));
-      transitionToWorkout();
+      setTransitionPhase('warmup_complete');
+      setTimeout(() => {
+        transitionToWorkout();
+      }, 500);
     } else if (currentPhase === 'cooldown') {
-      finishAllPhases();
+      setTransitionPhase('cooldown_complete');
+      setTimeout(() => {
+        finishAllPhases();
+      }, 500);
     }
   };
 
@@ -136,7 +147,7 @@ function WorkoutPhaseFlow({ exercises, onClose, onFinish, warmupDuration = 300, 
       )}
 
       {/* WARM-UP COMPLETED MESSAGE */}
-      {phaseCompleted.warmup && !phaseCompleted.workout && (
+      {transitionPhase === 'warmup_complete' && (
         <div className="phase-transition-screen">
           <div className="transition-content">
             <span className="transition-icon">✅</span>
@@ -152,7 +163,7 @@ function WorkoutPhaseFlow({ exercises, onClose, onFinish, warmupDuration = 300, 
       )}
 
       {/* WORKOUT PHASE */}
-      {phaseCompleted.warmup && currentPhase === 'workout' && !phaseCompleted.workout && (
+      {phaseCompleted.warmup && !phaseCompleted.workout && transitionPhase !== 'workout_complete' && (
         <WorkoutTracker
           exercises={exercises}
           onClose={onClose}
@@ -161,7 +172,7 @@ function WorkoutPhaseFlow({ exercises, onClose, onFinish, warmupDuration = 300, 
       )}
 
       {/* WORKOUT COMPLETED MESSAGE */}
-      {phaseCompleted.workout && !phaseCompleted.cooldown && (
+      {transitionPhase === 'workout_complete' && (
         <div className="phase-transition-screen">
           <div className="transition-content">
             <span className="transition-icon">🎉</span>
@@ -177,7 +188,7 @@ function WorkoutPhaseFlow({ exercises, onClose, onFinish, warmupDuration = 300, 
       )}
 
       {/* COOL-DOWN PHASE */}
-      {phaseCompleted.workout && currentPhase === 'cooldown' && !phaseCompleted.cooldown && (
+      {phaseCompleted.workout && !phaseCompleted.cooldown && transitionPhase !== 'cooldown_complete' && (
         <PhaseTimerUI
           phase="cooldown"
           timeRemaining={timeRemaining}
