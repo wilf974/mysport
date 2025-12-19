@@ -46,6 +46,8 @@ function initDatabase() {
       day_of_week INTEGER,
       week_number INTEGER,
       year INTEGER,
+      duration INTEGER,
+      completed BOOLEAN DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY(user_id) REFERENCES users(id)
     )
