@@ -4,7 +4,7 @@ import ExerciseDemo from './ExerciseDemo';
 import { getMuscleWikiExercise } from '../data/muscleWikiMapping';
 import { useBackgroundTimer } from '../hooks/useBackgroundTimer';
 
-function WorkoutTracker({ exercises, onClose, onFinish }) {
+function WorkoutTracker({ exercises, onClose, onFinish, phase = 'workout' }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [repsCompleted, setRepsCompleted] = useState(0);
   const [currentSeries, setCurrentSeries] = useState(0);
@@ -140,6 +140,19 @@ function WorkoutTracker({ exercises, onClose, onFinish }) {
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
+  const getPhaseDisplay = () => {
+    switch (phase) {
+      case 'warmup':
+        return { icon: '🔥', title: 'Échauffement', color: '#ff9800' };
+      case 'cooldown':
+        return { icon: '💨', title: 'Cardio Basse Intensité', color: '#2196f3' };
+      case 'workout':
+      default:
+        return { icon: '💪', title: 'Séance Principale', color: '#667eea' };
+    }
+  };
+
+  const phaseDisplay = getPhaseDisplay();
   const currentExercise = exercises[currentIndex];
   const completedCount = Object.entries(seriesHistory)
     .filter(([_, seriesArray]) => seriesArray && seriesArray.some(s => s !== null))
@@ -150,8 +163,11 @@ function WorkoutTracker({ exercises, onClose, onFinish }) {
     <div className="workout-tracker-overlay">
       <div className="workout-tracker">
         {/* Header */}
-        <div className="tracker-header">
-          <h2>Entraînement en cours</h2>
+        <div className="tracker-header" style={{ borderTopColor: phaseDisplay.color }}>
+          <div className="phase-indicator">
+            <span className="phase-icon">{phaseDisplay.icon}</span>
+            <h2>{phaseDisplay.title}</h2>
+          </div>
           <button className="close-btn" onClick={onClose}>✕</button>
         </div>
 

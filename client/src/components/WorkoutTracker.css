@@ -49,6 +49,22 @@
   font-size: 1.5rem;
 }
 
+.phase-indicator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.phase-icon {
+  font-size: 28px;
+  display: block;
+}
+
+.tracker-header {
+  border-top: 4px solid;
+}
+
 .close-btn {
   background: rgba(255, 255, 255, 0.2);
   border: none;

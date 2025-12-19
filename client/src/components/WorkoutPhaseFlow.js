@@ -168,6 +168,7 @@ function WorkoutPhaseFlow({ exercises, onClose, onFinish, warmupDuration = 300, 
           exercises={exercises}
           onClose={onClose}
           onFinish={handleWorkoutFinish}
+          phase="workout"
         />
       )}
 
