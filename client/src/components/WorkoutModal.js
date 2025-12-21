@@ -7,6 +7,10 @@ import './WorkoutModal.css';
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClose, onWorkoutUpdate }) {
+  // Debug: Verify EXERCISES is loaded
+  useEffect(() => {
+    console.log('WorkoutModal mounted - EXERCISES available:', EXERCISES ? EXERCISES.length : 'NOT LOADED');
+  }, []);
   const [workoutExercises, setWorkoutExercises] = useState([]);
   const [selectedExercise, setSelectedExercise] = useState('');
   const [sets, setSets] = useState(3);
