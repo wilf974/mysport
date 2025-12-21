@@ -120,6 +120,11 @@
   z-index: 50;
 }
 
+/* ExerciseSelect takes first column (2fr) */
+.form-row > .exercise-select-container {
+  grid-column: 1;
+}
+
 .form-control {
   padding: 0.75rem;
   border: 1px solid var(--border);
@@ -137,11 +142,6 @@
   outline: none;
   border-color: var(--primary);
   box-shadow: 0 0 0 3px var(--primary-soft);
-}
-
-/* Ensure select dropdown options are visible */
-select.form-control {
-  z-index: 100;
 }
 
 /* Exercises List */

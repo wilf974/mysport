@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import WorkoutPhaseFlow from './WorkoutPhaseFlow';
+import ExerciseSelect from './ExerciseSelect';
 import EXERCISES from '../data/exercises';
 import './WorkoutModal.css';
 
@@ -325,18 +326,12 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
                 )}
 
                 <div className="form-row">
-                  <select
+                  <ExerciseSelect
                     value={selectedExercise}
-                    onChange={(e) => setSelectedExercise(e.target.value)}
-                    className="form-control"
-                  >
-                    <option value="">-- Sélectionner un exercice --</option>
-                    {EXERCISES.map(ex => (
-                      <option key={ex.id} value={ex.id}>
-                        {ex.name} ({ex.nameEn}) - {ex.muscleGroup}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={setSelectedExercise}
+                    exercises={EXERCISES}
+                    placeholder="-- Sélectionner un exercice --"
+                  />
 
                   <input
                     type="number"
