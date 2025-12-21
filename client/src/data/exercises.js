@@ -99,6 +99,14 @@ const EXERCISES = [
   { id: 80, name: 'Planche latérale', nameEn: 'Side Plank', muscleGroup: 'abs', difficulty: 'intermediate' },
   { id: 81, name: 'Mountain climbers', nameEn: 'Mountain Climbers', muscleGroup: 'abs', difficulty: 'intermediate' },
   { id: 82, name: 'Wheel ab', nameEn: 'Ab Wheel Rollout', muscleGroup: 'abs', difficulty: 'advanced' },
+
+  // Additional exercises from workout programs
+  { id: 83, name: 'Mollets debout', nameEn: 'Standing Calf Raise', muscleGroup: 'jambes', difficulty: 'beginner' },
+  { id: 84, name: 'Mollets assis', nameEn: 'Seated Calf Raise', muscleGroup: 'jambes', difficulty: 'beginner' },
+  { id: 85, name: 'Curl incliné', nameEn: 'Incline Dumbbell Curl', muscleGroup: 'biceps', difficulty: 'intermediate' },
+  { id: 86, name: 'Face pulls', nameEn: 'Face Pulls', muscleGroup: 'épaules', difficulty: 'beginner' },
+  { id: 87, name: 'Vide abdominal', nameEn: 'Vacuum Hold', muscleGroup: 'abs', difficulty: 'intermediate' },
+  { id: 88, name: 'Russian twist', nameEn: 'Russian Twist', muscleGroup: 'abs', difficulty: 'intermediate' },
 ];
 
 export default EXERCISES;
