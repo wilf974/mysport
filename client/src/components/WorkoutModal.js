@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import WorkoutPhaseFlow from './WorkoutPhaseFlow';
+import EXERCISES from '../data/exercises';
 import './WorkoutModal.css';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
@@ -82,7 +83,7 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
 
       setWorkoutExercises([...workoutExercises, {
         ...response.data,
-        name: exercises.find(e => e.id === parseInt(selectedExercise))?.name
+        name: EXERCISES.find(e => e.id === parseInt(selectedExercise))?.name
       }]);
 
       setSelectedExercise('');
@@ -326,9 +327,9 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
                     className="form-control"
                   >
                     <option value="">-- Sélectionner un exercice --</option>
-                    {exercises.map(ex => (
+                    {EXERCISES.map(ex => (
                       <option key={ex.id} value={ex.id}>
-                        {ex.name} ({ex.muscle_group})
+                        {ex.name} ({ex.nameEn}) - {ex.muscleGroup}
                       </option>
                     ))}
                   </select>
