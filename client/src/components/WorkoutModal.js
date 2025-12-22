@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import WorkoutPhaseFlow from './WorkoutPhaseFlow';
-import ExerciseSelect from './ExerciseSelect';
+import ExercisePickerModal from './ExercisePickerModal';
 import EXERCISES from '../data/exercises';
 import './WorkoutModal.css';
 
@@ -22,6 +22,7 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
   const [loading, setLoading] = useState(false);
   const [suggestion, setSuggestion] = useState(null);
   const [showTracker, setShowTracker] = useState(false);
+  const [showExercisePicker, setShowExercisePicker] = useState(false);
 
   useEffect(() => {
     if (workout) {
@@ -83,6 +84,14 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
       setReps(suggestion.suggestion.reps);
       setSets(suggestion.suggestion.sets);
     }
+  };
+
+  const handlePickExercise = (exercise) => {
+    setSelectedExercise(exercise.id.toString());
+    // Optionally set default values based on exercise
+    setSets(3);
+    setReps(10);
+    setWeight(0);
   };
 
   const handleAddExerciseToWorkout = async () => {
@@ -365,12 +374,15 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
                 )}
 
                 <div className="form-row">
-                  <ExerciseSelect
-                    value={selectedExercise}
-                    onChange={setSelectedExercise}
-                    exercises={EXERCISES}
-                    placeholder="-- Sélectionner un exercice --"
-                  />
+                  <button
+                    className="btn btn-primary btn-select-exercise"
+                    onClick={() => setShowExercisePicker(true)}
+                  >
+                    {selectedExercise
+                      ? EXERCISES.find(e => e.id === parseInt(selectedExercise))?.name ||
+                        '-- Sélectionner --'
+                      : '+ Sélectionner un exercice'}
+                  </button>
 
                   <input
                     type="number"
@@ -496,6 +508,14 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
         )}
         </div>
       </div>
+      )}
+
+      {/* Exercise Picker Modal */}
+      {showExercisePicker && (
+        <ExercisePickerModal
+          onSelect={handlePickExercise}
+          onClose={() => setShowExercisePicker(false)}
+        />
       )}
 
       {/* Render WorkoutPhaseFlow (warm-up -> workout -> cool-down) outside of modal when active */}
