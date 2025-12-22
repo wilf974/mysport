@@ -43,8 +43,20 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
       setLoading(true);
       const response = await axios.get(`${API_URL}/workout-exercises/${workout.id}`);
       console.log('📥 Fetched exercises from server:', response.data);
-      setWorkoutExercises(response.data);
-      console.log('✅ State updated with exercises, count:', response.data.length);
+
+      // Enrich exercises with names from EXERCISES array
+      const enrichedExercises = response.data.map(ex => {
+        const exerciseDetail = EXERCISES.find(e => e.id === ex.exercise_id);
+        return {
+          ...ex,
+          name: exerciseDetail?.name || `Exercise ${ex.exercise_id}`,
+          nameEn: exerciseDetail?.nameEn || '',
+          muscleGroup: exerciseDetail?.muscleGroup || ''
+        };
+      });
+
+      setWorkoutExercises(enrichedExercises);
+      console.log('✅ State updated with enriched exercises, count:', enrichedExercises.length);
     } catch (err) {
       console.error('Erreur:', err);
     } finally {
