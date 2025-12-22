@@ -170,7 +170,7 @@
 /* Exercise Grid */
 .exercise-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1rem;
   margin-top: 0.75rem;
 }
@@ -187,7 +187,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  min-height: 100px;
+  min-height: 120px;
   justify-content: space-between;
 }
 
@@ -210,6 +210,9 @@
   font-weight: 600;
   font-size: 0.95rem;
   flex: 1;
+  word-wrap: break-word;
+  line-height: 1.3;
+  min-height: 2.6rem;
 }
 
 .difficulty-badge {
@@ -287,6 +290,12 @@
   }
 }
 
+@media (max-width: 768px) {
+  .exercise-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+}
+
 @media (max-width: 480px) {
   .exercise-picker-overlay {
     padding: 0;
@@ -299,7 +308,7 @@
   }
 
   .exercise-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .exercise-card {
