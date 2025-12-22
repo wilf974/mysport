@@ -382,14 +382,13 @@ app.get('/api/templates/check/:userId', (req, res) => {
 app.get('/api/workout-exercises/:workoutId', (req, res) => {
   const { workoutId } = req.params;
   db.all(
-    `SELECT we.*, e.name, e.muscle_group FROM workout_exercises we
-     JOIN exercises e ON we.exercise_id = e.id
-     WHERE we.workout_id = ?
-     ORDER BY we.exercise_order ASC, we.created_at ASC`,
+    `SELECT * FROM workout_exercises
+     WHERE workout_id = ?
+     ORDER BY exercise_order ASC, created_at ASC`,
     [workoutId],
     (err, rows) => {
       if (err) return res.status(500).json({ error: err.message });
-      res.json(rows);
+      res.json(rows || []);
     }
   );
 });
