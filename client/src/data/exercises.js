@@ -108,6 +108,7 @@ const EXERCISES = [
   { id: 87, name: 'Face pulls', nameEn: 'Face Pulls', muscleGroup: 'épaules', difficulty: 'beginner' },
   { id: 88, name: 'Vide abdominal', nameEn: 'Vacuum Hold', muscleGroup: 'abs', difficulty: 'intermediate' },
   { id: 89, name: 'Russian twist', nameEn: 'Russian Twist', muscleGroup: 'abs', difficulty: 'intermediate' },
+  { id: 90, name: 'Développé incliné Haltère', nameEn: 'Incline Dumbbell Press', muscleGroup: 'pectoraux', difficulty: 'intermediate' },
 ];
 
 export default EXERCISES;
