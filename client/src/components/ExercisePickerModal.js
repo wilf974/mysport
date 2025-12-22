@@ -24,37 +24,37 @@ const DIFFICULTY_COLORS = {
 function ExercisePickerModal({ onSelect, onClose }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedGroups, setExpandedGroups] = useState({});
+  const [viewMode, setViewMode] = useState('grouped'); // 'grouped' or 'list'
+
+  // Filter exercises based on search
+  const filteredExercises = useMemo(() => {
+    if (!searchTerm) return EXERCISES;
+    return EXERCISES.filter(ex =>
+      ex.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ex.nameEn.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm]);
 
   // Group exercises by muscle group
   const groupedExercises = useMemo(() => {
     const grouped = {};
 
-    EXERCISES.forEach(ex => {
+    filteredExercises.forEach(ex => {
       if (!grouped[ex.muscleGroup]) {
         grouped[ex.muscleGroup] = [];
       }
       grouped[ex.muscleGroup].push(ex);
     });
 
-    // Filter by search term
+    // Auto-expand groups with results when searching
     if (searchTerm) {
-      const filtered = {};
-      Object.entries(grouped).forEach(([group, exercises]) => {
-        const results = exercises.filter(ex =>
-          ex.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          ex.nameEn.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        if (results.length > 0) {
-          filtered[group] = results;
-          // Auto-expand groups with results
-          setExpandedGroups(prev => ({ ...prev, [group]: true }));
-        }
+      Object.keys(grouped).forEach(group => {
+        setExpandedGroups(prev => ({ ...prev, [group]: true }));
       });
-      return filtered;
     }
 
     return grouped;
-  }, [searchTerm]);
+  }, [filteredExercises, searchTerm]);
 
   const toggleGroup = (group) => {
     setExpandedGroups(prev => ({
@@ -77,17 +77,38 @@ function ExercisePickerModal({ onSelect, onClose }) {
         </div>
 
         <div className="exercise-picker-search">
-          <input
-            type="text"
-            placeholder="Chercher un exercice..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            autoFocus
-          />
+          <div className="search-wrapper">
+            <input
+              type="text"
+              placeholder="Chercher un exercice (nom FR ou EN)..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              autoFocus
+            />
+            {searchTerm && <span className="search-count">{filteredExercises.length} résultats</span>}
+          </div>
+          <div className="view-mode-toggle">
+            <button
+              className={`toggle-btn ${viewMode === 'grouped' ? 'active' : ''}`}
+              onClick={() => setViewMode('grouped')}
+              title="Vue groupée par muscle"
+            >
+              📋
+            </button>
+            <button
+              className={`toggle-btn ${viewMode === 'list' ? 'active' : ''}`}
+              onClick={() => setViewMode('list')}
+              title="Vue liste complète"
+            >
+              📝
+            </button>
+          </div>
         </div>
 
         <div className="exercise-picker-content">
-          {Object.entries(groupedExercises).map(([group, exercises]) => {
+          {viewMode === 'grouped' ? (
+            // Vue groupée par muscle
+            Object.entries(groupedExercises).map(([group, exercises]) => {
             const groupInfo = MUSCLE_GROUP_INFO[group] || { name: group, icon: '💪' };
             const isExpanded = expandedGroups[group] ?? true;
 
@@ -131,9 +152,48 @@ function ExercisePickerModal({ onSelect, onClose }) {
                 )}
               </div>
             );
-          })}
+          })
+          ) : (
+            // Vue liste complète
+            <div className="exercise-list">
+              {filteredExercises.length > 0 ? (
+                filteredExercises.map(exercise => {
+                  const groupInfo = MUSCLE_GROUP_INFO[exercise.muscleGroup] || { name: exercise.muscleGroup, icon: '💪' };
+                  return (
+                    <button
+                      key={exercise.id}
+                      className="exercise-list-item"
+                      onClick={() => handleSelectExercise(exercise)}
+                    >
+                      <div className="list-item-content">
+                        <div className="list-item-header">
+                          <span className="list-item-name">{exercise.name}</span>
+                          <span className="list-item-muscle">{groupInfo.icon} {groupInfo.name}</span>
+                        </div>
+                        <div className="list-item-footer">
+                          <span className="list-item-name-en">{exercise.nameEn}</span>
+                          <span
+                            className="difficulty-badge"
+                            style={{ backgroundColor: DIFFICULTY_COLORS[exercise.difficulty] }}
+                          >
+                            {exercise.difficulty === 'beginner' && 'Débutant'}
+                            {exercise.difficulty === 'intermediate' && 'Intermédiaire'}
+                            {exercise.difficulty === 'advanced' && 'Avancé'}
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })
+              ) : (
+                <div className="no-exercises">
+                  <p>Aucun exercice trouvé</p>
+                </div>
+              )}
+            </div>
+          )}
 
-          {Object.entries(groupedExercises).length === 0 && (
+          {viewMode === 'grouped' && Object.entries(groupedExercises).length === 0 && (
             <div className="no-exercises">
               <p>Aucun exercice trouvé</p>
             </div>

@@ -91,10 +91,21 @@
   padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.search-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
 }
 
 .exercise-picker-search input {
-  width: 100%;
+  flex: 1;
   padding: 0.75rem 1rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -112,6 +123,40 @@
 
 .exercise-picker-search input::placeholder {
   color: var(--text-tertiary);
+}
+
+.search-count {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+/* View Mode Toggle */
+.view-mode-toggle {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.toggle-btn {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-surface-alt);
+  color: var(--text-secondary);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.toggle-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.toggle-btn.active {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: white;
 }
 
 /* Content */
@@ -237,6 +282,75 @@
   font-style: italic;
 }
 
+/* Exercise List View */
+.exercise-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.exercise-list-item {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+
+.exercise-list-item:hover {
+  background-color: var(--bg-surface-alt);
+  border-left: 3px solid var(--primary);
+  padding-left: calc(1rem - 3px);
+}
+
+.exercise-list-item:last-child {
+  border-bottom: none;
+}
+
+.list-item-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.list-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.list-item-name {
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 0.95rem;
+  flex: 1;
+}
+
+.list-item-muscle {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.list-item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.list-item-name-en {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
 /* No Exercises */
 .no-exercises {
   text-align: center;
@@ -313,5 +427,33 @@
 
   .exercise-card {
     min-height: auto;
+  }
+
+  .view-mode-toggle {
+    gap: 0.25rem;
+  }
+
+  .toggle-btn {
+    padding: 0.5rem 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .exercise-list-item {
+    padding: 0.75rem;
+  }
+
+  .exercise-list-item:hover {
+    padding-left: calc(0.75rem - 3px);
+  }
+
+  .list-item-header,
+  .list-item-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .list-item-muscle {
+    width: 100%;
   }
 }
