@@ -42,7 +42,9 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
     try {
       setLoading(true);
       const response = await axios.get(`${API_URL}/workout-exercises/${workout.id}`);
+      console.log('📥 Fetched exercises from server:', response.data);
       setWorkoutExercises(response.data);
+      console.log('✅ State updated with exercises, count:', response.data.length);
     } catch (err) {
       console.error('Erreur:', err);
     } finally {
@@ -116,7 +118,9 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
       setSuggestion(null);
 
       // Fetch the updated list from server to ensure sync
+      console.log('🔄 Fetching exercises from server...');
       await fetchWorkoutExercises();
+      console.log('✅ Fetch complete, component should re-render now');
 
       // Rafraîchir le calendrier
       onWorkoutUpdate();
