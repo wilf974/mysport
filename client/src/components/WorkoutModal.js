@@ -96,16 +96,27 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
 
       console.log('Exercise added successfully:', response.data);
 
-      setWorkoutExercises([...workoutExercises, {
+      // Find the exercise details to get the name
+      const exerciseDetails = EXERCISES.find(e => e.id === parseInt(selectedExercise));
+
+      // Add the exercise to the local state with complete info
+      const newExercise = {
         ...response.data,
-        name: EXERCISES.find(e => e.id === parseInt(selectedExercise))?.name
-      }]);
+        name: exerciseDetails?.name,
+        nameEn: exerciseDetails?.nameEn,
+        muscleGroup: exerciseDetails?.muscleGroup
+      };
+
+      setWorkoutExercises([...workoutExercises, newExercise]);
 
       setSelectedExercise('');
       setSets(3);
       setReps(10);
       setWeight(0);
       setSuggestion(null);
+
+      // Fetch the updated list from server to ensure sync
+      await fetchWorkoutExercises();
 
       // Rafraîchir le calendrier
       onWorkoutUpdate();
