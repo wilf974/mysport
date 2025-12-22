@@ -109,6 +109,7 @@ const EXERCISES = [
   { id: 88, name: 'Vide abdominal', nameEn: 'Vacuum Hold', muscleGroup: 'abs', difficulty: 'intermediate' },
   { id: 89, name: 'Russian twist', nameEn: 'Russian Twist', muscleGroup: 'abs', difficulty: 'intermediate' },
   { id: 90, name: 'Développé incliné Haltère', nameEn: 'Incline Dumbbell Press', muscleGroup: 'pectoraux', difficulty: 'intermediate' },
+  { id: 91, name: 'Rowing poulie basse', nameEn: 'Low Cable Row', muscleGroup: 'dos', difficulty: 'beginner' },
 ];
 
 export default EXERCISES;
