@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import WorkoutPhaseFlow from './WorkoutPhaseFlow';
+import WorkoutDurationConfig from './WorkoutDurationConfig';
 import ExercisePickerModal from './ExercisePickerModal';
 import EXERCISES from '../data/exercises';
 import './WorkoutModal.css';
@@ -22,6 +23,9 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
   const [loading, setLoading] = useState(false);
   const [suggestion, setSuggestion] = useState(null);
   const [showTracker, setShowTracker] = useState(false);
+  const [showDurationConfig, setShowDurationConfig] = useState(false);
+  const [warmupDuration, setWarmupDuration] = useState(300); // 5 min default
+  const [cooldownDuration, setCooldownDuration] = useState(600); // 10 min default
   const [showExercisePicker, setShowExercisePicker] = useState(false);
 
   useEffect(() => {
@@ -305,7 +309,7 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
                 <div className="start-workout-section">
                   <button
                     className="btn btn-primary btn-lg-full"
-                    onClick={() => setShowTracker(true)}
+                    onClick={() => setShowDurationConfig(true)}
                   >
                     ▶ Démarrer l'entraînement
                   </button>
@@ -518,6 +522,19 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
         />
       )}
 
+      {/* Duration Configuration Modal */}
+      {showDurationConfig && !showTracker && (
+        <WorkoutDurationConfig
+          onConfirm={(warmup, cooldown) => {
+            setWarmupDuration(warmup);
+            setCooldownDuration(cooldown);
+            setShowDurationConfig(false);
+            setShowTracker(true);
+          }}
+          onCancel={() => setShowDurationConfig(false)}
+        />
+      )}
+
       {/* Render WorkoutPhaseFlow (warm-up -> workout -> cool-down) outside of modal when active */}
       {showTracker && workout && (
         <WorkoutPhaseFlow
@@ -527,8 +544,8 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
             handleFinishWorkout(workoutDuration, {}, workoutExercises);
             setShowTracker(false);
           }}
-          warmupDuration={300}
-          cooldownDuration={600}
+          warmupDuration={warmupDuration}
+          cooldownDuration={cooldownDuration}
         />
       )}
     </>
