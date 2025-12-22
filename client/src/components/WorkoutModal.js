@@ -78,6 +78,14 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
     }
 
     try {
+      console.log('Adding exercise:', {
+        workout_id: workout.id,
+        exercise_id: parseInt(selectedExercise),
+        sets: parseInt(sets),
+        reps: parseInt(reps),
+        weight: parseFloat(weight) || 0
+      });
+
       const response = await axios.post(`${API_URL}/workout-exercises`, {
         workout_id: workout.id,
         exercise_id: parseInt(selectedExercise),
@@ -85,6 +93,8 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
         reps: parseInt(reps),
         weight: parseFloat(weight) || 0
       });
+
+      console.log('Exercise added successfully:', response.data);
 
       setWorkoutExercises([...workoutExercises, {
         ...response.data,
@@ -100,7 +110,9 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
       // Rafraîchir le calendrier
       onWorkoutUpdate();
     } catch (err) {
-      console.error('Erreur:', err);
+      console.error('Erreur lors de l\'ajout de l\'exercice:', err);
+      console.error('Response:', err.response?.data);
+      alert(`Erreur: ${err.response?.data?.message || err.message || 'Impossible d\'ajouter l\'exercice'}`);
     }
   };
 
