@@ -106,6 +106,11 @@ function UnifiedWorkoutInterface({
       setCurrentPhase('workout');
       setPhaseIsRunning(false);
       setPhaseTimeRemaining(0);
+    } else if (currentPhase === 'workout') {
+      // Transition to cooldown
+      setCurrentPhase('cooldown');
+      setPhaseIsRunning(false);
+      setPhaseTimeRemaining(cooldownDuration);
     } else if (currentPhase === 'cooldown') {
       finishWorkout();
     }
