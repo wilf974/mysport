@@ -13,6 +13,8 @@ import './WorkoutPhaseFlow.css';
 function WorkoutPhaseFlow({ exercises, onClose, onFinish, warmupDuration = 300, cooldownDuration = 600 }) {
   const phaseTimer = usePhaseTimer(warmupDuration, cooldownDuration);
   const [workoutDuration, setWorkoutDuration] = useState(0);
+  const [seriesHistoryData, setSeriesHistoryData] = useState(null); // Store series data
+  const [exercisesListData, setExercisesListData] = useState(null); // Store exercises list
   const [transitionPhase, setTransitionPhase] = useState(null); // Track transition screens
 
   const [phaseCompleted, setPhaseCompleted] = useState({
@@ -94,6 +96,8 @@ function WorkoutPhaseFlow({ exercises, onClose, onFinish, warmupDuration = 300, 
 
   const handleWorkoutFinish = (duration, seriesHistory, exercisesList) => {
     setWorkoutDuration(duration);
+    setSeriesHistoryData(seriesHistory); // Store series data
+    setExercisesListData(exercisesList); // Store exercises list
     setTransitionPhase('workout_complete');
     setTimeout(() => {
       transitionToCooldown();
@@ -120,10 +124,10 @@ function WorkoutPhaseFlow({ exercises, onClose, onFinish, warmupDuration = 300, 
     phaseTimer.stopTimer();
     setPhaseCompleted(prev => ({ ...prev, cooldown: true }));
 
-    // Call parent onFinish with aggregated data
+    // Call parent onFinish with aggregated data including series history
     const totalDuration = workoutDuration || 0;
     setTimeout(() => {
-      onFinish(totalDuration);
+      onFinish(totalDuration, seriesHistoryData, exercisesListData);
     }, 1000);
   };
 

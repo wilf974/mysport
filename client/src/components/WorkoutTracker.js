@@ -19,13 +19,21 @@ function WorkoutTracker({ exercises, onClose, onFinish, phase = 'workout' }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const currentExercise = exercises[currentIndex];
-    if (currentExercise && !seriesHistory[currentIndex]) {
-      const seriesCount = currentExercise.sets || 1;
-      setSeriesHistory(prev => ({
-        ...prev,
-        [currentIndex]: Array(seriesCount).fill(null)
-      }));
-      setCurrentSeries(0);
+    if (currentExercise) {
+      if (!seriesHistory[currentIndex]) {
+        // First time viewing this exercise - initialize series
+        const seriesCount = currentExercise.sets || 1;
+        setSeriesHistory(prev => ({
+          ...prev,
+          [currentIndex]: Array(seriesCount).fill(null)
+        }));
+        setCurrentSeries(0);
+      } else {
+        // Returning to an exercise - find the next uncompleted series
+        const completedSeries = seriesHistory[currentIndex];
+        const nextIncompleteIndex = completedSeries.findIndex(s => s === null);
+        setCurrentSeries(nextIncompleteIndex !== -1 ? nextIncompleteIndex : completedSeries.length - 1);
+      }
       setRepsCompleted(0);
     }
   }, [currentIndex, exercises]);

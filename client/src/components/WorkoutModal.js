@@ -540,8 +540,8 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
         <WorkoutPhaseFlow
           exercises={workoutExercises}
           onClose={() => setShowTracker(false)}
-          onFinish={(workoutDuration) => {
-            handleFinishWorkout(workoutDuration, {}, workoutExercises);
+          onFinish={(workoutDuration, seriesHistory, exercisesList) => {
+            handleFinishWorkout(workoutDuration, seriesHistory || {}, exercisesList || workoutExercises);
             setShowTracker(false);
           }}
           warmupDuration={warmupDuration}
