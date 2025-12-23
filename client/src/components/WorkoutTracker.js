@@ -4,7 +4,7 @@ import ExerciseDemo from './ExerciseDemo';
 import { getMuscleWikiExercise } from '../data/muscleWikiMapping';
 import { useBackgroundTimer } from '../hooks/useBackgroundTimer';
 
-function WorkoutTracker({ exercises, onClose, onFinish, phase = 'workout' }) {
+function WorkoutTracker({ exercises, onClose, onFinish, phase = 'workout', warmupDuration = 0, cooldownDuration = 0 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [repsCompleted, setRepsCompleted] = useState(0);
   const [currentSeries, setCurrentSeries] = useState(0);
@@ -183,7 +183,14 @@ function WorkoutTracker({ exercises, onClose, onFinish, phase = 'workout' }) {
         <div className="timer-section">
           <div className="timer-display">
             <div className="timer-time">{formatTime(timer)}</div>
-            <div className="timer-label">Durée totale</div>
+            <div className="timer-label">Durée de la séance</div>
+            {(warmupDuration > 0 || cooldownDuration > 0) && (
+              <div className="phase-info-compact">
+                {warmupDuration > 0 && <span className="phase-item">🔥 Échauffement: {warmupDuration}s</span>}
+                <span className="phase-item current">💪 Séance: en cours</span>
+                {cooldownDuration > 0 && <span className="phase-item">💨 Cardio: {cooldownDuration}s</span>}
+              </div>
+            )}
           </div>
           <div className="timer-controls">
             {!isRunning ? (
