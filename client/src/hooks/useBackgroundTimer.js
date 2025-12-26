@@ -16,7 +16,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 
 export function useBackgroundTimer() {
-  const [time, setTime] = useState(0);
+  const [time, _setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const workerRef = useRef(null);
@@ -125,12 +125,12 @@ function updateTimer() {
 
       switch (type) {
         case 'tick':
-          setTime(elapsed);
+          _setTime(elapsed);
           break;
 
         case 'sync':
           // Synchronize when app regains focus
-          setTime(elapsed);
+          _setTime(elapsed);
           break;
 
         case 'started':
@@ -152,7 +152,7 @@ function updateTimer() {
           break;
 
         case 'reset':
-          setTime(0);
+          _setTime(0);
           setIsRunning(false);
           setIsPaused(false);
           break;
@@ -238,6 +238,11 @@ function updateTimer() {
     }
   }, []);
 
+  // Set timer to a specific value
+  const setTime = useCallback((value) => {
+    _setTime(value);
+  }, []);
+
   return {
     time,
     isRunning,
@@ -246,6 +251,7 @@ function updateTimer() {
     pause,
     resume,
     stop,
-    reset
+    reset,
+    setTime
   };
 }
