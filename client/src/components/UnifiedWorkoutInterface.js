@@ -10,6 +10,23 @@ import { useWorkoutPersistence } from '../hooks/useWorkoutPersistence';
  * Tout en une seule fenêtre avec un grand timer
  * Avec persistance automatique des données
  */
+
+// Initializer functions to read from localStorage on mount
+const getInitialPhaseState = (sessionId) => {
+  try {
+    const key = `workout_session_${sessionId}`;
+    const saved = localStorage.getItem(key);
+    if (saved) {
+      const state = JSON.parse(saved);
+      console.log('🔄 État restauré depuis localStorage:', state);
+      return state;
+    }
+  } catch (err) {
+    console.error('Erreur lors de la restauration:', err);
+  }
+  return null;
+};
+
 function UnifiedWorkoutInterface({
   exercises,
   onClose,
@@ -17,16 +34,23 @@ function UnifiedWorkoutInterface({
   warmupDuration = 300,
   cooldownDuration = 600
 }) {
-  const [currentPhase, setCurrentPhase] = useState('warmup');
-  const [phaseTimeRemaining, setPhaseTimeRemaining] = useState(warmupDuration);
-  const [phaseIsRunning, setPhaseIsRunning] = useState(false);
-  const [phasePaused, setPhasePaused] = useState(false);
+  // Create a session identifier based on date + first exercise
+  const sessionId = `${new Date().toDateString()}_${exercises[0]?.id || 'unknown'}`;
+
+  // Get initial state from localStorage on mount
+  const initialState = getInitialPhaseState(sessionId);
+
+  // Initialize states with restored data or defaults
+  const [currentPhase, setCurrentPhase] = useState(initialState?.currentPhase ?? 'warmup');
+  const [phaseTimeRemaining, setPhaseTimeRemaining] = useState(initialState?.phaseTimeRemaining ?? warmupDuration);
+  const [phaseIsRunning, setPhaseIsRunning] = useState(initialState?.phaseIsRunning ?? false);
+  const [phasePaused, setPhasePaused] = useState(initialState?.phasePaused ?? false);
 
   // Workout tracking
-  const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
-  const [currentSeriesIndex, setCurrentSeriesIndex] = useState(0);
-  const [repsCompleted, setRepsCompleted] = useState(0);
-  const [seriesHistory, setSeriesHistory] = useState({});
+  const [currentExerciseIndex, setCurrentExerciseIndex] = useState(initialState?.currentExerciseIndex ?? 0);
+  const [currentSeriesIndex, setCurrentSeriesIndex] = useState(initialState?.currentSeriesIndex ?? 0);
+  const [repsCompleted, setRepsCompleted] = useState(initialState?.repsCompleted ?? 0);
+  const [seriesHistory, setSeriesHistory] = useState(initialState?.seriesHistory ?? {});
 
   // Background timer for session
   const { time: sessionTimer, isRunning: sessionRunning, isPaused: sessionPaused, start: startSession, pause: pauseSession, resume: resumeSession, stop: stopSession, setTime: setSessionTime } = useBackgroundTimer();
@@ -34,9 +58,6 @@ function UnifiedWorkoutInterface({
   // Demo
   const [showExerciseDemo, setShowExerciseDemo] = useState(false);
   const [demonstrationExercise, setDemonstrationExercise] = useState(null);
-
-  // Create a session identifier based on date + first exercise
-  const sessionId = `${new Date().toDateString()}_${exercises[0]?.id || 'unknown'}`;
 
   // Persistence hook
   const { restoreState, clearSavedState } = useWorkoutPersistence(sessionId, {
@@ -53,44 +74,28 @@ function UnifiedWorkoutInterface({
     sessionPaused
   });
 
-  // Restore state on mount
+  // Restore session timer and restart if it was running
   useEffect(() => {
-    const savedState = restoreState();
-    if (savedState) {
-      console.log('🔄 Restauration de la séance sauvegardée...');
-      setCurrentPhase(savedState.currentPhase);
-      setPhaseTimeRemaining(savedState.phaseTimeRemaining);
-      setPhaseIsRunning(savedState.phaseIsRunning);
-      setPhasePaused(savedState.phasePaused);
-      setCurrentExerciseIndex(savedState.currentExerciseIndex);
-      setCurrentSeriesIndex(savedState.currentSeriesIndex);
-      setRepsCompleted(savedState.repsCompleted);
-      setSeriesHistory(savedState.seriesHistory);
+    if (initialState) {
+      console.log('🔄 Restauration complète de la séance sauvegardée...');
 
       // Restaurer le timer de la session
-      if (savedState.sessionTimer > 0) {
-        setSessionTime(savedState.sessionTimer);
+      if (initialState.sessionTimer > 0) {
+        setSessionTime(initialState.sessionTimer);
       }
 
-      // Si l'échauffement était en cours, continuer
-      if (savedState.phaseIsRunning && savedState.currentPhase === 'warmup') {
-        setTimeout(() => {
-          setPhaseIsRunning(true);
-        }, 500);
+      // Redémarrer le timer de la phase si elle était en cours
+      if (initialState.phaseIsRunning && initialState.currentPhase !== 'workout') {
+        console.log('▶️ Redémarrage du timer de phase...');
+        // Timer countdown will auto-start because phaseIsRunning is already set to true
       }
 
-      // Si la séance était en cours, continuer
-      if (savedState.sessionRunning && savedState.currentPhase === 'workout') {
+      // Redémarrer la séance si elle était en cours
+      if (initialState.sessionRunning && initialState.currentPhase === 'workout') {
+        console.log('▶️ Redémarrage de la séance...');
         setTimeout(() => {
           startSession();
-        }, 500);
-      }
-
-      // Si le cooldown était en cours, continuer
-      if (savedState.phaseIsRunning && savedState.currentPhase === 'cooldown') {
-        setTimeout(() => {
-          setPhaseIsRunning(true);
-        }, 500);
+        }, 100);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
