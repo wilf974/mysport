@@ -78,10 +78,14 @@ function UnifiedWorkoutInterface({
   useEffect(() => {
     if (initialState) {
       console.log('🔄 Restauration complète de la séance sauvegardée...');
+      console.log('   Phase restaurée:', initialState.currentPhase);
+      console.log('   Exercice:', initialState.currentExerciseIndex);
+      console.log('   Session Timer:', initialState.sessionTimer);
 
       // Restaurer le timer de la session
       if (initialState.sessionTimer > 0) {
         setSessionTime(initialState.sessionTimer);
+        console.log('   ✅ Timer restauré à', initialState.sessionTimer, 'secondes');
       }
 
       // Redémarrer le timer de la phase si elle était en cours
@@ -92,11 +96,14 @@ function UnifiedWorkoutInterface({
 
       // Redémarrer la séance si elle était en cours
       if (initialState.sessionRunning && initialState.currentPhase === 'workout') {
-        console.log('▶️ Redémarrage de la séance...');
+        console.log('▶️ Redémarrage de la séance depuis la phase workout...');
         setTimeout(() => {
           startSession();
+          console.log('   ✅ Session redémarrée');
         }, 100);
       }
+    } else {
+      console.log('⚠️ Aucun état restauré - nouvelle séance');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
