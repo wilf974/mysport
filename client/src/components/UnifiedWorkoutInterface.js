@@ -72,10 +72,24 @@ function UnifiedWorkoutInterface({
         setSessionTime(savedState.sessionTimer);
       }
 
+      // Si l'échauffement était en cours, continuer
+      if (savedState.phaseIsRunning && savedState.currentPhase === 'warmup') {
+        setTimeout(() => {
+          setPhaseIsRunning(true);
+        }, 500);
+      }
+
       // Si la séance était en cours, continuer
       if (savedState.sessionRunning && savedState.currentPhase === 'workout') {
         setTimeout(() => {
           startSession();
+        }, 500);
+      }
+
+      // Si le cooldown était en cours, continuer
+      if (savedState.phaseIsRunning && savedState.currentPhase === 'cooldown') {
+        setTimeout(() => {
+          setPhaseIsRunning(true);
         }, 500);
       }
     }
