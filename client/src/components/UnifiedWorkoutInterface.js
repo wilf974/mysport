@@ -38,7 +38,7 @@ function UnifiedWorkoutInterface({
   // Create a session identifier based on date + first exercise
   const sessionId = `${new Date().toDateString()}_${exercises[0]?.id || 'unknown'}`;
 
-  // Persistence
+  // Persistence hook
   const { restoreState, clearSavedState } = useWorkoutPersistence(sessionId, {
     currentPhase,
     phaseTimeRemaining,
@@ -51,7 +51,7 @@ function UnifiedWorkoutInterface({
     sessionTimer,
     sessionRunning,
     sessionPaused
-  }, null);
+  });
 
   // Restore state on mount
   useEffect(() => {
