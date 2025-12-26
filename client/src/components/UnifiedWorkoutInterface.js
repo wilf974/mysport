@@ -3,10 +3,12 @@ import './UnifiedWorkoutInterface.css';
 import ExerciseDemo from './ExerciseDemo';
 import { getMuscleWikiExercise } from '../data/muscleWikiMapping';
 import { useBackgroundTimer } from '../hooks/useBackgroundTimer';
+import { useWorkoutPersistence } from '../hooks/useWorkoutPersistence';
 
 /**
  * Interface unifiée pour échauffement + séance + cooldown
  * Tout en une seule fenêtre avec un grand timer
+ * Avec persistance automatique des données
  */
 function UnifiedWorkoutInterface({
   exercises,
@@ -15,7 +17,7 @@ function UnifiedWorkoutInterface({
   warmupDuration = 300,
   cooldownDuration = 600
 }) {
-  const [currentPhase, setCurrentPhase] = useState('warmup'); // warmup, workout, cooldown
+  const [currentPhase, setCurrentPhase] = useState('warmup');
   const [phaseTimeRemaining, setPhaseTimeRemaining] = useState(warmupDuration);
   const [phaseIsRunning, setPhaseIsRunning] = useState(false);
   const [phasePaused, setPhasePaused] = useState(false);
@@ -27,11 +29,58 @@ function UnifiedWorkoutInterface({
   const [seriesHistory, setSeriesHistory] = useState({});
 
   // Background timer for session
-  const { time: sessionTimer, isRunning: sessionRunning, isPaused: sessionPaused, start: startSession, pause: pauseSession, resume: resumeSession, stop: stopSession } = useBackgroundTimer();
+  const { time: sessionTimer, isRunning: sessionRunning, isPaused: sessionPaused, start: startSession, pause: pauseSession, resume: resumeSession, stop: stopSession, setTime: setSessionTime } = useBackgroundTimer();
 
   // Demo
   const [showExerciseDemo, setShowExerciseDemo] = useState(false);
   const [demonstrationExercise, setDemonstrationExercise] = useState(null);
+
+  // Create a session identifier based on date + first exercise
+  const sessionId = `${new Date().toDateString()}_${exercises[0]?.id || 'unknown'}`;
+
+  // Persistence
+  const { restoreState, clearSavedState } = useWorkoutPersistence(sessionId, {
+    currentPhase,
+    phaseTimeRemaining,
+    phaseIsRunning,
+    phasePaused,
+    currentExerciseIndex,
+    currentSeriesIndex,
+    repsCompleted,
+    seriesHistory,
+    sessionTimer,
+    sessionRunning,
+    sessionPaused
+  }, null);
+
+  // Restore state on mount
+  useEffect(() => {
+    const savedState = restoreState();
+    if (savedState) {
+      console.log('🔄 Restauration de la séance sauvegardée...');
+      setCurrentPhase(savedState.currentPhase);
+      setPhaseTimeRemaining(savedState.phaseTimeRemaining);
+      setPhaseIsRunning(savedState.phaseIsRunning);
+      setPhasePaused(savedState.phasePaused);
+      setCurrentExerciseIndex(savedState.currentExerciseIndex);
+      setCurrentSeriesIndex(savedState.currentSeriesIndex);
+      setRepsCompleted(savedState.repsCompleted);
+      setSeriesHistory(savedState.seriesHistory);
+
+      // Restaurer le timer de la session
+      if (savedState.sessionTimer > 0) {
+        setSessionTime(savedState.sessionTimer);
+      }
+
+      // Si la séance était en cours, continuer
+      if (savedState.sessionRunning && savedState.currentPhase === 'workout') {
+        setTimeout(() => {
+          startSession();
+        }, 500);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Initialize series history
   useEffect(() => {
@@ -119,7 +168,22 @@ function UnifiedWorkoutInterface({
   const finishWorkout = () => {
     stopSession();
     setPhaseIsRunning(false);
+
+    // Effacer les données sauvegardées une fois la séance terminée
+    clearSavedState();
+
     onFinish(sessionTimer, seriesHistory, exercises);
+  };
+
+  const handleClose = () => {
+    // Si la séance est en cours, demander une confirmation
+    if (phaseIsRunning || sessionRunning) {
+      const confirmed = window.confirm(
+        '⚠️ Êtes-vous sûr de vouloir fermer ? Votre séance en cours sera perdue.\n\nLes données seront sauvegardées pour reprendre plus tard.'
+      );
+      if (!confirmed) return;
+    }
+    onClose();
   };
 
   const handleRepIncrement = () => {
@@ -210,7 +274,7 @@ function UnifiedWorkoutInterface({
           <span className="phase-icon">{phaseInfo.icon}</span>
           <h2>{phaseInfo.title}</h2>
         </div>
-        <button className="close-btn" onClick={onClose}>✕</button>
+        <button className="close-btn" onClick={handleClose}>✕</button>
       </div>
 
       {/* MAIN TIMER - FULLSCREEN */}
