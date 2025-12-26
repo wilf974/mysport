@@ -10,7 +10,16 @@
  * and handles synchronization when the app regains focus.
  *
  * Usage:
- *   const { time, start, pause, resume, stop } = useBackgroundTimer();
+ *   const { time, start, pause, resume, stop, setElapsedTime } = useBackgroundTimer();
+ *
+ * Methods:
+ *   - start(): Start the timer from current elapsed time
+ *   - pause(): Pause the timer
+ *   - resume(): Resume from paused state
+ *   - stop(): Stop the timer completely
+ *   - reset(): Reset to 0 seconds
+ *   - setElapsedTime(seconds): Set elapsed time for restoration after page refresh
+ *     This configures the worker to restart with the specified elapsed time
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
@@ -84,6 +93,15 @@ self.onmessage = function(event) {
       pausedDuration = 0;
       pauseStartTime = null;
       self.postMessage({ type: 'reset', elapsed: 0 });
+      break;
+
+    case 'set-elapsed-time':
+      // Configure the elapsed time for restoration after refresh
+      pausedDuration = (event.data.elapsedSeconds || 0) * 1000;
+      isRunning = false;
+      startTime = null;
+      pauseStartTime = null;
+      self.postMessage({ type: 'time-set', elapsed: event.data.elapsedSeconds });
       break;
   }
 };
@@ -238,9 +256,20 @@ function updateTimer() {
     }
   }, []);
 
-  // Set timer to a specific value
+  // Set timer to a specific value (for restoration after refresh)
   const setTime = useCallback((value) => {
     _setTime(value);
+  }, []);
+
+  // Set elapsed time in the worker for restoration after refresh
+  const setElapsedTime = useCallback((elapsedSeconds) => {
+    if (workerRef.current) {
+      workerRef.current.postMessage({
+        command: 'set-elapsed-time',
+        elapsedSeconds
+      });
+      _setTime(elapsedSeconds);
+    }
   }, []);
 
   return {
@@ -252,6 +281,7 @@ function updateTimer() {
     resume,
     stop,
     reset,
-    setTime
+    setTime,
+    setElapsedTime
   };
 }

@@ -53,14 +53,14 @@ function UnifiedWorkoutInterface({
   const [seriesHistory, setSeriesHistory] = useState(initialState?.seriesHistory ?? {});
 
   // Background timer for session
-  const { time: sessionTimer, isRunning: sessionRunning, isPaused: sessionPaused, start: startSession, pause: pauseSession, resume: resumeSession, stop: stopSession, setTime: setSessionTime } = useBackgroundTimer();
+  const { time: sessionTimer, isRunning: sessionRunning, isPaused: sessionPaused, start: startSession, pause: pauseSession, resume: resumeSession, stop: stopSession, setElapsedTime } = useBackgroundTimer();
 
   // Demo
   const [showExerciseDemo, setShowExerciseDemo] = useState(false);
   const [demonstrationExercise, setDemonstrationExercise] = useState(null);
 
   // Persistence hook
-  const { restoreState, clearSavedState } = useWorkoutPersistence(sessionId, {
+  const { clearSavedState } = useWorkoutPersistence(sessionId, {
     currentPhase,
     phaseTimeRemaining,
     phaseIsRunning,
@@ -82,9 +82,9 @@ function UnifiedWorkoutInterface({
       console.log('   Exercice:', initialState.currentExerciseIndex);
       console.log('   Session Timer:', initialState.sessionTimer);
 
-      // Restaurer le timer de la session
+      // Restaurer le timer de la session avec la bonne valeur interne du worker
       if (initialState.sessionTimer > 0) {
-        setSessionTime(initialState.sessionTimer);
+        setElapsedTime(initialState.sessionTimer);
         console.log('   ✅ Timer restauré à', initialState.sessionTimer, 'secondes');
       }
 
@@ -99,7 +99,7 @@ function UnifiedWorkoutInterface({
         console.log('▶️ Redémarrage de la séance depuis la phase workout...');
         setTimeout(() => {
           startSession();
-          console.log('   ✅ Session redémarrée');
+          console.log('   ✅ Session redémarrée avec timer restauré');
         }, 100);
       }
     } else {
