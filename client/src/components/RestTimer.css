@@ -252,28 +252,145 @@
 
 /* Mobile responsive */
 @media (max-width: 480px) {
+  .rest-timer-overlay {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
   .rest-timer-container {
-    padding: 24px 20px;
-    margin: 16px;
+    padding: 20px 16px;
+    margin: 12px;
+    border-radius: 20px;
+    width: calc(100% - 24px);
+    max-width: none;
+  }
+
+  .rest-timer-header {
+    margin-bottom: 16px;
+  }
+
+  .rest-timer-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .rest-timer-icon {
+    font-size: 1.6rem;
+  }
+
+  .rest-timer-exercise-info {
+    padding: 10px 14px;
+    margin-bottom: 16px;
+  }
+
+  .rest-timer-exercise-info .exercise-name {
+    font-size: 1rem;
+  }
+
+  .rest-timer-exercise-info .series-info {
+    font-size: 0.85rem;
   }
 
   .rest-timer-circle-container {
-    width: 160px;
-    height: 160px;
+    width: 180px;
+    height: 180px;
+    margin-bottom: 20px;
   }
 
   .rest-timer-time .time-display {
-    font-size: 2.5rem;
+    font-size: 2.8rem;
+  }
+
+  .rest-timer-controls {
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
   }
 
   .rest-btn {
-    padding: 12px 20px;
+    padding: 16px 24px;
+    font-size: 1rem;
+    min-height: 52px;
+    width: 100%;
+  }
+
+  .rest-timer-extend {
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+
+  .extend-buttons {
+    flex-wrap: wrap;
+  }
+
+  .extend-btn {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    min-height: 44px;
+    flex: 1;
+    min-width: 70px;
+  }
+
+  .rest-timer-motivation p {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .rest-timer-container {
+    padding: 16px 12px;
+    margin: 8px;
+  }
+
+  .rest-timer-circle-container {
+    width: 150px;
+    height: 150px;
+  }
+
+  .rest-timer-time .time-display {
+    font-size: 2.2rem;
+  }
+
+  .rest-timer-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .rest-btn {
+    padding: 14px 20px;
     font-size: 0.95rem;
   }
 
   .extend-btn {
-    padding: 6px 12px;
+    padding: 8px 12px;
     font-size: 0.85rem;
+  }
+}
+
+/* Landscape mode on mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .rest-timer-container {
+    padding: 16px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .rest-timer-circle-container {
+    width: 120px;
+    height: 120px;
+    margin: 0;
+  }
+
+  .rest-timer-time .time-display {
+    font-size: 2rem;
+  }
+
+  .rest-timer-controls {
+    flex-direction: row;
+  }
+
+  .rest-btn {
+    width: auto;
+    min-width: 120px;
   }
 }
 

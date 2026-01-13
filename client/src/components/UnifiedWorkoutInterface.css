@@ -414,58 +414,324 @@
   max-width: 200px;
 }
 
-/* Responsive */
-@media (max-width: 600px) {
-  .uwi-timer-big {
-    font-size: 4rem;
+/* Responsive - Tablet */
+@media (max-width: 768px) {
+  .uwi-header {
+    padding: max(0.75rem, env(safe-area-inset-top)) 1rem 0.75rem 1rem;
+  }
+
+  .uwi-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .phase-icon {
+    font-size: 26px;
   }
 
   .uwi-timer-container {
-    min-height: 350px;
-    padding: 2rem 1rem;
+    min-height: 280px;
+    padding: 1.5rem 1rem;
+  }
+
+  .uwi-timer-big {
+    font-size: 4.5rem;
+  }
+
+  .uwi-workout-content {
+    padding: 1.25rem 1rem;
+    gap: 1.25rem;
+  }
+
+  .uwi-progress-section {
+    padding: 1rem;
+  }
+
+  .uwi-exercise-info {
+    padding: 1rem;
+  }
+
+  .exercise-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .exercise-header h3 {
+    font-size: 1.15rem;
+  }
+
+  .uwi-btn-demo {
+    width: 100%;
+    justify-content: center;
   }
 
   .exercise-details {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+
+  .detail-box {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .detail-label {
+    font-size: 0.7rem;
+  }
+
+  .detail-value {
+    font-size: 1.1rem;
+  }
+
+  .uwi-series-section {
+    padding: 1rem;
+  }
+
+  .series-header {
+    margin-bottom: 1rem;
+  }
+
+  .counter-section p {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 600px) {
+  .unified-workout-interface {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .uwi-header {
+    padding: max(0.75rem, env(safe-area-inset-top)) 0.75rem 0.75rem 0.75rem;
+  }
+
+  .close-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 1.3rem;
+  }
+
+  .uwi-timer-big {
+    font-size: 3.5rem;
+  }
+
+  .uwi-timer-container {
+    min-height: 240px;
+    padding: 1.5rem 0.75rem;
+  }
+
+  .uwi-phase-label {
+    font-size: 1rem;
+  }
+
+  .uwi-controls-floating {
+    bottom: 1rem;
+    left: 0.75rem;
+    right: 0.75rem;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .uwi-btn {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    min-height: 52px;
+  }
+
+  .uwi-workout-content {
+    padding: 1rem 0.75rem;
+    gap: 1rem;
+  }
+
+  .uwi-progress-section {
+    padding: 0.875rem;
+    border-radius: 10px;
+  }
+
+  .progress-info {
+    font-size: 0.85rem;
+  }
+
+  .uwi-exercise-info {
+    padding: 0.875rem;
+    border-radius: 10px;
+  }
+
+  .exercise-details {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+
+  .detail-box {
+    padding: 0.6rem 0.4rem;
+    border-radius: 6px;
+  }
+
+  .detail-label {
+    font-size: 0.65rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .detail-value {
+    font-size: 1rem;
+  }
+
+  .uwi-series-section {
+    padding: 0.875rem;
+    border-radius: 10px;
+  }
+
+  .series-header h4 {
+    font-size: 0.95rem;
+  }
+
+  .series-badge {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .counter-section p {
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .reps-counter {
+    gap: 1.25rem;
+    margin-bottom: 1rem;
   }
 
   .counter-btn {
-    width: 54px;
-    height: 54px;
+    width: 64px;
+    height: 64px;
+    font-size: 1.8rem;
+  }
+
+  .counter-display {
+    font-size: 3rem;
+    min-width: 100px;
+  }
+
+  .counter-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .counter-actions .uwi-btn {
+    width: 100%;
+  }
+
+  .series-history {
+    margin-top: 1rem;
+    padding-top: 1rem;
+  }
+
+  .series-history h5 {
+    font-size: 0.8rem;
+  }
+
+  .series-list {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.4rem;
+  }
+
+  .series-item {
+    padding: 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  .uwi-navigation {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .uwi-navigation .uwi-btn {
+    max-width: none;
+    width: 100%;
+  }
+}
+
+/* Responsive - Small Mobile */
+@media (max-width: 360px) {
+  .uwi-timer-big {
+    font-size: 2.8rem;
+    letter-spacing: 2px;
+  }
+
+  .uwi-header h2 {
+    font-size: 1rem;
+  }
+
+  .phase-icon {
+    font-size: 22px;
+  }
+
+  .counter-btn {
+    width: 56px;
+    height: 56px;
     font-size: 1.5rem;
   }
 
   .counter-display {
     font-size: 2.5rem;
+    min-width: 80px;
   }
 
-  .reps-counter {
-    gap: 1rem;
+  .exercise-details {
+    grid-template-columns: 1fr 1fr 1fr;
   }
 
-  .uwi-controls-floating {
-    flex-direction: column;
+  .detail-value {
+    font-size: 0.95rem;
   }
 
   .uwi-btn {
-    width: 100%;
+    padding: 0.875rem 1rem;
+    font-size: 0.95rem;
   }
 }
 
-@media (max-width: 360px) {
+/* Landscape mode on mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .uwi-timer-container {
+    min-height: 200px;
+    padding: 1rem;
+  }
+
   .uwi-timer-big {
     font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .uwi-controls-floating {
+    position: relative;
+    bottom: auto;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+  .uwi-btn {
+    width: auto;
+    min-width: 140px;
+  }
+
+  .uwi-workout-content {
+    padding: 0.75rem;
+  }
+
+  .reps-counter {
+    gap: 2rem;
   }
 
   .counter-btn {
-    width: 48px;
-    height: 48px;
-    font-size: 1.2rem;
+    width: 50px;
+    height: 50px;
   }
 
   .counter-display {
     font-size: 2rem;
-    min-width: 90px;
   }
 }
 
