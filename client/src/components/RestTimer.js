@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './RestTimer.css';
 
 /**
@@ -17,6 +17,13 @@ function RestTimer({
   const [timeRemaining, setTimeRemaining] = useState(duration);
   const [isPaused, setIsPaused] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const intervalRef = useRef(null);
+  const onCompleteRef = useRef(onComplete);
+
+  // Keep onComplete ref updated
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
 
   // Reset timer when duration changes
   useEffect(() => {
@@ -25,29 +32,49 @@ function RestTimer({
     setIsPaused(false);
   }, [duration]);
 
-  // Countdown logic
+  // Countdown logic - séparé pour éviter les re-renders
   useEffect(() => {
-    if (isPaused || isComplete || timeRemaining <= 0) {
-      if (timeRemaining <= 0 && !isComplete) {
-        setIsComplete(true);
-        // Vibration si disponible
-        if (navigator.vibrate) {
-          navigator.vibrate([200, 100, 200]);
-        }
-        // Auto-complete après un délai
-        setTimeout(() => {
-          if (onComplete) onComplete();
-        }, 500);
-      }
+    // Clear any existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    if (isPaused || isComplete) {
       return;
     }
 
-    const interval = setInterval(() => {
-      setTimeRemaining(prev => Math.max(0, prev - 1));
+    intervalRef.current = setInterval(() => {
+      setTimeRemaining(prev => {
+        if (prev <= 1) {
+          // Timer terminé
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+          setIsComplete(true);
+
+          // Vibration si disponible
+          if (navigator.vibrate) {
+            navigator.vibrate([200, 100, 200]);
+          }
+
+          // Auto-complete après un délai
+          setTimeout(() => {
+            if (onCompleteRef.current) onCompleteRef.current();
+          }, 500);
+
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [timeRemaining, isPaused, isComplete, onComplete]);
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [isPaused, isComplete]);
 
   const formatTime = useCallback((seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -62,7 +89,10 @@ function RestTimer({
 
   const handleExtend = (seconds) => {
     setTimeRemaining(prev => prev + seconds);
-    setIsComplete(false);
+    // Si le timer était terminé, le relancer
+    if (isComplete) {
+      setIsComplete(false);
+    }
     if (onExtend) onExtend(seconds);
   };
 
