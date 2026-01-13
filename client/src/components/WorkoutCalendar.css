@@ -355,20 +355,189 @@
     flex-direction: column;
     gap: 1rem;
     text-align: center;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .calendar-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .calendar-nav-btn {
+    min-height: 44px;
+    padding: 0.6rem 1.2rem;
   }
 
   .template-actions {
     flex-direction: column;
     gap: 0.75rem;
+    margin-bottom: 1.5rem;
   }
 
   .btn-template-save,
   .btn-template-apply {
     width: 100%;
     justify-content: center;
+    min-height: 48px;
   }
 
   .calendar-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .day-card {
+    padding: 1.25rem;
+    min-height: 180px;
+  }
+
+  .day-card h3 {
+    font-size: 1.1rem;
+  }
+
+  .day-date {
+    font-size: 0.8rem;
+  }
+
+  .exercise-item {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .exercise-name {
+    font-size: 0.9rem;
+  }
+
+  .btn-validate-mini {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+
+  .btn-add-mini {
+    width: 48px;
+    height: 48px;
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .workout-calendar {
+    padding: 0 0.5rem;
+  }
+
+  .calendar-header {
+    padding: 0.875rem;
+    margin-bottom: 1rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .calendar-header h2 {
+    font-size: 1.15rem;
+  }
+
+  .calendar-nav-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .template-actions {
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .btn-template-save,
+  .btn-template-apply {
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .calendar-grid {
+    gap: 0.75rem;
+  }
+
+  .day-card {
+    padding: 1rem;
+    min-height: 160px;
+    border-radius: var(--radius-lg);
+  }
+
+  .day-header {
+    margin-bottom: 1rem;
+    padding-bottom: 0.6rem;
+  }
+
+  .day-card h3 {
+    font-size: 1rem;
+  }
+
+  .day-date {
+    font-size: 0.75rem;
+  }
+
+  .exercise-item {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .exercise-name {
+    max-width: 65%;
+    font-size: 0.85rem;
+  }
+
+  .exercise-sets {
+    font-size: 0.75rem;
+  }
+
+  .badge {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.65rem;
+  }
+
+  .no-workout p {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .calendar-header {
+    padding: 0.75rem;
+  }
+
+  .calendar-header h2 {
+    font-size: 1rem;
+  }
+
+  .calendar-nav-btn {
+    padding: 0.45rem 0.8rem;
+    font-size: 0.85rem;
+  }
+
+  .day-card {
+    padding: 0.875rem;
+    min-height: 140px;
+  }
+
+  .day-card h3 {
+    font-size: 0.95rem;
+  }
+
+  .exercise-item {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .exercise-name {
+    max-width: 60%;
+  }
+
+  .btn-validate-mini {
+    width: 36px;
+    height: 36px;
+  }
+
+  .btn-add-mini {
+    width: 44px;
+    height: 44px;
+    font-size: 1.5rem;
   }
 }

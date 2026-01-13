@@ -431,7 +431,6 @@
   .modal-overlay {
     padding: 0;
     align-items: flex-end;
-    /* Sheet-like on mobile */
   }
 
   .modal-content {
@@ -442,98 +441,298 @@
     max-width: 100%;
   }
 
+  .modal-header {
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+    background: var(--bg-surface);
+    z-index: 10;
+  }
+
+  .modal-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .modal-body {
+    padding: 1rem;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+
   .form-row {
     grid-template-columns: 1fr 1fr;
-    /* Stack inputs */
+    gap: 0.5rem;
   }
 
-  .form-row select {
+  .form-row select,
+  .btn-select-exercise {
     grid-column: 1 / -1;
-    /* Full width select */
   }
 
-  .form-row button {
+  .form-row .form-control {
+    min-height: 48px;
+    font-size: 16px;
+  }
+
+  .form-row button.btn-success {
     grid-column: 1 / -1;
-    /* Full width button */
     margin-top: 0.5rem;
+    min-height: 48px;
+  }
+
+  .rest-duration-selector {
+    margin-top: 0.75rem;
+    padding: 0.875rem;
+  }
+
+  .rest-label {
+    font-size: 0.85rem;
+  }
+
+  .rest-buttons {
+    gap: 0.4rem;
+  }
+
+  .rest-btn {
+    padding: 0.6rem 0.875rem;
+    font-size: 0.85rem;
+    min-height: 44px;
+    flex: 1;
+    min-width: 50px;
   }
 
   .exercise-row {
-    grid-template-columns: auto 1fr auto auto;
+    grid-template-columns: auto 1fr auto;
+    gap: 0.75rem;
+    padding: 0.875rem;
+  }
+
+  .exercise-order-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .btn-move {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.8rem;
+    min-width: 32px;
+    min-height: 36px;
+  }
+
+  .exercise-details {
+    grid-column: 2;
+  }
+
+  .exercise-details strong {
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .exercise-values {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .input-small {
+    width: 52px;
+    padding: 0.5rem 0.3rem;
+    font-size: 16px;
+    min-height: 40px;
+  }
+
+  .exercise-rest-time {
+    margin-top: 0.6rem;
+    padding-top: 0.6rem;
+  }
+
+  .rest-select {
+    padding: 0.4rem 0.6rem;
+    font-size: 16px;
+    min-height: 36px;
+  }
+
+  .checkbox {
+    grid-column: 3;
+    grid-row: 1;
+    font-size: 0;
+  }
+
+  .checkbox input {
+    width: 22px;
+    height: 22px;
+  }
+
+  .btn-danger.btn-small {
+    min-width: 40px;
+    min-height: 40px;
+    padding: 0.5rem;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+    padding: 1rem;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+
+  .modal-footer button {
+    width: 100%;
+    min-height: 48px;
+  }
+
+  .start-workout-section {
+    padding: 1rem;
+  }
+
+  .btn-lg-full {
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    min-height: 52px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    max-height: 100vh;
+    height: 100%;
+    border-radius: 0;
+  }
+
+  .modal-header {
+    padding: 0.875rem;
+  }
+
+  .modal-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .modal-close {
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 1.3rem;
+  }
+
+  .modal-body {
+    padding: 0.875rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .form-row select,
+  .btn-select-exercise,
+  .form-row .form-control,
+  .form-row button {
+    grid-column: auto;
+    width: 100%;
+  }
+
+  .add-exercise-form h3 {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .exercises-in-workout h3 {
+    font-size: 1rem;
+  }
+
+  .exercise-row {
+    grid-template-columns: 1fr auto;
     gap: 0.5rem;
     padding: 0.75rem;
   }
 
   .exercise-order-buttons {
-    display: flex;
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
     flex-direction: row;
     gap: 0.25rem;
+  }
+
+  .exercise-row {
+    position: relative;
+    padding-right: 80px;
   }
 
   .btn-move {
     padding: 0.3rem 0.4rem;
     font-size: 0.75rem;
     min-width: 28px;
+    min-height: 32px;
   }
 
   .exercise-details {
-    grid-column: auto;
-    margin-bottom: 0;
+    grid-column: 1;
   }
 
   .exercise-values {
-    grid-column: auto;
+    font-size: 0.85rem;
   }
 
-  .exercise-row button {
-    grid-column: auto;
+  .input-small {
+    width: 48px;
+    padding: 0.4rem 0.25rem;
   }
 
   .checkbox {
-    display: none;
-    /* Hide checkbox text on mobile, rely on row color or custom UI if needed, or just keep it simple */
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.5rem;
   }
 
-  /* Re-enable checkbox but compact */
-  .checkbox {
-    display: flex;
-    grid-column: 2 / 3;
-    grid-row: 1;
+  .btn-danger.btn-small {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 45px;
+    min-width: 36px;
+    min-height: 36px;
   }
 
-  .modal-footer {
-    flex-direction: column;
+  .rest-btn {
+    padding: 0.5rem 0.6rem;
+    font-size: 0.8rem;
+    min-height: 40px;
   }
 
-  .modal-footer button {
-    width: 100%;
+  .workout-duration-section {
+    padding: 0.875rem;
+  }
+
+  .duration-value {
+    font-size: 1.1rem;
   }
 }
 
-@media (max-width: 480px) {
-  .form-row {
-    grid-template-columns: 1fr;
-    /* Single column on very small screens */
-  }
-
-  .form-row select {
-    grid-column: auto;
-  }
-
-  .form-row button {
-    grid-column: auto;
-  }
-
-  .btn-move {
-    padding: 0.25rem 0.3rem;
-    font-size: 0.7rem;
-    min-width: 24px;
-    min-height: 44px;
+@media (max-width: 360px) {
+  .modal-header h2 {
+    font-size: 1rem;
   }
 
   .form-control {
-    padding: 0.6rem;
+    padding: 0.65rem;
     font-size: 16px;
-    /* Ensure 16px for iOS to prevent zoom */
+  }
+
+  .rest-btn {
+    padding: 0.45rem 0.5rem;
+    font-size: 0.75rem;
+    min-height: 38px;
+  }
+
+  .exercise-row {
+    padding: 0.6rem;
+    padding-right: 70px;
+  }
+
+  .exercise-details strong {
+    font-size: 0.9rem;
+  }
+
+  .input-small {
+    width: 44px;
+    padding: 0.35rem 0.2rem;
+    font-size: 14px;
   }
 }
