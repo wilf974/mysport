@@ -88,6 +88,7 @@ function initDatabase() {
           completed BOOLEAN DEFAULT 0,
           exercise_order INTEGER DEFAULT 0,
           rpe REAL,
+          rest_duration INTEGER DEFAULT 60,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY(workout_id) REFERENCES workouts(id),
           FOREIGN KEY(exercise_id) REFERENCES exercises(id)
@@ -456,6 +457,16 @@ function initDatabase() {
     db.run(`CREATE INDEX IF NOT EXISTS idx_strava_activities ON strava_activities(user_id, timestamp)`, (err) => {
       if (err && !err.message.includes('no such table')) console.error('Erreur création index strava_activities:', err);
     });
+
+    // Migration: Ajouter rest_duration si la colonne n'existe pas
+    db.run(`ALTER TABLE workout_exercises ADD COLUMN rest_duration INTEGER DEFAULT 60`, (err) => {
+      if (err && !err.message.includes('duplicate column')) {
+        // La colonne existe déjà, c'est normal
+      } else if (!err) {
+        console.log('✅ Migration: colonne rest_duration ajoutée à workout_exercises');
+      }
+    });
+
     console.log('✅ Base de données initialisée avec succès');
   });
 }

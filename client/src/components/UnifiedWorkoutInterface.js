@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './UnifiedWorkoutInterface.css';
 import ExerciseDemo from './ExerciseDemo';
+import RestTimer from './RestTimer';
 import { getMuscleWikiExercise } from '../data/muscleWikiMapping';
 import { useBackgroundTimer } from '../hooks/useBackgroundTimer';
 import { useWorkoutPersistence } from '../hooks/useWorkoutPersistence';
@@ -52,6 +53,10 @@ function UnifiedWorkoutInterface({
   const [repsCompleted, setRepsCompleted] = useState(initialState?.repsCompleted ?? 0);
   const [seriesHistory, setSeriesHistory] = useState(initialState?.seriesHistory ?? {});
 
+  // Rest timer state
+  const [isResting, setIsResting] = useState(initialState?.isResting ?? false);
+  const [currentRestDuration, setCurrentRestDuration] = useState(initialState?.currentRestDuration ?? 60);
+
   // Background timer for session
   const { time: sessionTimer, isRunning: sessionRunning, isPaused: sessionPaused, start: startSession, pause: pauseSession, resume: resumeSession, stop: stopSession, setElapsedTime } = useBackgroundTimer();
 
@@ -71,7 +76,9 @@ function UnifiedWorkoutInterface({
     seriesHistory,
     sessionTimer,
     sessionRunning,
-    sessionPaused
+    sessionPaused,
+    isResting,
+    currentRestDuration
   });
 
   // Restore session timer and restart if it was running
@@ -234,11 +241,36 @@ function UnifiedWorkoutInterface({
         [currentExerciseIndex]: updatedSeries
       }));
 
-      const totalSeries = exercises[currentExerciseIndex].sets || 1;
+      const currentExercise = exercises[currentExerciseIndex];
+      const totalSeries = currentExercise.sets || 1;
+
+      // Si ce n'est pas la dernière série, déclencher le repos
       if (currentSeriesIndex < totalSeries - 1) {
-        setCurrentSeriesIndex(currentSeriesIndex + 1);
+        // Utiliser rest_duration de l'exercice ou 60s par défaut
+        const restTime = currentExercise.rest_duration || 60;
+        setCurrentRestDuration(restTime);
+        setIsResting(true);
       }
+
       setRepsCompleted(0);
+    }
+  };
+
+  // Callback quand le repos est terminé
+  const handleRestComplete = () => {
+    setIsResting(false);
+    const totalSeries = exercises[currentExerciseIndex].sets || 1;
+    if (currentSeriesIndex < totalSeries - 1) {
+      setCurrentSeriesIndex(currentSeriesIndex + 1);
+    }
+  };
+
+  // Callback pour passer le repos
+  const handleRestSkip = () => {
+    setIsResting(false);
+    const totalSeries = exercises[currentExerciseIndex].sets || 1;
+    if (currentSeriesIndex < totalSeries - 1) {
+      setCurrentSeriesIndex(currentSeriesIndex + 1);
     }
   };
 
@@ -434,6 +466,18 @@ function UnifiedWorkoutInterface({
         <ExerciseDemo
           exercise={demonstrationExercise}
           onClose={() => setShowExerciseDemo(false)}
+        />
+      )}
+
+      {/* Rest Timer Modal */}
+      {isResting && currentExercise && (
+        <RestTimer
+          duration={currentRestDuration}
+          onComplete={handleRestComplete}
+          onSkip={handleRestSkip}
+          exerciseName={currentExercise.name}
+          nextSeriesNumber={currentSeriesIndex + 2}
+          totalSeries={currentExercise.sets || 1}
         />
       )}
     </div>

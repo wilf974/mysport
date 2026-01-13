@@ -395,7 +395,7 @@ app.get('/api/workout-exercises/:workoutId', (req, res) => {
 
 // POST add exercise to workout
 app.post('/api/workout-exercises', (req, res) => {
-  const { workout_id, exercise_id, sets, reps, weight, notes } = req.body;
+  const { workout_id, exercise_id, sets, reps, weight, notes, rest_duration } = req.body;
 
   // Get the max order for this workout
   db.get(
@@ -406,11 +406,11 @@ app.post('/api/workout-exercises', (req, res) => {
       const nextOrder = (row?.max_order || -1) + 1;
 
       db.run(
-        'INSERT INTO workout_exercises (workout_id, exercise_id, sets, reps, weight, notes, exercise_order) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [workout_id, exercise_id, sets || 3, reps || 10, weight || 0, notes || '', nextOrder],
+        'INSERT INTO workout_exercises (workout_id, exercise_id, sets, reps, weight, notes, exercise_order, rest_duration) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [workout_id, exercise_id, sets || 3, reps || 10, weight || 0, notes || '', nextOrder, rest_duration || 60],
         function (err) {
           if (err) return res.status(500).json({ error: err.message });
-          res.json({ id: this.lastID, workout_id, exercise_id, sets, reps, weight, notes, exercise_order: nextOrder });
+          res.json({ id: this.lastID, workout_id, exercise_id, sets, reps, weight, notes, exercise_order: nextOrder, rest_duration: rest_duration || 60 });
         }
       );
     }
@@ -420,13 +420,13 @@ app.post('/api/workout-exercises', (req, res) => {
 // PUT update workout exercise
 app.put('/api/workout-exercises/:id', (req, res) => {
   const { id } = req.params;
-  const { sets, reps, weight, notes, completed, exercise_order } = req.body;
+  const { sets, reps, weight, notes, completed, exercise_order, rest_duration } = req.body;
   db.run(
-    'UPDATE workout_exercises SET sets = ?, reps = ?, weight = ?, notes = ?, completed = ?, exercise_order = ? WHERE id = ?',
-    [sets, reps, weight, notes, completed, exercise_order || 0, id],
+    'UPDATE workout_exercises SET sets = ?, reps = ?, weight = ?, notes = ?, completed = ?, exercise_order = ?, rest_duration = ? WHERE id = ?',
+    [sets, reps, weight, notes, completed, exercise_order || 0, rest_duration || 60, id],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
-      res.json({ id, sets, reps, weight, notes, completed, exercise_order });
+      res.json({ id, sets, reps, weight, notes, completed, exercise_order, rest_duration });
     }
   );
 });

@@ -18,6 +18,7 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
   const [sets, setSets] = useState(3);
   const [reps, setReps] = useState(10);
   const [weight, setWeight] = useState(0);
+  const [restDuration, setRestDuration] = useState(60);
   const [duration, setDuration] = useState(workout?.duration || '');
   const [isEditingDuration, setIsEditingDuration] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -110,7 +111,8 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
         exercise_id: parseInt(selectedExercise),
         sets: parseInt(sets),
         reps: parseInt(reps),
-        weight: parseFloat(weight) || 0
+        weight: parseFloat(weight) || 0,
+        rest_duration: parseInt(restDuration) || 60
       });
 
       const response = await axios.post(`${API_URL}/workout-exercises`, {
@@ -118,7 +120,8 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
         exercise_id: parseInt(selectedExercise),
         sets: parseInt(sets),
         reps: parseInt(reps),
-        weight: parseFloat(weight) || 0
+        weight: parseFloat(weight) || 0,
+        rest_duration: parseInt(restDuration) || 60
       });
 
       console.log('Exercise added successfully:', response.data);
@@ -140,6 +143,7 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
       setSets(3);
       setReps(10);
       setWeight(0);
+      setRestDuration(60);
       setSuggestion(null);
 
       // Fetch the updated list from server to ensure sync
@@ -179,7 +183,8 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
         reps: updatedData.reps,
         weight: updatedData.weight,
         notes: updatedData.notes,
-        completed: updatedData.completed
+        completed: updatedData.completed,
+        rest_duration: updatedData.rest_duration || 60
       });
 
       setWorkoutExercises(workoutExercises.map(ex =>
@@ -423,6 +428,25 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
                     Ajouter
                   </button>
                 </div>
+
+                {/* Rest duration selector */}
+                <div className="rest-duration-selector">
+                  <label className="rest-label">
+                    <span className="rest-icon">💤</span> Temps de repos entre séries:
+                  </label>
+                  <div className="rest-buttons">
+                    {[30, 45, 60, 90, 120, 180].map(seconds => (
+                      <button
+                        key={seconds}
+                        className={`rest-btn ${restDuration === seconds ? 'active' : ''}`}
+                        onClick={() => setRestDuration(seconds)}
+                        type="button"
+                      >
+                        {seconds < 60 ? `${seconds}s` : `${seconds / 60}min`}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               <div className="exercises-in-workout">
@@ -478,6 +502,21 @@ function WorkoutModal({ day, workout, userId, exercises, onAdd, onDelete, onClos
                               onChange={(e) => handleUpdateExercise(ex.id, 'weight', parseFloat(e.target.value))}
                               className="input-small"
                             /> kg
+                          </div>
+                          <div className="exercise-rest-time">
+                            <span className="rest-icon-small">💤</span>
+                            <select
+                              value={ex.rest_duration || 60}
+                              onChange={(e) => handleUpdateExercise(ex.id, 'rest_duration', parseInt(e.target.value))}
+                              className="rest-select"
+                            >
+                              <option value={30}>30s</option>
+                              <option value={45}>45s</option>
+                              <option value={60}>1min</option>
+                              <option value={90}>1m30</option>
+                              <option value={120}>2min</option>
+                              <option value={180}>3min</option>
+                            </select>
                           </div>
                         </div>
                         <label className="checkbox">
